@@ -9,7 +9,6 @@
 
 // acados
 #include "acados/utils/external_function_generic.h"
-
 #include "acados_c/external_function_interface.h"
 #include "acados_c/sim_interface.h"
 
@@ -82,17 +81,12 @@ int main()
 	expl_vde_adj.casadi_n_out = &casadi_expl_vde_adj_n_out;
 	external_function_casadi_create(&expl_vde_adj, &ext_fun_opts);
 
-
-
-	int number_sim_solvers = 1;
 	int nss = 0;
 
     /************************************************
     * sim plan & config
-    * choose plan
     ************************************************/
     sim_solver_plan_t plan;
-    printf("\n\nsim solver: ERK\n");
     plan.sim_solver = ERK;
 
     // create correct config based on plan
@@ -139,17 +133,6 @@ int main()
     config->model_set(in->model, "expl_vde_for", &expl_vde_for);
     config->model_set(in->model, "expl_vde_adj", &expl_vde_adj);
  
-
-    // seeds forw
-    for (int ii = 0; ii < nx * NF; ii++)
-        in->S_forw[ii] = 0.0;
-    for (int ii = 0; ii < nx; ii++)
-        in->S_forw[ii * (nx + 1)] = 1.0;
-
-    // seeds adj
-    for (int ii = 0; ii < nx; ii++)
-        in->S_adj[ii] = 1.0;
-
     /************************************************
     * sim solver
     ************************************************/
@@ -197,6 +180,10 @@ int main()
     }
     double total_cpu_time = acados_toc(&timer);
 
+
+
+
+
     /************************************************
     * printing
     ************************************************/
@@ -206,7 +193,8 @@ int main()
         printf("%8.5f ", x_sim[nsim0*nx+ii]);
     printf("\n\n");
 
-    printf("time for %d simulation steps: %f ms)\n", nsim0, 1e3*total_cpu_time);
+    printf("time for %d simulation steps: %f ms (AD time: %f ms (%5.2f%%))\n\n", 
+        nsim0, 1e3*total_cpu_time, 1e3*ad_time, 1e2*ad_time/cpu_time);
 
     /************************************************
 	* free up everything

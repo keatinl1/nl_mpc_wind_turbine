@@ -112,7 +112,6 @@ EXAMPLES =
 EXAMPLES += dense_qp
 EXAMPLES += ocp_qp
 EXAMPLES += sim_wt_model_nx3
-EXAMPLES += simple_wind_turbine
 EXAMPLES += sim_wt_model_nx6
 EXAMPLES += sim_pendulum_dae
 EXAMPLES += sim_crane_example
@@ -130,6 +129,10 @@ EXAMPLES += wind_turbine_nmpc
 EXAMPLES += engine_example
 EXAMPLES += regularization
 EXAMPLES += simple_dae_example
+
+EXAMPLES += simple_wind_turbine
+EXAMPLES += simple_wind_nmpc
+
 
 examples: $(EXAMPLES)
 
@@ -156,6 +159,8 @@ RUN_EXAMPLES += run_wind_turbine_nmpc
 #RUN_EXAMPLES += run_engine_example
 RUN_EXAMPLES += run_regularization
 RUN_EXAMPLES += run_simple_dae_example
+
+RUN_EXAMPLES += run_simple_wind_nmpc
 
 # overwrite to run just one
 #RUN_EXAMPLES = run_wind_turbine_nmpc
@@ -315,6 +320,16 @@ simple_wind_turbine: $(WT_OBJS) simple_wind_turbine.o
 
 run_simple_wind_turbine:
 	./simple_wind_turbine.out
+
+
+simple_wind_nmpc: $(WT_NX6P2_OBJS) simple_wind_nmpc.o
+	$(CCC) -o simple_wind_nmpc.out simple_wind_nmpc.o  $(WT_NX6P2_OBJS) $(LDFLAGS) $(LIBS)
+	@echo
+	@echo " Example simple_wind_nmpc build complete."
+	@echo
+
+run_simple_wind_nmpc:
+	./simple_wind_nmpc.out
 
 #################################################
 # inverted_pendulum model (DAE)
