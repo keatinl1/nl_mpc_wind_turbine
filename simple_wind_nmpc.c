@@ -20,12 +20,10 @@
 #include "examples/c/wt_model_nx6/nx6p2/wt_model.h"
 #include "examples/c/wt_model_nx6/setup.c"
 
-#define NN 10
+#define NN 10 // horizon length
 
 #define MAX_SQP_ITERS 10
 #define NREP 1
-
-
 
 static void shift_states(ocp_nlp_dims *dims, ocp_nlp_out *out, double *x_end)
 {
@@ -36,8 +34,6 @@ static void shift_states(ocp_nlp_dims *dims, ocp_nlp_out *out, double *x_end)
      blasfeo_pack_dvec(dims->nx[N], x_end, 1, &out->ux[N], dims->nu[N]);
 }
 
-
-
 static void shift_controls(ocp_nlp_dims *dims, ocp_nlp_out *out, double *u_end)
 {
     int N = dims->N;
@@ -46,8 +42,6 @@ static void shift_controls(ocp_nlp_dims *dims, ocp_nlp_out *out, double *u_end)
          blasfeo_dveccp(dims->nu[i], &out->ux[i], 0, &out->ux[i+1], 0);
      blasfeo_pack_dvec(dims->nu[N-1], u_end, 1, &out->ux[N-1], 0);
 }
-
-
 
 static void select_dynamics_wt_casadi(int N,external_function_param_casadi *expl_vde_for)
 {
@@ -62,8 +56,8 @@ static void select_dynamics_wt_casadi(int N,external_function_param_casadi *expl
     }
 }
 
-// Function to dump states to a CSV file
-void save_states_to_csv(double *x_sim, double *u_sim, int num_timesteps, int nx_, int nu_) {
+void save_states_to_csv(double *x_sim, double *u_sim, int num_timesteps, int nx_, int nu_) 
+{
     FILE *file = fopen("simulation_results.csv", "w");
 
     if (file == NULL) {
@@ -360,7 +354,6 @@ int main()
     ocp_nlp_plan_t *plan = ocp_nlp_plan_create(NN);
 
     plan->nlp_solver = SQP;
-    // plan->nlp_solver = SQP_RTI;
 
     for (int i = 0; i <= NN; i++)
         plan->nlp_cost[i] = LINEAR_LS;
@@ -439,8 +432,6 @@ int main()
             ocp_nlp_cost_model_set(config, dims, nlp_in, i, "Vx", Vx);
         else
             ocp_nlp_cost_model_set(config, dims, nlp_in, i, "Vx", VxN);
-        // printf("setted Cyt x=\n");
-        // blasfeo_print_dmat(nx[i]+ nu[i], ny[i], &cost[i]->Cyt,0, 0);
 
         // W
         ocp_nlp_cost_model_set(config, dims, nlp_in, i, "W", W);
@@ -567,10 +558,10 @@ int main()
     * sqp solve
     ************************************************/
 
-    int n_sim = 40;
+    int timesteps = 40;
 
-    double *x_sim = malloc(nx_*(n_sim+1)*sizeof(double));
-    double *u_sim = malloc(nu_*(n_sim+0)*sizeof(double));
+    double *x_sim = malloc(nx_*(timesteps+1)*sizeof(double));
+    double *u_sim = malloc(nu_*(timesteps+0)*sizeof(double));
 
     acados_timer timer;
     acados_tic(&timer);
@@ -591,7 +582,7 @@ int main()
         // store x0
         for(int ii=0; ii<nx_; ii++) x_sim[ii] = x0_ref[ii];
 
-        for (int idx = 0; idx < n_sim; idx++)
+        for (int idx = 0; idx < timesteps; idx++)
         {
             // update wind distrurbance as external function parameter
             for (int ii=0; ii<NN; ii++)
@@ -669,13 +660,13 @@ int main()
                 shift_controls(dims, nlp_out, u_end);
             }
 
-            save_states_to_csv(x_sim, u_sim, n_sim, nx_, nu_);
+            save_states_to_csv(x_sim, u_sim, timesteps, nx_, nu_);
         }
     }
 
     double time = acados_toc(&timer)/NREP;
 
-    printf("\n\ntotal time (including printing) = %f ms (time per SQP = %f)\n\n", time*1e3, time*1e3/n_sim);
+    printf("\n\ntotal time (including printing) = %f ms (time per SQP = %f)\n\n", time*1e3, time*1e3/timesteps);
 
 
     /************************************************
@@ -719,8 +710,6 @@ int main()
     free(VxN);
     free(Vx);
     free(Vu);
-    // free(lh1);
-    // free(uh1);
 
     free(idxbu0);
     free(lbu0);
@@ -739,10 +728,6 @@ int main()
     free(idxbxN);
     free(lbxN);
     free(ubxN);
-
-    // free(idxsh1);
-    // free(lsh1);
-    // free(ush1);
 
     free(x_end);
     free(u_end);
