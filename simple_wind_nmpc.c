@@ -62,47 +62,40 @@ static void select_dynamics_wt_casadi(int N,external_function_param_casadi *expl
     }
 }
 
+// Function to dump states to a CSV file
+void save_states_to_csv(double *x_sim, double *u_sim, int num_timesteps, int nx_, int nu_) {
+    FILE *file = fopen("simulation_results.csv", "w");
 
+    if (file == NULL) {
+        printf("Error opening file!\n");
+        return;
+    }
 
-/************************************************
-* nonlinear constraint
-************************************************/
+    // Write header
+    fprintf(file, "TimeStep");
+    for (int j = 0; j < nx_; j++) {
+        fprintf(file, ",State_%d", j);
+    }
+    for (int j = 0; j < nu_; j++) {
+        fprintf(file, ",Control_%d", j);
+    }
+    fprintf(file, "\n");
 
-void ext_fun_h1(void *fun, ext_fun_arg_t *type_in, void **in, ext_fun_arg_t *type_out, void **out)
-{
-    int nu = 2;
-    int nx = 8;
-    int nh = 1;
+    // Write data
+    for (int i = 0; i < num_timesteps; i++) {
+        fprintf(file, "%d", i);
+        for (int j = 0; j < nx_; j++) {
+            fprintf(file, ",%lf", x_sim[i * nx_ + j]);
+        }
+        for (int j = 0; j < nu_; j++) {
+            fprintf(file, ",%lf", u_sim[i * nu_ + j]);
+        }
+        fprintf(file, "\n");
+    }
 
-    // scaling
-    double alpha = 0.944*97/100;
-
-    // ux
-    struct blasfeo_dvec_args *x_args = in[0];
-
-    struct blasfeo_dvec *x = x_args->x;
-
-    int x_offset = x_args->xi;
-
-    // h
-    struct blasfeo_dvec_args *h_args = out[0];
-    struct blasfeo_dvec *h = h_args->x;
-    int xi = h_args->xi;
-    BLASFEO_DVECEL(h, xi) = alpha * BLASFEO_DVECEL(x, x_offset) * BLASFEO_DVECEL(x, x_offset+5);
-
-    // jac
-    struct blasfeo_dmat_args *jac_args = out[1];
-    struct blasfeo_dmat *jac = jac_args->A;
-    int ai = jac_args->ai;
-    int aj = jac_args->aj;
-    blasfeo_dgese(nu+nx, nh, 0.0, jac, ai, aj);
-    BLASFEO_DMATEL(jac, ai+nu+0, aj) = alpha * BLASFEO_DVECEL(x, x_offset+5);
-    BLASFEO_DMATEL(jac, ai+nu+5, aj) = alpha * BLASFEO_DVECEL(x, x_offset+0);
-
-    return;
-
+    fclose(file);
+    printf("Simulation results saved to simulation_results.csv\n");
 }
-
 
 
 /************************************************
@@ -133,8 +126,6 @@ int main()
     int nbx[NN+1] = {}; // state bounds
     int nbu[NN+1] = {}; // input bounds
     int ng[NN+1] = {}; // general linear constraints
-    int nh[NN+1] = {}; // nonlinear constraints
-    int nsh[NN+1] = {}; // softed nonlinear constraints
 
     // TODO(dimitris): setup bounds on states and controls based on ACADO controller
     nx[0] = nx_;
@@ -142,12 +133,7 @@ int main()
     nbx[0] = nx_;
     nbu[0] = nu_;
     ng[0] = 0;
-    // TODO(dimitris): add bilinear constraints later
-    nh[0] = 0;
-    nsh[0] = 0;
-    ns[0] = nsh[0];
-    ny[0] = 4;
-    nz[0] = 0;
+
 
     for (int i = 1; i < NN; i++)
     {
@@ -156,9 +142,6 @@ int main()
         nbx[i] = 3;
         nbu[i] = nu_;
         ng[i] = 0;
-        nh[i] = 1;
-        nsh[i] = 1;
-        ns[i] = nsh[i];
         ny[i] = 4;
         nz[i] = 0;
     }
@@ -168,9 +151,6 @@ int main()
     nbx[NN] = 3;
     nbu[NN] = 0;
     ng[NN] = 0;
-    nh[NN] = 0;
-    nsh[NN] = 0;
-    ns[NN] = nsh[NN];
     ny[NN] = 2;
     nz[NN] = 0;
 
@@ -207,14 +187,6 @@ int main()
     // electric power
     double Pel_min = 0.0;
     double Pel_max = 5.0;
-
-
-    /* soft constraints */
-
-    // middle stage
-    int *idxsh1 = malloc(nsh[1]*sizeof(int));
-    double *lsh1 = malloc((nsh[1])*sizeof(double));
-    double *ush1 = malloc((nsh[1])*sizeof(double));
 
 
     /* box constraints */
@@ -316,35 +288,6 @@ int main()
     double *specific_u = malloc(nu_*sizeof(double));
     double *specific_x = malloc(nx_*sizeof(double));
 
-
-    /* nonlinear constraints */
-
-    // middle stages
-    external_function_generic h1;
-    double *lh1;
-    double *uh1;
-    lh1 = malloc((nh[1])*sizeof(double));
-    uh1 = malloc((nh[1])*sizeof(double));
-    if (nh[1]>0)
-    {
-        h1.evaluate = &ext_fun_h1;
-        h1.set_external_workspace = &external_function_param_generic_set_external_workspace;
-        h1.get_external_workspace_requirement = &external_function_param_generic_get_external_workspace_requirement;
-
-        // electric power
-        lh1[0] = Pel_min;
-        uh1[0] = Pel_max;
-    }
-    // softed
-    if (nsh[1]>0)
-    {
-        idxsh1[0] = 0;
-        lsh1[0] = 0.0;
-        ush1[0] = 0.0;
-    }
-
-
-
     /* linear least squares */
 
     // output definition
@@ -423,9 +366,6 @@ int main()
         plan->nlp_cost[i] = LINEAR_LS;
 
     plan->ocp_qp_solver_plan.qp_solver = PARTIAL_CONDENSING_HPIPM;
-    // plan->ocp_qp_solver_plan.qp_solver = FULL_CONDENSING_HPIPM;
-    // plan->ocp_qp_solver_plan.qp_solver = FULL_CONDENSING_QPOASES;
-    // plan->ocp_qp_solver_plan.qp_solver = FULL_CONDENSING_QORE;
 
     for (int i = 0; i < NN; i++)
     {
@@ -456,8 +396,6 @@ int main()
         ocp_nlp_dims_set_constraints(config, dims, i, "nbx", &nbx[i]);
         ocp_nlp_dims_set_constraints(config, dims, i, "nbu", &nbu[i]);
         ocp_nlp_dims_set_constraints(config, dims, i, "ng", &ng[i]);
-        ocp_nlp_dims_set_constraints(config, dims, i, "nh", &nh[i]);
-        ocp_nlp_dims_set_constraints(config, dims, i, "nsh", &nsh[i]);
     }
 
     /************************************************
@@ -564,33 +502,6 @@ int main()
     ocp_nlp_constraints_model_set(config, dims, nlp_in, NN, "lbx", lbxN);
     ocp_nlp_constraints_model_set(config, dims, nlp_in, NN, "ubx", ubxN);
 
-    /* nonlinear constraints */
-
-    // middle stages
-    for (int i = 1; i < NN; i++)
-    {
-        if(nh[i]>0)
-        {
-            ocp_nlp_constraints_model_set(config, dims, nlp_in, i, "lh", lh1);
-            ocp_nlp_constraints_model_set(config, dims, nlp_in, i, "uh", uh1);
-            ocp_nlp_constraints_model_set(config, dims, nlp_in, i, "nl_constr_h_fun_jac", &h1);
-        }
-    }
-
-    /* soft constraints */
-
-    // middle stages
-    for (int i = 1; i < NN; i++)
-    {
-        if (ns[i]>0)
-        {
-            ocp_nlp_constraints_model_set(config, dims, nlp_in, i, "lsh", lsh1);
-            ocp_nlp_constraints_model_set(config, dims, nlp_in, i, "ush", ush1);
-            ocp_nlp_constraints_model_set(config, dims, nlp_in, i, "idxsh", idxsh1);
-        }
-    }
-
-
     /************************************************
     * sqp opts
     ************************************************/
@@ -656,7 +567,7 @@ int main()
     * sqp solve
     ************************************************/
 
-    int n_sim = 10;
+    int n_sim = 40;
 
     double *x_sim = malloc(nx_*(n_sim+1)*sizeof(double));
     double *u_sim = malloc(nu_*(n_sim+0)*sizeof(double));
@@ -757,6 +668,8 @@ int main()
                 shift_states(dims, nlp_out, x_end);
                 shift_controls(dims, nlp_out, u_end);
             }
+
+            save_states_to_csv(x_sim, u_sim, n_sim, nx_, nu_);
         }
     }
 
@@ -806,8 +719,8 @@ int main()
     free(VxN);
     free(Vx);
     free(Vu);
-    free(lh1);
-    free(uh1);
+    // free(lh1);
+    // free(uh1);
 
     free(idxbu0);
     free(lbu0);
@@ -827,9 +740,9 @@ int main()
     free(lbxN);
     free(ubxN);
 
-    free(idxsh1);
-    free(lsh1);
-    free(ush1);
+    // free(idxsh1);
+    // free(lsh1);
+    // free(ush1);
 
     free(x_end);
     free(u_end);
