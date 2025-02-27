@@ -322,8 +322,8 @@ run_simple_wind_turbine:
 	./simple_wind_turbine.out
 
 
-simple_wind_nmpc: $(WT_NX6P2_OBJS) simple_wind_nmpc.o
-	$(CCC) -o simple_wind_nmpc.out simple_wind_nmpc.o  $(WT_NX6P2_OBJS) $(LDFLAGS) $(LIBS)
+simple_wind_nmpc: $(WT_OBJS) simple_wind_nmpc.o
+	$(CCC) -o simple_wind_nmpc.out simple_wind_nmpc.o  $(WT_OBJS) $(LDFLAGS) $(LIBS)
 	@echo
 	@echo " Example simple_wind_nmpc build complete."
 	@echo

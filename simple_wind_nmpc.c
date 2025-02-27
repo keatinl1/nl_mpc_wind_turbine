@@ -17,8 +17,17 @@
 #include "acados/utils/types.h"
 
 // example specific
-#include "examples/c/wt_model_nx6/nx6p2/wt_model.h"
-#include "examples/c/wt_model_nx6/setup.c"
+#include "examples/c/wt_model_nx3/wt_model.h"
+#include "examples/c/wt_model_nx3/setup.c"
+
+// taken from wt3 example
+#include "acados/utils/external_function_generic.h"
+#include "acados_c/sim_interface.h"
+#include "blasfeo_common.h"
+#include "blasfeo_d_aux.h"
+#include "blasfeo_d_blas.h"
+#include "blasfeo_v_aux_ext_dep.h"
+
 
 #define NN 10 // horizon length
 
@@ -41,19 +50,6 @@ static void shift_controls(ocp_nlp_dims *dims, ocp_nlp_out *out, double *u_end)
     for (int i = 0; i < N-1; i++)
          blasfeo_dveccp(dims->nu[i], &out->ux[i], 0, &out->ux[i+1], 0);
      blasfeo_pack_dvec(dims->nu[N-1], u_end, 1, &out->ux[N-1], 0);
-}
-
-static void select_dynamics_wt_casadi(int N,external_function_param_casadi *expl_vde_for)
-{
-    for (int ii = 0; ii < N; ii++)
-    {
-        expl_vde_for[ii].casadi_fun = &wt_nx6p2_expl_vde_for;
-        expl_vde_for[ii].casadi_work = &wt_nx6p2_expl_vde_for_work;
-        expl_vde_for[ii].casadi_sparsity_in = &wt_nx6p2_expl_vde_for_sparsity_in;
-        expl_vde_for[ii].casadi_sparsity_out = &wt_nx6p2_expl_vde_for_sparsity_out;
-        expl_vde_for[ii].casadi_n_in = &wt_nx6p2_expl_vde_for_n_in;
-        expl_vde_for[ii].casadi_n_out = &wt_nx6p2_expl_vde_for_n_out;
-    }
 }
 
 void save_states_to_csv(double *x_sim, double *u_sim, int num_timesteps, int nx_, int nu_) 
@@ -91,6 +87,18 @@ void save_states_to_csv(double *x_sim, double *u_sim, int num_timesteps, int nx_
     printf("Simulation results saved to simulation_results.csv\n");
 }
 
+// static void select_dynamics_wt_casadi(int N, external_function_param_casadi *expl_vde_for)
+// {
+//     for (int ii = 0; ii < N; ii++)
+//     {
+//         expl_vde_for[ii].casadi_fun = &wt_nx6p2_expl_vde_for;
+//         expl_vde_for[ii].casadi_work = &wt_nx6p2_expl_vde_for_work;
+//         expl_vde_for[ii].casadi_sparsity_in = &wt_nx6p2_expl_vde_for_sparsity_in;
+//         expl_vde_for[ii].casadi_sparsity_out = &wt_nx6p2_expl_vde_for_sparsity_out;
+//         expl_vde_for[ii].casadi_n_in = &wt_nx6p2_expl_vde_for_n_in;
+//         expl_vde_for[ii].casadi_n_out = &wt_nx6p2_expl_vde_for_n_out;
+//     }
+// }
 
 /************************************************
 * main
@@ -99,7 +107,7 @@ void save_states_to_csv(double *x_sim, double *u_sim, int num_timesteps, int nx_
 int main()
 {
     // _MM_SET_EXCEPTION_MASK(_MM_GET_EXCEPTION_MASK() & ~_MM_MASK_INVALID);
-    int nx_ = 8;
+    int nx_ = 5;
     int nu_ = 2;
     int ny_ = 4;
 
@@ -398,12 +406,26 @@ int main()
     external_function_opts_set_to_default(&ext_fun_opts);
     ext_fun_opts.external_workspace = true;
 
-    // explicit model
-    external_function_param_casadi *expl_vde_for = malloc(NN*sizeof(external_function_param_casadi));
-    select_dynamics_wt_casadi(NN, expl_vde_for);
+    // Allocate memory for an array of external_function_param_casadi structures
+    external_function_param_casadi *expl_vde_for = malloc(NN * sizeof(external_function_param_casadi));
+    if (!expl_vde_for) {
+        fprintf(stderr, "Memory allocation failed for expl_vde_for\n");
+        exit(EXIT_FAILURE);
+    }
 
-    // explicit model
+    // Initialize each element in the array
+    for (int i = 0; i < NN; i++) {
+        expl_vde_for[i].casadi_fun = &casadi_expl_vde_for;
+        expl_vde_for[i].casadi_work = &casadi_expl_vde_for_work;
+        expl_vde_for[i].casadi_sparsity_in = &casadi_expl_vde_for_sparsity_in;
+        expl_vde_for[i].casadi_sparsity_out = &casadi_expl_vde_for_sparsity_out;
+        expl_vde_for[i].casadi_n_in = &casadi_expl_vde_for_n_in;
+        expl_vde_for[i].casadi_n_out = &casadi_expl_vde_for_n_out;
+    }
+
+    // Create the external function array
     external_function_param_casadi_create_array(NN, expl_vde_for, np, &ext_fun_opts);
+
 
     /************************************************
     * nlp_in
@@ -673,9 +695,9 @@ int main()
     * free memory
     ************************************************/
 
-    external_function_param_casadi_free(expl_vde_for);
+    // external_function_param_casadi_free(expl_vde_for);
    
-    free(expl_vde_for);
+    // free(expl_vde_for);
 
     ocp_nlp_solver_opts_destroy(nlp_opts);
     ocp_nlp_in_destroy(nlp_in);
