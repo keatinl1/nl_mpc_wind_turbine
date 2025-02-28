@@ -25,10 +25,11 @@ def export_robot_model() -> AcadosModel:
 
     xdot = vertcat(Omega_dot, theta_dot, Qg_dot)
 
-    Jt = 1.0
     rho = 1.225
-    R = 63.0
     V = 5.0
+
+    Jt = 1.0
+    R = 63.0
     
     # Cp 
     C1, C2, C3, C4, C5, C6 = 0.5176, 116, 0.4, 5, 21, 0.0068
@@ -36,7 +37,7 @@ def export_robot_model() -> AcadosModel:
     lambda_ = (R * Omega) / V
     inv_lambda_i = 1/(lambda_ + 0.08*theta) - 0.035/(theta**3 + 1)
     lambda_i = 1/inv_lambda_i
-        
+
     Cp = C1*((C2/lambda_i) - C3*theta - C4)*exp(-C5/lambda_i) + C6*lambda_
 
     Q = (0.5*rho*pi*(R**2)*(V**3)*Cp)/Omega
