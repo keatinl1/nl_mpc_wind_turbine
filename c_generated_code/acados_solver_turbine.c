@@ -401,63 +401,63 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
     else
     {
         // set time_steps
-    double time_step = 0.05;
+    double time_step = 0.4;
         for (int i = 0; i < N; i++)
         {
             ocp_nlp_in_set(nlp_config, nlp_dims, nlp_in, i, "Ts", &time_step);
         }
         // set cost scaling
         double* cost_scaling = malloc((N+1)*sizeof(double));
-        cost_scaling[0] = 0.05;
-        cost_scaling[1] = 0.05;
-        cost_scaling[2] = 0.05;
-        cost_scaling[3] = 0.05;
-        cost_scaling[4] = 0.05;
-        cost_scaling[5] = 0.05;
-        cost_scaling[6] = 0.05;
-        cost_scaling[7] = 0.05;
-        cost_scaling[8] = 0.05;
-        cost_scaling[9] = 0.05;
-        cost_scaling[10] = 0.05;
-        cost_scaling[11] = 0.05;
-        cost_scaling[12] = 0.05;
-        cost_scaling[13] = 0.05;
-        cost_scaling[14] = 0.05;
-        cost_scaling[15] = 0.05;
-        cost_scaling[16] = 0.05;
-        cost_scaling[17] = 0.05;
-        cost_scaling[18] = 0.05;
-        cost_scaling[19] = 0.05;
-        cost_scaling[20] = 0.05;
-        cost_scaling[21] = 0.05;
-        cost_scaling[22] = 0.05;
-        cost_scaling[23] = 0.05;
-        cost_scaling[24] = 0.05;
-        cost_scaling[25] = 0.05;
-        cost_scaling[26] = 0.05;
-        cost_scaling[27] = 0.05;
-        cost_scaling[28] = 0.05;
-        cost_scaling[29] = 0.05;
-        cost_scaling[30] = 0.05;
-        cost_scaling[31] = 0.05;
-        cost_scaling[32] = 0.05;
-        cost_scaling[33] = 0.05;
-        cost_scaling[34] = 0.05;
-        cost_scaling[35] = 0.05;
-        cost_scaling[36] = 0.05;
-        cost_scaling[37] = 0.05;
-        cost_scaling[38] = 0.05;
-        cost_scaling[39] = 0.05;
-        cost_scaling[40] = 0.05;
-        cost_scaling[41] = 0.05;
-        cost_scaling[42] = 0.05;
-        cost_scaling[43] = 0.05;
-        cost_scaling[44] = 0.05;
-        cost_scaling[45] = 0.05;
-        cost_scaling[46] = 0.05;
-        cost_scaling[47] = 0.05;
-        cost_scaling[48] = 0.05;
-        cost_scaling[49] = 0.05;
+        cost_scaling[0] = 0.4;
+        cost_scaling[1] = 0.4;
+        cost_scaling[2] = 0.4;
+        cost_scaling[3] = 0.4;
+        cost_scaling[4] = 0.4;
+        cost_scaling[5] = 0.4;
+        cost_scaling[6] = 0.4;
+        cost_scaling[7] = 0.4;
+        cost_scaling[8] = 0.4;
+        cost_scaling[9] = 0.4;
+        cost_scaling[10] = 0.4;
+        cost_scaling[11] = 0.4;
+        cost_scaling[12] = 0.4;
+        cost_scaling[13] = 0.4;
+        cost_scaling[14] = 0.4;
+        cost_scaling[15] = 0.4;
+        cost_scaling[16] = 0.4;
+        cost_scaling[17] = 0.4;
+        cost_scaling[18] = 0.4;
+        cost_scaling[19] = 0.4;
+        cost_scaling[20] = 0.4;
+        cost_scaling[21] = 0.4;
+        cost_scaling[22] = 0.4;
+        cost_scaling[23] = 0.4;
+        cost_scaling[24] = 0.4;
+        cost_scaling[25] = 0.4;
+        cost_scaling[26] = 0.4;
+        cost_scaling[27] = 0.4;
+        cost_scaling[28] = 0.4;
+        cost_scaling[29] = 0.4;
+        cost_scaling[30] = 0.4;
+        cost_scaling[31] = 0.4;
+        cost_scaling[32] = 0.4;
+        cost_scaling[33] = 0.4;
+        cost_scaling[34] = 0.4;
+        cost_scaling[35] = 0.4;
+        cost_scaling[36] = 0.4;
+        cost_scaling[37] = 0.4;
+        cost_scaling[38] = 0.4;
+        cost_scaling[39] = 0.4;
+        cost_scaling[40] = 0.4;
+        cost_scaling[41] = 0.4;
+        cost_scaling[42] = 0.4;
+        cost_scaling[43] = 0.4;
+        cost_scaling[44] = 0.4;
+        cost_scaling[45] = 0.4;
+        cost_scaling[46] = 0.4;
+        cost_scaling[47] = 0.4;
+        cost_scaling[48] = 0.4;
+        cost_scaling[49] = 0.4;
         cost_scaling[50] = 1;
         for (int i = 0; i <= N; i++)
         {
@@ -485,11 +485,10 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
 
    double* W_0 = calloc(NY0*NY0, sizeof(double));
     // change only the non-zero elements:
-    W_0[0+(NY0) * 0] = 2000;
-    W_0[1+(NY0) * 1] = 2000;
-    W_0[2+(NY0) * 2] = 2000;
-    W_0[3+(NY0) * 3] = 0.01;
-    W_0[4+(NY0) * 4] = 0.01;
+    W_0[0+(NY0) * 0] = 10000;
+    W_0[1+(NY0) * 1] = 100;
+    W_0[3+(NY0) * 3] = 1;
+    W_0[4+(NY0) * 4] = 1;
     ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, 0, "W", W_0);
     free(W_0);
     double* Vx_0 = calloc(NY0*NX, sizeof(double));
@@ -515,11 +514,10 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
     free(yref);
     double* W = calloc(NY*NY, sizeof(double));
     // change only the non-zero elements:
-    W[0+(NY) * 0] = 2000;
-    W[1+(NY) * 1] = 2000;
-    W[2+(NY) * 2] = 2000;
-    W[3+(NY) * 3] = 0.01;
-    W[4+(NY) * 4] = 0.01;
+    W[0+(NY) * 0] = 10000;
+    W[1+(NY) * 1] = 100;
+    W[3+(NY) * 3] = 1;
+    W[4+(NY) * 4] = 1;
 
     for (int i = 1; i < N; i++)
     {
@@ -555,9 +553,8 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
 
     double* W_e = calloc(NYN*NYN, sizeof(double));
     // change only the non-zero elements:
-    W_e[0+(NYN) * 0] = 2000;
-    W_e[1+(NYN) * 1] = 2000;
-    W_e[2+(NYN) * 2] = 2000;
+    W_e[0+(NYN) * 0] = 10000;
+    W_e[1+(NYN) * 1] = 100;
     ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, N, "W", W_e);
     free(W_e);
     double* Vx_e = calloc(NYN*NX, sizeof(double));
@@ -586,8 +583,6 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
     double* lbx0 = lubx0;
     double* ubx0 = lubx0 + NBX0;
     // change only the non-zero elements:
-    lbx0[0] = 1;
-    ubx0[0] = 1;
 
     ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, 0, "idxbx", idxbx0);
     ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, 0, "lbx", lbx0);
@@ -799,7 +794,6 @@ void turbine_acados_set_nlp_out(turbine_solver_capsule* capsule)
     double* x0 = xu0;
 
     // initialize with x0
-    x0[0] = 1;
 
 
     double* u0 = xu0 + NX;

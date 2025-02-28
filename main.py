@@ -4,8 +4,8 @@ import numpy as np
 import scipy.linalg
 from utils import plot_robot
 
-X0 = np.array([1.0, 0.0, 0.0])  # Intital state
-T_horizon = 2.5  # Length of simulation horizon
+X0 = np.array([0.0, 0.0, 0.0])  # Intital state
+T_horizon = 20  # Length of simulation horizon
 
 
 def create_ocp_solver_description() -> AcadosOcp:
@@ -23,8 +23,8 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.solver_options.N_horizon = N_horizon
 
     # set cost
-    Q_mat = 2 * np.diag([1e3, 1e3, 1e3])
-    R_mat = 1 * np.diag([1e-2, 1e-2])
+    Q_mat = 1 * np.diag([1e4, 1e2, 0])
+    R_mat = 1 * np.diag([1, 1])
 
     ocp.cost.cost_type = "LINEAR_LS"
     ocp.cost.cost_type_e = "LINEAR_LS"
@@ -87,8 +87,8 @@ def closed_loop_simulation():
     xcurrent = X0
     simX[0, :] = xcurrent
 
-    yref = np.array([1.2, 0.10, 0.10, 0.0, 0.0])
-    yref_N = np.array([1.2, 0.10, 0.10])
+    yref = np.array([0.6, 1.0, 0.0, 0.0, 0.0])
+    yref_N = np.array([0.6, 1.0, 0.0])
 
     # initialize solver
     for stage in range(N_horizon + 1):
@@ -118,9 +118,11 @@ def closed_loop_simulation():
                 f"acados acados_ocp_solver returned status {status} in closed loop instance {i} with {xcurrent}"
             )
 
-    # simulate system
-    xcurrent = acados_integrator.simulate(xcurrent, simU[i, :])
-    simX[i + 1, :] = xcurrent
+        # simulate system
+        xcurrent = acados_integrator.simulate(xcurrent, simU[i, :])
+        simX[i + 1, :] = xcurrent
+
+    print(simX)
 
     print("\nFinal system state:\n"
     "Omega (ref): {:.4f} ({})\n"
@@ -136,7 +138,6 @@ def closed_loop_simulation():
         np.linspace(0, T_horizon / N_horizon * Nsim, Nsim + 1), [None, None],  simU, simX,
         x_labels=model.x_labels, u_labels=model.u_labels, time_label=model.t_label
     )
-
 
 
 if __name__ == "__main__":

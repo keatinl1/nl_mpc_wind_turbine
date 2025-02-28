@@ -28,7 +28,7 @@ def export_robot_model() -> AcadosModel:
     Jt = 1.0
     rho = 1.225
     R = 63.0
-    V = 5.0
+    V = 0.0
     
     # Cp 
     C1, C2, C3, C4, C5, C6 = 0.5176, 116, 0.4, 5, 21, 0.0068
@@ -39,7 +39,7 @@ def export_robot_model() -> AcadosModel:
         
     Cp = C1*((C2/lambda_i) - C3*theta - C4)*exp(-C5/lambda_i) + C6*lambda_
 
-    Q = (0.5*rho*pi*R**2*V**3*Cp)/Omega
+    Q = (0.5*rho*pi*(R**2)*(V**3)*Cp)/Omega
 
     # dynamics
     f_expl = vertcat((1/Jt)*(Q - Qg), u1, u2)
