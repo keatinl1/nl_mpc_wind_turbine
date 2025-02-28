@@ -87,8 +87,8 @@ def closed_loop_simulation():
     xcurrent = X0
     simX[0, :] = xcurrent
 
-    yref = np.array([1, 0.001, 0.001, 0, 0])
-    yref_N = np.array([1, 0.001, 0.001])
+    yref = np.array([1, 0.01, 0.01, 0, 0])
+    yref_N = np.array([1, 0.01, 0.01])
 
     # initialize solver
     for stage in range(N_horizon + 1):

@@ -39,16 +39,16 @@ def plot_robot(
         (line,) = plt.plot(t, X_traj[:, i])
 
         plt.ylabel(x_labels[i])
-        plt.xlabel(time_label)
+        # plt.xlabel(time_label)
         plt.grid()
 
     # Plot controls after states
     for i in range(nu):
         plt.subplot(nx + nu + 1, 1, nx + i + 1)  # Controls start after states
-        (line,) = plt.step(t, np.append([U[0, i]], U[:, i]))
+        (line,) = plt.step(t, np.append([U[0, i]], U[:, i]), color="tab:orange")
 
         plt.ylabel(u_labels[i])
-        plt.xlabel(time_label)
+        # plt.xlabel(time_label)
         if u_max[i] is not None:
             plt.hlines(u_max[i], t[0], t[-1], linestyles="dashed", alpha=0.7)
             plt.hlines(-u_max[i], t[0], t[-1], linestyles="dashed", alpha=0.7)
