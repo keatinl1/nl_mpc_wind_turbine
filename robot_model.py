@@ -2,7 +2,7 @@ from acados_template import AcadosModel
 from casadi import SX, vertcat, pi, exp
 
 # Reference for model equations:
-# http://users.isr.ist.utl.pt/~jag/publications/08-JETC-RCarona-vcontrol.pdf
+# https://backend.orbit.dtu.dk/ws/portalfiles/portal/5832126/prod21318234687066.2070.pdf
 
 def export_robot_model() -> AcadosModel:
     model_name = "turbine"
