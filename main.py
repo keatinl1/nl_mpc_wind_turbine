@@ -4,7 +4,7 @@ import numpy as np
 import scipy.linalg
 from utils import plot_robot
 
-X0 = np.array([0.0, 0.0, 0.0])  # Intital state
+X0 = np.array([1.0, 0.0, 0.0])  # Intital state
 Omega = 100  # Define the max force allowed
 T_horizon = 2.0  # Define the prediction horizon
 
@@ -89,11 +89,11 @@ def closed_loop_simulation():
     simX[0, :] = xcurrent
 
     yref = np.array([1, 0.001, 0.001, 0, 0])
-    yref_N = np.array([1, 1, 1])
+    yref_N = np.array([1, 0.001, 0.001])
 
     # initialize solver
     for stage in range(N_horizon + 1):
-        acados_ocp_solver.set(stage, "x", 0.9 * np.ones(xcurrent.shape))
+        acados_ocp_solver.set(stage, "x", X0)
     for stage in range(N_horizon):
         acados_ocp_solver.set(stage, "u", np.zeros((nu,)))
 
