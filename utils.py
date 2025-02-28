@@ -29,13 +29,13 @@ def plot_robot(
     N_sim = X_traj.shape[0]
     nx = X_traj.shape[1]
     nu = U.shape[1]
-    fig, axs = plt.subplots(nx+nu, 1, figsize=(9, 9), sharex=True)
+    fig, axs = plt.subplots(nx+nu+1, 1, figsize=(9, 9), sharex=True)
 
     t = shooting_nodes
 
     # Plot states first
     for i in range(nx):
-        plt.subplot(nx + nu, 1, i + 1)  # Adjust index to start from 1
+        plt.subplot(nx + nu + 1, 1, i + 1)  # Adjust index to start from 1
         (line,) = plt.plot(t, X_traj[:, i])
 
         plt.ylabel(x_labels[i])
@@ -44,7 +44,7 @@ def plot_robot(
 
     # Plot controls after states
     for i in range(nu):
-        plt.subplot(nx + nu, 1, nx + i + 1)  # Controls start after states
+        plt.subplot(nx + nu + 1, 1, nx + i + 1)  # Controls start after states
         (line,) = plt.step(t, np.append([U[0, i]], U[:, i]))
 
         plt.ylabel(u_labels[i])
@@ -54,6 +54,13 @@ def plot_robot(
             plt.hlines(-u_max[i], t[0], t[-1], linestyles="dashed", alpha=0.7)
             plt.ylim([-1.2 * u_max[i], 1.2 * u_max[i]])
         plt.grid()
+    
+    # Additional plot: first column vs. third column of X_traj by 95
+    plt.subplot(nx + nu + 1, 1, nx + nu + 1)
+    plt.plot(X_traj[:, 0]*X_traj[:, 2] * 95)
+    plt.ylabel("$P_e$")
+    plt.xlabel("$t$ [s]")
+    plt.grid()
 
     plt.subplots_adjust(left=None, bottom=None, right=None, top=None, hspace=0.4)
 

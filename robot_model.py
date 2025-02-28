@@ -51,7 +51,7 @@ def export_robot_model() -> AcadosModel:
     model.name = model_name
 
     model.t_label = "$t$ [s]"
-    model.x_labels = ["$\\Omega$", "$\\theta$", "$Q_g$"]
+    model.x_labels = ["$\\omega$", "$\\theta$", "$Q_g$"]
     model.u_labels = ["$u_1 (\\dot{\\theta})$", "$u_2 (\\dot{Q_g})$"]
 
     return model

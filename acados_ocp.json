@@ -1,7 +1,7 @@
 {
     "acados_include_path": "/home/luke/acados/include",
     "acados_lib_path": "/home/luke/acados/lib",
-    "code_export_directory": "/home/luke/acados/examples/acados_python/turbine2/c_generated_code",
+    "code_export_directory": "/home/luke/acados/examples/acados_python/turbine/c_generated_code",
     "constraints": {
         "C": [],
         "C_e": [],
@@ -233,7 +233,7 @@
                 0.0,
                 0.0,
                 0.0,
-                1.0,
+                0.1,
                 0.0
             ],
             [
@@ -270,7 +270,7 @@
                 0.0,
                 0.0,
                 0.0,
-                1.0,
+                0.1,
                 0.0
             ],
             [
@@ -456,7 +456,7 @@
         ],
         "x": "jhpnnagiieahaaaadaaaaaaaaaaaaaaaaaeghaaaaaaaaaaaaaaadaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaacaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaafaaaaaaapengfghgbgegpcaaaaaaaaaaaaaafaaaaaaaehigfgehbgegpcaaaaaaaaaaaaaacaaaaaaabfhg",
         "x_labels": [
-            "$\\Omega$",
+            "$\\omega$",
             "$\\theta$",
             "$Q_g$"
         ],
