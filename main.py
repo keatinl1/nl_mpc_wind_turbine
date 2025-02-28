@@ -23,8 +23,8 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.solver_options.N_horizon = N_horizon
 
     # set cost
-    Q_mat = 2 * np.diag([1e3, 1e3, 1e-3])
-    R_mat = 10 * np.diag([1e-2, 1e-2])
+    Q_mat = 2 * np.diag([1e3, 1e3, 1e3])
+    R_mat = 1 * np.diag([1e-2, 1e-2])
 
     ocp.cost.cost_type = "LINEAR_LS"
     ocp.cost.cost_type_e = "LINEAR_LS"
@@ -87,8 +87,8 @@ def closed_loop_simulation():
     xcurrent = X0
     simX[0, :] = xcurrent
 
-    yref = np.array([1, 0.01, 0.01, 0, 0])
-    yref_N = np.array([1, 0.01, 0.01])
+    yref = np.array([1.2, 0.10, 0.10, 0.0, 0.0])
+    yref_N = np.array([1.2, 0.10, 0.10])
 
     # initialize solver
     for stage in range(N_horizon + 1):

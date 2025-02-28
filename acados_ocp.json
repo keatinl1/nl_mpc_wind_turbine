@@ -37,7 +37,7 @@
         "lbu": [],
         "lbx": [],
         "lbx_0": [
-            0.0,
+            1.0,
             0.0,
             0.0
         ],
@@ -64,7 +64,7 @@
         "ubu": [],
         "ubx": [],
         "ubx_0": [
-            0.0,
+            1.0,
             0.0,
             0.0
         ],
@@ -225,7 +225,7 @@
             [
                 0.0,
                 0.0,
-                0.002,
+                2000.0,
                 0.0,
                 0.0
             ],
@@ -233,7 +233,7 @@
                 0.0,
                 0.0,
                 0.0,
-                0.1,
+                0.01,
                 0.0
             ],
             [
@@ -241,7 +241,7 @@
                 0.0,
                 0.0,
                 0.0,
-                0.1
+                0.01
             ]
         ],
         "W_0": [
@@ -262,7 +262,7 @@
             [
                 0.0,
                 0.0,
-                0.002,
+                2000.0,
                 0.0,
                 0.0
             ],
@@ -270,7 +270,7 @@
                 0.0,
                 0.0,
                 0.0,
-                0.1,
+                0.01,
                 0.0
             ],
             [
@@ -278,7 +278,7 @@
                 0.0,
                 0.0,
                 0.0,
-                0.1
+                0.01
             ]
         ],
         "W_e": [
@@ -295,7 +295,7 @@
             [
                 0.0,
                 0.0,
-                0.002
+                2000.0
             ]
         ],
         "Zl": [],
@@ -456,7 +456,7 @@
         ],
         "x": "jhpnnagiieahaaaadaaaaaaaaaaaaaaaaaeghaaaaaaaaaaaaaaadaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaacaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaafaaaaaaapengfghgbgegpcaaaaaaaaaaaaaafaaaaaaaehigfgehbgegpcaaaaaaaaaaaaaacaaaaaaabfhg",
         "x_labels": [
-            "$\\omega$",
+            "$\\Omega$",
             "$\\theta$",
             "$Q_g$"
         ],

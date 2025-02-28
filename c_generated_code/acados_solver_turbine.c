@@ -487,9 +487,9 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
     // change only the non-zero elements:
     W_0[0+(NY0) * 0] = 2000;
     W_0[1+(NY0) * 1] = 2000;
-    W_0[2+(NY0) * 2] = 0.002;
-    W_0[3+(NY0) * 3] = 0.1;
-    W_0[4+(NY0) * 4] = 0.1;
+    W_0[2+(NY0) * 2] = 2000;
+    W_0[3+(NY0) * 3] = 0.01;
+    W_0[4+(NY0) * 4] = 0.01;
     ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, 0, "W", W_0);
     free(W_0);
     double* Vx_0 = calloc(NY0*NX, sizeof(double));
@@ -517,9 +517,9 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
     // change only the non-zero elements:
     W[0+(NY) * 0] = 2000;
     W[1+(NY) * 1] = 2000;
-    W[2+(NY) * 2] = 0.002;
-    W[3+(NY) * 3] = 0.1;
-    W[4+(NY) * 4] = 0.1;
+    W[2+(NY) * 2] = 2000;
+    W[3+(NY) * 3] = 0.01;
+    W[4+(NY) * 4] = 0.01;
 
     for (int i = 1; i < N; i++)
     {
@@ -557,7 +557,7 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
     // change only the non-zero elements:
     W_e[0+(NYN) * 0] = 2000;
     W_e[1+(NYN) * 1] = 2000;
-    W_e[2+(NYN) * 2] = 0.002;
+    W_e[2+(NYN) * 2] = 2000;
     ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, N, "W", W_e);
     free(W_e);
     double* Vx_e = calloc(NYN*NX, sizeof(double));
@@ -586,6 +586,8 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
     double* lbx0 = lubx0;
     double* ubx0 = lubx0 + NBX0;
     // change only the non-zero elements:
+    lbx0[0] = 1;
+    ubx0[0] = 1;
 
     ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, 0, "idxbx", idxbx0);
     ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, 0, "lbx", lbx0);
@@ -797,6 +799,7 @@ void turbine_acados_set_nlp_out(turbine_solver_capsule* capsule)
     double* x0 = xu0;
 
     // initialize with x0
+    x0[0] = 1;
 
 
     double* u0 = xu0 + NX;
