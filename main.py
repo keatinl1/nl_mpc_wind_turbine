@@ -5,7 +5,7 @@ import scipy.linalg
 from utils import plot_robot
 
 X0 = np.array([1.0, 0.0, 0.0])  # Intital state
-T_horizon = 2.0  # Define the prediction horizon
+T_horizon = 20.0  # Define the prediction horizon
 
 
 def create_ocp_solver_description() -> AcadosOcp:
@@ -124,7 +124,7 @@ def closed_loop_simulation():
 
     # plot results
     plot_robot(
-        np.linspace(0, T_horizon / N_horizon * Nsim, Nsim + 1), [1, None],  simU, simX,
+        np.linspace(0, T_horizon / N_horizon * Nsim, Nsim + 1), [None, None],  simU, simX,
         x_labels=model.x_labels, u_labels=model.u_labels, time_label=model.t_label
     )
 
