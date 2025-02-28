@@ -28,7 +28,7 @@ def export_robot_model() -> AcadosModel:
     Jt = 1.0
     rho = 1.225
     R = 63.0
-    V = 0.0
+    V = 5.0
     
     # Cp 
     C1, C2, C3, C4, C5, C6 = 0.5176, 116, 0.4, 5, 21, 0.0068

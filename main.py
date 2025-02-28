@@ -4,7 +4,7 @@ import numpy as np
 import scipy.linalg
 from utils import plot_robot
 
-X0 = np.array([0.0, 0.0, 0.0])  # Intital state
+X0 = np.array([0.10, 0.0, 0.0])  # Intital state
 T_horizon = 20  # Length of simulation horizon
 
 
@@ -23,7 +23,7 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.solver_options.N_horizon = N_horizon
 
     # set cost
-    Q_mat = 1 * np.diag([1e4, 1e2, 0])
+    Q_mat = 1 * np.diag([0, 10, 0])
     R_mat = 1 * np.diag([1, 1])
 
     ocp.cost.cost_type = "LINEAR_LS"
@@ -87,14 +87,14 @@ def closed_loop_simulation():
     xcurrent = X0
     simX[0, :] = xcurrent
 
-    yref = np.array([0.6, 1.0, 0.0, 0.0, 0.0])
-    yref_N = np.array([0.6, 1.0, 0.0])
+    yref = np.array([0.0, 0.10, 0.0, 0.0, 0.0])
+    yref_N = np.array([0.0, 0.10, 0.0])
 
     # initialize solver
-    for stage in range(N_horizon + 1):
-        acados_ocp_solver.set(stage, "x", X0)
-    for stage in range(N_horizon):
-        acados_ocp_solver.set(stage, "u", np.zeros((nu,)))
+    # for stage in range(N_horizon + 1):
+    #     acados_ocp_solver.set(stage, "x", X0)
+    # for stage in range(N_horizon):
+    #     acados_ocp_solver.set(stage, "u", np.zeros((nu,)))
 
     # closed loop
     for i in range(Nsim):
