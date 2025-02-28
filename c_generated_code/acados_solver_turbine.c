@@ -610,23 +610,6 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
 
 
     /* constraints that are the same for initial and intermediate */
-    // u
-    int* idxbu = malloc(NBU * sizeof(int));
-    idxbu[0] = 0;
-    double* lubu = calloc(2*NBU, sizeof(double));
-    double* lbu = lubu;
-    double* ubu = lubu + NBU;
-    lbu[0] = -100;
-    ubu[0] = 100;
-
-    for (int i = 0; i < N; i++)
-    {
-        ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, i, "idxbu", idxbu);
-        ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, i, "lbu", lbu);
-        ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, i, "ubu", ubu);
-    }
-    free(idxbu);
-    free(lubu);
 
 
 

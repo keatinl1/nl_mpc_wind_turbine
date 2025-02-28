@@ -5,7 +5,6 @@ import scipy.linalg
 from utils import plot_robot
 
 X0 = np.array([1.0, 0.0, 0.0])  # Intital state
-Omega = 100  # Define the max force allowed
 T_horizon = 2.0  # Define the prediction horizon
 
 
@@ -24,7 +23,7 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.solver_options.N_horizon = N_horizon
 
     # set cost
-    Q_mat = 2 * np.diag([1e3, 1e3, 1e-3])  # [x,y,x_d,y_d,th,th_d]
+    Q_mat = 2 * np.diag([1e3, 1e3, 1e-3])
     R_mat = 2 * 5 * np.diag([1e-1, 1e-2])
 
     ocp.cost.cost_type = "LINEAR_LS"
@@ -49,9 +48,9 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.cost.yref_e = np.zeros((ny_e,))
 
     # set constraints
-    ocp.constraints.lbu = np.array([-Omega])
-    ocp.constraints.ubu = np.array([+Omega])
-    ocp.constraints.idxbu = np.array([0])
+    # ocp.constraints.lbu = np.array([-Omega])
+    # ocp.constraints.ubu = np.array([+Omega])
+    # ocp.constraints.idxbu = np.array([0])
 
     ocp.constraints.x0 = X0
 
@@ -112,7 +111,6 @@ def closed_loop_simulation():
             acados_ocp_solver.print_statistics()
             plot_robot(
                 np.linspace(0, T_horizon / N_horizon * i, i + 1),
-                # Omega,
                 simU[:i, :],
                 simX[: i + 1, :],
             )
@@ -126,9 +124,11 @@ def closed_loop_simulation():
 
     # plot results
     plot_robot(
-        np.linspace(0, T_horizon / N_horizon * Nsim, Nsim + 1), [Omega, None], simU, simX,
+        np.linspace(0, T_horizon / N_horizon * Nsim, Nsim + 1), [1, None],  simU, simX,
         x_labels=model.x_labels, u_labels=model.u_labels, time_label=model.t_label
     )
+
+
 
 if __name__ == "__main__":
     closed_loop_simulation()

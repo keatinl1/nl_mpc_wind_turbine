@@ -10,9 +10,7 @@
         "constr_type_0": "BGH",
         "constr_type_e": "BGH",
         "has_x0": true,
-        "idxbu": [
-            0
-        ],
+        "idxbu": [],
         "idxbx": [],
         "idxbx_0": [
             0,
@@ -36,9 +34,7 @@
         "idxsphi": [],
         "idxsphi_0": [],
         "idxsphi_e": [],
-        "lbu": [
-            -100
-        ],
+        "lbu": [],
         "lbx": [],
         "lbx_0": [
             1.0,
@@ -65,9 +61,7 @@
         "lsphi": [],
         "lsphi_0": [],
         "lsphi_e": [],
-        "ubu": [
-            100
-        ],
+        "ubu": [],
         "ubx": [],
         "ubx_0": [
             1.0,
@@ -355,7 +349,7 @@
     "dims": {
         "N": 50,
         "n_global_data": 0,
-        "nbu": 1,
+        "nbu": 0,
         "nbx": 0,
         "nbx_0": 3,
         "nbx_e": 0,

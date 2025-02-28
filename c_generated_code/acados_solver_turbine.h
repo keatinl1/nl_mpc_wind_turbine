@@ -43,7 +43,7 @@
 #define TURBINE_NP_GLOBAL     0
 #define TURBINE_NBX    0
 #define TURBINE_NBX0   3
-#define TURBINE_NBU    1
+#define TURBINE_NBU    0
 #define TURBINE_NSBX   0
 #define TURBINE_NSBU   0
 #define TURBINE_NSH    0
