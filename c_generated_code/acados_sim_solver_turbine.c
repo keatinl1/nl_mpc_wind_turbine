@@ -73,7 +73,7 @@ int turbine_acados_sim_create(turbine_sim_solver_capsule * capsule)
     const int np = TURBINE_NP;
     bool tmp_bool;
 
-    double Tsim = 0.4;
+    double Tsim = 1;
 
     external_function_opts ext_fun_opts;
     external_function_opts_set_to_default(&ext_fun_opts);

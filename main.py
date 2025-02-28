@@ -4,10 +4,9 @@ import numpy as np
 import scipy.linalg
 from utils import plot_robot
 
-X0 = np.array([0.01, 0.0, 0.0])  # Intital state
-T_horizon = 20  # Length of simulation horizon
-max_Omega = 0.35*100000 # rad/s (approx 20 deg/s)
-
+X0 = np.array([0.1, 0.0, 0.01])  # Intital state, some of these can't be nonzero or else the optimization fails
+T_horizon = 50  # Length of simulation horizon
+max_Omega = 1.267 # rad/s 
 
 def create_ocp_solver_description() -> AcadosOcp:
     N_horizon = 50  # Define the number of discretization steps
@@ -25,7 +24,7 @@ def create_ocp_solver_description() -> AcadosOcp:
 
     # set cost
     Q_mat = 1 * np.diag([0, 10, 0])
-    R_mat = 1 * np.diag([1, 1e-2])
+    R_mat = 1 * np.diag([1, 1e-8])
 
     ocp.cost.cost_type = "LINEAR_LS"
     ocp.cost.cost_type_e = "LINEAR_LS"
@@ -49,13 +48,13 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.cost.yref_e = np.zeros((ny_e,))
 
     # set constraints
-    # ocp.constraints.lbx = np.array([-max_Omega])
-    # ocp.constraints.ubx = np.array([+max_Omega])
-    # ocp.constraints.idxbx = np.array([0])
+    ocp.constraints.lbx = np.array([-max_Omega])
+    ocp.constraints.ubx = np.array([+max_Omega])
+    ocp.constraints.idxbx = np.array([0])
 
-    # ocp.constraints.lbu = np.array([-0.05, -0.1])   # Min pitch rate, torque rate
-    # ocp.constraints.ubu = np.array([0.05, 0.1])     # Max pitch rate, torque rate
-    # ocp.constraints.idxbu = np.array([0, 1])        # Apply constraints to both controls
+    ocp.constraints.lbu = np.array([-0.05])   # Min pitch rate, torque rate
+    ocp.constraints.ubu = np.array([0.05])     # Max pitch rate, torque rate
+    ocp.constraints.idxbu = np.array([0])        # Apply constraints to both controls
 
     ocp.constraints.x0 = X0
 
@@ -92,14 +91,8 @@ def closed_loop_simulation():
     xcurrent = X0
     simX[0, :] = xcurrent
 
-    yref = np.array([0.0, 0.010, 0.0, 0.0, 0.0])
-    yref_N = np.array([0.0, 0.010, 0.0])
-
-    # warm start
-    for stage in range(N_horizon + 1):
-        acados_ocp_solver.set(stage, "x", X0)
-    for stage in range(N_horizon):
-        acados_ocp_solver.set(stage, "u", np.zeros((nu,)))
+    yref = np.array([0.0, 0.50, 0.0, 0.0, 0.0])
+    yref_N = np.array([0.0, 0.50, 0.0])
 
     # closed loop
     for i in range(Nsim):
@@ -126,8 +119,6 @@ def closed_loop_simulation():
         # simulate system
         xcurrent = acados_integrator.simulate(xcurrent, simU[i, :])
         simX[i + 1, :] = xcurrent
-
-    print(simX)
 
     print("\nFinal system state:\n"
     "Omega (ref): {:.4f} ({})\n"

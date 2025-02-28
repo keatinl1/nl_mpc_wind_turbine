@@ -28,8 +28,8 @@ def export_robot_model() -> AcadosModel:
     rho = 1.225
     V = 5.0
 
-    # Jt = 5000.0
-    Jt = 11776047.0
+    # Data taken from: https://www.nrel.gov/docs/fy09osti/38060.pdf, pg6
+    Jt = 11776047.0 
     R = 63.0
     
     # Cp 
