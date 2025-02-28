@@ -4,9 +4,16 @@ import numpy as np
 import scipy.linalg
 from utils import plot_robot
 
-X0 = np.array([0.1, 0.0, 0.01])  # Intital state, some of these can't be nonzero or else the optimization fails
+X0 = np.array([1e-3, 0, 1e-3])  # Intital state, to avoid zero division make them very small
 T_horizon = 50  # Length of simulation horizon
-max_Omega = 1.267 # rad/s 
+
+# state constraints
+max_Omega   = 1.267 # rad/s
+max_theta   = 1.5708 # rad
+max_Qg      = 47402.91 # N*m
+# input constraints
+max_pitch_rate  = 0.139626 # rad/s
+max_torque_rate = 15000.0 # N*m
 
 def create_ocp_solver_description() -> AcadosOcp:
     N_horizon = 50  # Define the number of discretization steps
@@ -24,7 +31,7 @@ def create_ocp_solver_description() -> AcadosOcp:
 
     # set cost
     Q_mat = 1 * np.diag([0, 10, 0])
-    R_mat = 1 * np.diag([1, 1e-8])
+    R_mat = 1 * np.diag([1, 1])
 
     ocp.cost.cost_type = "LINEAR_LS"
     ocp.cost.cost_type_e = "LINEAR_LS"
@@ -47,15 +54,29 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.cost.yref = np.zeros((ny,))
     ocp.cost.yref_e = np.zeros((ny_e,))
 
-    # set constraints
+    # set state constraints
     ocp.constraints.lbx = np.array([-max_Omega])
     ocp.constraints.ubx = np.array([+max_Omega])
     ocp.constraints.idxbx = np.array([0])
 
-    ocp.constraints.lbu = np.array([-0.05])   # Min pitch rate, torque rate
-    ocp.constraints.ubu = np.array([0.05])     # Max pitch rate, torque rate
-    ocp.constraints.idxbu = np.array([0])        # Apply constraints to both controls
+    ocp.constraints.lbx = np.array([-max_theta])
+    ocp.constraints.ubx = np.array([+max_theta])
+    ocp.constraints.idxbx = np.array([1])
 
+    ocp.constraints.lbx = np.array([-max_Qg])
+    ocp.constraints.ubx = np.array([+max_Qg])
+    ocp.constraints.idxbx = np.array([2])
+
+    # set input constraints
+    ocp.constraints.lbu = np.array([-max_pitch_rate])
+    ocp.constraints.ubu = np.array([max_pitch_rate])
+    ocp.constraints.idxbu = np.array([0])
+
+    ocp.constraints.lbu = np.array([-max_torque_rate])
+    ocp.constraints.ubu = np.array([max_torque_rate])
+    ocp.constraints.idxbu = np.array([1])
+
+    # set initial condition
     ocp.constraints.x0 = X0
 
     # set options

@@ -30,7 +30,7 @@ def export_robot_model() -> AcadosModel:
 
     # Data taken from: https://www.nrel.gov/docs/fy09osti/38060.pdf, pg6
     Jt = 11776047.0 
-    R = 63.0
+    R = 61.50
     
     # Cp 
     C1, C2, C3, C4, C5, C6 = 0.5176, 116, 0.4, 5, 21, 0.0068

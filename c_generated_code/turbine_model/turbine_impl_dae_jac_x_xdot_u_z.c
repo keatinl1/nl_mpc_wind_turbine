@@ -69,10 +69,10 @@ static const casadi_int casadi_s7[3] = {3, 0, 0};
 /* turbine_impl_dae_jac_x_xdot_u_z:(i0[3],i1[3],i2[2],i3[0],i4[],i5[0])->(o0[3x3,3nz],o1[3x3,3nz],o2[3x2,2nz],o3[3x0]) */
 static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem) {
   casadi_real a0, a1, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a2, a20, a21, a22, a23, a3, a4, a5, a6, a7, a8, a9;
-  a0=63.;
+  a0=6.1500000000000000e+01;
   a1=2.0000000000000001e-01;
   a2=6.7999999999999996e-03;
-  a3=9.5465637634811969e+05;
+  a3=9.0973773732493725e+05;
   a4=-8.4918139338268611e-08;
   a5=arg[0]? arg[0][0] : 0;
   a6=(a4/a5);

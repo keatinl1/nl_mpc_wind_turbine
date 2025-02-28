@@ -487,7 +487,7 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
     // change only the non-zero elements:
     W_0[1+(NY0) * 1] = 10;
     W_0[3+(NY0) * 3] = 1;
-    W_0[4+(NY0) * 4] = 0.00000001;
+    W_0[4+(NY0) * 4] = 1;
     ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, 0, "W", W_0);
     free(W_0);
     double* Vx_0 = calloc(NY0*NX, sizeof(double));
@@ -515,7 +515,7 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
     // change only the non-zero elements:
     W[1+(NY) * 1] = 10;
     W[3+(NY) * 3] = 1;
-    W[4+(NY) * 4] = 0.00000001;
+    W[4+(NY) * 4] = 1;
 
     for (int i = 1; i < N; i++)
     {
@@ -580,10 +580,10 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
     double* lbx0 = lubx0;
     double* ubx0 = lubx0 + NBX0;
     // change only the non-zero elements:
-    lbx0[0] = 0.1;
-    ubx0[0] = 0.1;
-    lbx0[2] = 0.01;
-    ubx0[2] = 0.01;
+    lbx0[0] = 0.001;
+    ubx0[0] = 0.001;
+    lbx0[2] = 0.001;
+    ubx0[2] = 0.001;
 
     ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, 0, "idxbx", idxbx0);
     ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, 0, "lbx", lbx0);
@@ -608,12 +608,12 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
     /* constraints that are the same for initial and intermediate */
     // u
     int* idxbu = malloc(NBU * sizeof(int));
-    idxbu[0] = 0;
+    idxbu[0] = 1;
     double* lubu = calloc(2*NBU, sizeof(double));
     double* lbu = lubu;
     double* ubu = lubu + NBU;
-    lbu[0] = -0.05;
-    ubu[0] = 0.05;
+    lbu[0] = -15000;
+    ubu[0] = 15000;
 
     for (int i = 0; i < N; i++)
     {
@@ -633,12 +633,12 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
 
     // x
     int* idxbx = malloc(NBX * sizeof(int));
-    idxbx[0] = 0;
+    idxbx[0] = 2;
     double* lubx = calloc(2*NBX, sizeof(double));
     double* lbx = lubx;
     double* ubx = lubx + NBX;
-    lbx[0] = -1.267;
-    ubx[0] = 1.267;
+    lbx[0] = -47402.91;
+    ubx[0] = 47402.91;
 
     for (int i = 1; i < N; i++)
     {
@@ -829,8 +829,8 @@ void turbine_acados_set_nlp_out(turbine_solver_capsule* capsule)
     double* x0 = xu0;
 
     // initialize with x0
-    x0[0] = 0.1;
-    x0[2] = 0.01;
+    x0[0] = 0.001;
+    x0[2] = 0.001;
 
 
     double* u0 = xu0 + NX;

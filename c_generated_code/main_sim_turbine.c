@@ -68,9 +68,9 @@ int main()
     x_current[2] = 0.0;
 
   
-    x_current[0] = 0.1;
+    x_current[0] = 0.001;
     x_current[1] = 0;
-    x_current[2] = 0.01;
+    x_current[2] = 0.001;
     
   
 
