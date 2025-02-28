@@ -34,7 +34,7 @@
 #include "acados_c/sim_interface.h"
 #include "acados_c/external_function_interface.h"
 
-#define TURBINE_NX     3
+#define TURBINE_NX     4
 #define TURBINE_NZ     0
 #define TURBINE_NU     2
 #define TURBINE_NP     0

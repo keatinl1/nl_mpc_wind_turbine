@@ -4,13 +4,14 @@ import numpy as np
 import scipy.linalg
 from utils import plot_robot
 
-X0 = np.array([1e-3, 0, 1e-3])  # Intital state, to avoid zero division make them very small
+X0 = np.array([0.56, 7.0, 0, 1e-3])  # Intital state, to avoid zero division make them very small
 T_horizon = 50  # Length of simulation horizon
 
 # state constraints
 max_Omega   = 1.267 # rad/s
 max_theta   = 1.5708 # rad
 max_Qg      = 47402.91 # N*m
+
 # input constraints
 max_pitch_rate  = 0.139626 # rad/s
 max_torque_rate = 15000.0 # N*m
@@ -30,7 +31,7 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.solver_options.N_horizon = N_horizon
 
     # set cost
-    Q_mat = 1 * np.diag([0, 10, 0])
+    Q_mat = 1 * np.diag([0, 10, 0, 0])
     R_mat = 1 * np.diag([1, 1])
 
     ocp.cost.cost_type = "LINEAR_LS"
@@ -61,11 +62,11 @@ def create_ocp_solver_description() -> AcadosOcp:
 
     ocp.constraints.lbx = np.array([-max_theta])
     ocp.constraints.ubx = np.array([+max_theta])
-    ocp.constraints.idxbx = np.array([1])
+    ocp.constraints.idxbx = np.array([2])
 
     ocp.constraints.lbx = np.array([-max_Qg])
     ocp.constraints.ubx = np.array([+max_Qg])
-    ocp.constraints.idxbx = np.array([2])
+    ocp.constraints.idxbx = np.array([3])
 
     # set input constraints
     ocp.constraints.lbu = np.array([-max_pitch_rate])
@@ -75,6 +76,7 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.constraints.lbu = np.array([-max_torque_rate])
     ocp.constraints.ubu = np.array([max_torque_rate])
     ocp.constraints.idxbu = np.array([1])
+
 
     # set initial condition
     ocp.constraints.x0 = X0
@@ -112,8 +114,8 @@ def closed_loop_simulation():
     xcurrent = X0
     simX[0, :] = xcurrent
 
-    yref = np.array([0.0, 0.50, 0.0, 0.0, 0.0])
-    yref_N = np.array([0.0, 0.50, 0.0])
+    yref = np.array([0.0, 7.0, 0.0, 0.0, 0.0, 0.0])
+    yref_N = np.array([0.0, 7.0, 0.0, 0.0])
 
     # closed loop
     for i in range(Nsim):
@@ -149,6 +151,20 @@ def closed_loop_simulation():
         xcurrent[1], yref_N[1],
         xcurrent[2], yref_N[2]
     ))
+
+    omega_ok = np.all(np.abs(simX[:, 0]) <= max_Omega)
+    theta_ok = np.all(np.abs(simX[:, 2]) <= max_theta)
+    qg_ok = np.all(np.abs(simX[:, 3]) <= max_Qg)
+    pitch_rate_ok = np.all(np.abs(simU[:, 0]) <= max_pitch_rate)
+    torque_rate_ok = np.all(np.abs(simU[:, 1]) <= max_torque_rate)
+
+    print("\nConstraint Check:")
+    print(f"Omega: {'PASS' if omega_ok else 'FAIL'}")
+    print(f"Theta: {'PASS' if theta_ok else 'FAIL'}")
+    print(f"Qg: {'PASS' if qg_ok else 'FAIL'}")
+    print(f"Pitch Rate: {'PASS' if pitch_rate_ok else 'FAIL'}")
+    print(f"Torque Rate: {'PASS' if torque_rate_ok else 'FAIL'}")
+
 
     # plot results
     plot_robot(

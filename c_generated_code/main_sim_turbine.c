@@ -66,11 +66,13 @@ int main()
     x_current[0] = 0.0;
     x_current[1] = 0.0;
     x_current[2] = 0.0;
+    x_current[3] = 0.0;
 
   
-    x_current[0] = 0.001;
-    x_current[1] = 0;
-    x_current[2] = 0.001;
+    x_current[0] = 0.56;
+    x_current[1] = 7;
+    x_current[2] = 0;
+    x_current[3] = 0.001;
     
   
 
