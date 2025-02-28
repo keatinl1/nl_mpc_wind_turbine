@@ -5,7 +5,7 @@ import scipy.linalg
 from utils import plot_robot
 
 X0 = np.array([1.0, 0.0, 0.0])  # Intital state
-T_horizon = 20.0  # Define the prediction horizon
+T_horizon = 2.5  # Length of simulation horizon
 
 
 def create_ocp_solver_description() -> AcadosOcp:
@@ -118,10 +118,18 @@ def closed_loop_simulation():
                 f"acados acados_ocp_solver returned status {status} in closed loop instance {i} with {xcurrent}"
             )
 
-        # simulate system
-        xcurrent = acados_integrator.simulate(xcurrent, simU[i, :])
-        simX[i + 1, :] = xcurrent
+    # simulate system
+    xcurrent = acados_integrator.simulate(xcurrent, simU[i, :])
+    simX[i + 1, :] = xcurrent
 
+    print("\nFinal system state:\n"
+    "Omega (ref): {:.4f} ({})\n"
+    "Theta (ref): {:.4f} ({})\n"
+    "Qg    (ref): {:.4f} ({})".format(
+        xcurrent[0], yref_N[0],
+        xcurrent[1], yref_N[1],
+        xcurrent[2], yref_N[2]
+    ))
 
     # plot results
     plot_robot(
