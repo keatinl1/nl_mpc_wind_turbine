@@ -49,9 +49,9 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.cost.yref_e = np.zeros((ny_e,))
 
     # set constraints
-    ocp.constraints.lbx = np.array([-max_Omega])
-    ocp.constraints.ubx = np.array([+max_Omega])
-    ocp.constraints.idxbx = np.array([0])
+    # ocp.constraints.lbx = np.array([-max_Omega])
+    # ocp.constraints.ubx = np.array([+max_Omega])
+    # ocp.constraints.idxbx = np.array([0])
 
     # ocp.constraints.lbu = np.array([-0.05, -0.1])   # Min pitch rate, torque rate
     # ocp.constraints.ubu = np.array([0.05, 0.1])     # Max pitch rate, torque rate
