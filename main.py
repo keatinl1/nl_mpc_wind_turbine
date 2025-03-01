@@ -4,6 +4,11 @@ import numpy as np
 import scipy.linalg
 from utils import plot_robot
 
+from parameters import Jonkman
+param = Jonkman()
+wind = param.wind_speed
+ref_Omega = 7*wind / 61.5
+
 '''
     Sim is just one horizon
     x0 must be a member of the feasible set XF
@@ -11,15 +16,14 @@ from utils import plot_robot
 
 '''
 
-x0 = np.array([1e-3, 1e-3, 1e-3])
+x0 = np.array([1e-6, 1e-6, 1e-6])
 
-yref = np.array([0.560, 0.0, 0.0, 0.0, 0.0])
-yref_N = np.array([0.560, 0.0, 0.0])   
+yref = np.array([ref_Omega, 0.0, 0.0, 0.0, 0.0])
+yref_N = np.array([ref_Omega, 0.0, 0.0])   
 
 # set cost
-Q_mat = 1 * np.diag([2.5, 0, 0])
-R_mat = 1 * np.diag([1000, 1e-6])
-
+Q_mat = 1 * np.diag([6, 0, 0])
+R_mat = 1 * np.diag([900, 1e-6])
 
 # simulation time
 Ts = 1.0                    # Sample time
@@ -145,7 +149,6 @@ def closed_loop_simulation():
         np.linspace(0, time_of_sim / N_horizon * Nsim, Nsim + 1), [None, None],  simU, simX,
         x_labels=model.x_labels, u_labels=model.u_labels, time_label=model.t_label
     )
-
 
 if __name__ == "__main__":
     closed_loop_simulation()
