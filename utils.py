@@ -57,7 +57,7 @@ def plot_robot(
     
     # Additional plot: first column vs. third column of X_traj by 95
     plt.subplot(nx + nu + 1, 1, nx + nu + 1)
-    plt.plot(t, X_traj[:, 0]*X_traj[:, 3] * 97 * .944, color="tab:red")
+    plt.plot(t, X_traj[:, 0]*X_traj[:, -1] * 97 * .944, color="tab:red")
     plt.ylabel("$P_e$")
     plt.xlabel("$t$ [s]")
     plt.grid()

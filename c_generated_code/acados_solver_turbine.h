@@ -36,13 +36,13 @@
 #include "acados_c/ocp_nlp_interface.h"
 #include "acados_c/external_function_interface.h"
 
-#define TURBINE_NX     4
+#define TURBINE_NX     3
 #define TURBINE_NZ     0
 #define TURBINE_NU     2
 #define TURBINE_NP     0
 #define TURBINE_NP_GLOBAL     0
 #define TURBINE_NBX    0
-#define TURBINE_NBX0   4
+#define TURBINE_NBX0   3
 #define TURBINE_NBU    0
 #define TURBINE_NSBX   0
 #define TURBINE_NSBU   0
@@ -61,9 +61,9 @@
 #define TURBINE_NG     0
 #define TURBINE_NBXN   0
 #define TURBINE_NGN    0
-#define TURBINE_NY0    6
-#define TURBINE_NY     6
-#define TURBINE_NYN    4
+#define TURBINE_NY0    5
+#define TURBINE_NY     5
+#define TURBINE_NYN    3
 #define TURBINE_N      50
 #define TURBINE_NH     0
 #define TURBINE_NHN    0

@@ -171,8 +171,8 @@ int turbine_acados_sim_create(turbine_sim_solver_capsule * capsule)
 
     /* initialize input */
     // x
-    double x0[4];
-    for (int ii = 0; ii < 4; ii++)
+    double x0[3];
+    for (int ii = 0; ii < 3; ii++)
         x0[ii] = 0.0;
 
     sim_in_set(turbine_sim_config, turbine_sim_dims,
@@ -188,11 +188,11 @@ int turbine_acados_sim_create(turbine_sim_solver_capsule * capsule)
                turbine_sim_in, "u", u0);
 
     // S_forw
-    double S_forw[24];
-    for (int ii = 0; ii < 24; ii++)
+    double S_forw[15];
+    for (int ii = 0; ii < 15; ii++)
         S_forw[ii] = 0.0;
-    for (int ii = 0; ii < 4; ii++)
-        S_forw[ii + ii * 4 ] = 1.0;
+    for (int ii = 0; ii < 3; ii++)
+        S_forw[ii + ii * 3 ] = 1.0;
 
 
     sim_in_set(turbine_sim_config, turbine_sim_dims,

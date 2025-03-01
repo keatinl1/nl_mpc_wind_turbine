@@ -4,6 +4,13 @@ import numpy as np
 import scipy.linalg
 from utils import plot_robot
 
+# find optimal Omega
+from parameters import Jonkman
+params = Jonkman()
+wind_speed = params.wind_speed
+radius = params.radius
+omega_reference = 7*wind_speed/radius
+
 '''
     Sim is just one horizon
     x0 must be a member of the feasible set XF
@@ -11,12 +18,19 @@ from utils import plot_robot
 
 '''
 
-x0 = np.array([2.0, 6.0, 1e-3, 1e-3])  # Intital state, to avoid zero division make them very small
+x0 = np.array([0.5, 1e-3, 1e-3])
+
+yref = np.array([omega_reference, 0.0, 0.0, 0.0, 0.0])
+yref_N = np.array([omega_reference, 0.0, 0.0])   
+
+# set cost
+Q_mat = 1 * np.diag([100, 0, 0])
+R_mat = 1 * np.diag([1e-2, 1e-2])
 
 
-Ts = 1.0        # Sample time
-N_horizon = 50  # number of steps in horizon
-
+# simulation time
+Ts = 1.0                    # Sample time
+N_horizon = 50              # number of steps in horizon
 time_of_sim = Ts*N_horizon  # Length of simulation horizon
 
 # state constraints
@@ -29,7 +43,6 @@ max_pitch_rate  = 0.139626  # rad/s
 max_torque_rate = 15000.0   # N*m/s
 
 def create_ocp_solver_description() -> AcadosOcp:
-    
     # create ocp object to formulate the OCP
     ocp = AcadosOcp()
 
@@ -40,10 +53,6 @@ def create_ocp_solver_description() -> AcadosOcp:
 
     # set dimensions
     ocp.solver_options.N_horizon = N_horizon
-
-    # set cost
-    Q_mat = 1 * np.diag([0, 100, 0, 0])
-    R_mat = 1 * np.diag([1e-2, 1e-2])
 
     ocp.cost.cost_type = "LINEAR_LS"
     ocp.cost.cost_type_e = "LINEAR_LS"
@@ -66,11 +75,12 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.cost.yref = np.zeros((ny,))
     ocp.cost.yref_e = np.zeros((ny_e,))
 
-    # set state constraints
+    # # set state constraints
     # ocp.constraints.lbx = np.array([-max_Omega, -max_theta, -max_Qg])
     # ocp.constraints.ubx = np.array([+max_Omega, +max_theta, +max_Qg])
-    # ocp.constraints.idxbx = np.array([0, 2, 3])
+    # ocp.constraints.idxbx = np.array([0, 1, 2])
 
+    # # set input constraints
     # ocp.constraints.lbu = np.array([-max_pitch_rate, -max_torque_rate])
     # ocp.constraints.ubu = np.array([max_pitch_rate, max_torque_rate])
     # ocp.constraints.idxbu = np.array([0, 1])
@@ -111,9 +121,6 @@ def closed_loop_simulation():
     xcurrent = x0
     simX[0, :] = xcurrent
 
-    yref = np.array([0.0, 7.0, 0.0, 0.0, 0.0, 0.0])
-    yref_N = np.array([0.0, 7.0, 0.0, 0.0])
-
     # closed loop
     for i in range(Nsim):
         # update yref
@@ -139,17 +146,6 @@ def closed_loop_simulation():
         # simulate system
         xcurrent = acados_integrator.simulate(xcurrent, simU[i, :])
         simX[i + 1, :] = xcurrent
-
-    print("\nFinal system state:\n"
-    "Omega  (ref): {:.4f} ({})\n"
-    "Lambda (ref): {:.4f} ({})\n"
-    "Theta  (ref): {:.4f} ({})\n"
-    "Qg     (ref): {:.4f} ({})".format(
-        xcurrent[0], yref_N[0],
-        xcurrent[1], yref_N[1],
-        xcurrent[2], yref_N[2],
-        xcurrent[3], yref_N[3]
-    ))
 
     # plot results
     plot_robot(

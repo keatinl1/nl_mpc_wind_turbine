@@ -15,15 +15,13 @@
         "idxbx_0": [
             0,
             1,
-            2,
-            3
+            2
         ],
         "idxbx_e": [],
         "idxbxe_0": [
             0,
             1,
-            2,
-            3
+            2
         ],
         "idxsbu": [],
         "idxsbx": [],
@@ -39,8 +37,7 @@
         "lbu": [],
         "lbx": [],
         "lbx_0": [
-            2.0,
-            6.0,
+            0.5,
             0.001,
             0.001
         ],
@@ -67,8 +64,7 @@
         "ubu": [],
         "ubx": [],
         "ubx_0": [
-            2.0,
-            6.0,
+            0.5,
             0.001,
             0.001
         ],
@@ -108,10 +104,6 @@
                 0.0
             ],
             [
-                0.0,
-                0.0
-            ],
-            [
                 1.0,
                 0.0
             ],
@@ -121,10 +113,6 @@
             ]
         ],
         "Vu_0": [
-            [
-                0.0,
-                0.0
-            ],
             [
                 0.0,
                 0.0
@@ -150,23 +138,14 @@
             [
                 1.0,
                 0.0,
-                0.0,
                 0.0
             ],
             [
                 0.0,
                 1.0,
-                0.0,
                 0.0
             ],
             [
-                0.0,
-                0.0,
-                1.0,
-                0.0
-            ],
-            [
-                0.0,
                 0.0,
                 0.0,
                 1.0
@@ -174,11 +153,9 @@
             [
                 0.0,
                 0.0,
-                0.0,
                 0.0
             ],
             [
-                0.0,
                 0.0,
                 0.0,
                 0.0
@@ -188,23 +165,14 @@
             [
                 1.0,
                 0.0,
-                0.0,
                 0.0
             ],
             [
                 0.0,
                 1.0,
-                0.0,
                 0.0
             ],
             [
-                0.0,
-                0.0,
-                1.0,
-                0.0
-            ],
-            [
-                0.0,
                 0.0,
                 0.0,
                 1.0
@@ -212,11 +180,9 @@
             [
                 0.0,
                 0.0,
-                0.0,
                 0.0
             ],
             [
-                0.0,
                 0.0,
                 0.0,
                 0.0
@@ -226,23 +192,14 @@
             [
                 1.0,
                 0.0,
-                0.0,
                 0.0
             ],
             [
                 0.0,
                 1.0,
-                0.0,
                 0.0
             ],
             [
-                0.0,
-                0.0,
-                1.0,
-                0.0
-            ],
-            [
-                0.0,
                 0.0,
                 0.0,
                 1.0
@@ -252,15 +209,6 @@
         "Vz_0": [],
         "W": [
             [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            [
-                0.0,
                 100.0,
                 0.0,
                 0.0,
@@ -272,7 +220,6 @@
                 0.0,
                 0.0,
                 0.0,
-                0.0,
                 0.0
             ],
             [
@@ -280,11 +227,9 @@
                 0.0,
                 0.0,
                 0.0,
-                0.0,
                 0.0
             ],
             [
-                0.0,
                 0.0,
                 0.0,
                 0.0,
@@ -292,7 +237,6 @@
                 0.0
             ],
             [
-                0.0,
                 0.0,
                 0.0,
                 0.0,
@@ -302,15 +246,6 @@
         ],
         "W_0": [
             [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            [
-                0.0,
                 100.0,
                 0.0,
                 0.0,
@@ -322,7 +257,6 @@
                 0.0,
                 0.0,
                 0.0,
-                0.0,
                 0.0
             ],
             [
@@ -330,11 +264,9 @@
                 0.0,
                 0.0,
                 0.0,
-                0.0,
                 0.0
             ],
             [
-                0.0,
                 0.0,
                 0.0,
                 0.0,
@@ -346,19 +278,11 @@
                 0.0,
                 0.0,
                 0.0,
-                0.0,
                 0.01
             ]
         ],
         "W_e": [
             [
-                0,
-                0,
-                0,
-                0
-            ],
-            [
-                0,
                 100,
                 0,
                 0
@@ -366,11 +290,9 @@
             [
                 0,
                 0,
-                0,
                 0
             ],
             [
-                0,
                 0,
                 0,
                 0
@@ -399,7 +321,6 @@
             0.0,
             0.0,
             0.0,
-            0.0,
             0.0
         ],
         "yref_0": [
@@ -407,11 +328,9 @@
             0.0,
             0.0,
             0.0,
-            0.0,
             0.0
         ],
         "yref_e": [
-            0.0,
             0.0,
             0.0,
             0.0
@@ -432,9 +351,9 @@
         "n_global_data": 0,
         "nbu": 0,
         "nbx": 0,
-        "nbx_0": 4,
+        "nbx_0": 3,
         "nbx_e": 0,
-        "nbxe_0": 4,
+        "nbxe_0": 3,
         "ng": 0,
         "ng_e": 0,
         "nh": 0,
@@ -463,11 +382,11 @@
         "nsphi_0": 0,
         "nsphi_e": 0,
         "nu": 2,
-        "nx": 4,
-        "nx_next": 4,
-        "ny": 6,
-        "ny_0": 6,
-        "ny_e": 4,
+        "nx": 3,
+        "nx_next": 3,
+        "ny": 5,
+        "ny_0": 5,
+        "ny_e": 3,
         "nz": 0
     },
     "external_function_files_model": [
@@ -519,8 +438,8 @@
         "dyn_impl_dae_fun": null,
         "dyn_impl_dae_fun_jac": null,
         "dyn_impl_dae_jac": null,
-        "f_expl_expr": "jhpnnagiieahaaaadaaaaaaaaaaaaaaaaaegiaaaaaaaaaaaaaaaeaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaeaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaacaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaeaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachagkeokelhilmghodegcaaaaaaaaaaaaaaaegeaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachjjmicgpmklmphgbeegbaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachbhlbnaaoncajaopdegcaaaaaaaaaaaaaaaegcaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgehaaaaaaegcaaaaaaaaaaaaaaaegecaaaaaaaaaaaaaaegbaaaaaaaaaaaaaaaegeaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachaaaaaaaaaaamoeaeegpcaaaaaaaaaaaaaafaaaaaaapengfghgbgegmcaaaaaaaaaaaaaajgmaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachlhebokhebokhelpdegpcaaaaaaaaaaaaaafaaaaaaaehigfgehbgegeaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachmobfilobfilobkpdegbaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaachlaaaaaaaaaaaaaaaeglaaaaaaaaaaaaaaachlaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaabdegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachkjjjjjjjjjjjjnpdchlaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgfaaaaaaaeggaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgloppppppchfbaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachpfhaomjbbfknlhpdchjaaaaaaaaaaaaaaachgaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaacaaaaaaabfhgegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachaaaaaaaaaaaiebaeegdaaaaaaaaaaaaaaachbaaaaaaaaaaaaaaaegcaaaaaaaaaaaaaaachfcaaaaaaaaaaaaaachgcaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaacaaaaaaafhbdegpcaaaaaaaaaaaaaacaaaaaaafhcd",
-        "f_impl_expr": "jhpnnagiieahaaaadaaaaaaaaaaaaaaaaaegiaaaaaaaaaaaaaaaeaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaeaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaacaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaeaaaaaaaaaaaaaaaegcaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaajaaaaaaapengfghgbgpfegpgehegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachagkeokelhilmghodegcaaaaaaaaaaaaaaaegeaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachjjmicgpmklmphgbeegbaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachbhlbnaaoncajaopdegcaaaaaaaaaaaaaaaegcaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgehaaaaaaegcaaaaaaaaaaaaaaaegecaaaaaaaaaaaaaaegbaaaaaaaaaaaaaaaegeaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachaaaaaaaaaaamoeaeegpcaaaaaaaaaaaaaafaaaaaaapengfghgbgegmcaaaaaaaaaaaaaajgmaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachlhebokhebokhelpdegpcaaaaaaaaaaaaaafaaaaaaaehigfgehbgegeaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachmobfilobfilobkpdegbaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaachmaaaaaaaaaaaaaaaeglaaaaaaaaaaaaaaachmaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaabdegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachkjjjjjjjjjjjjnpdchmaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgfaaaaaaaeggaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgloppppppchgbaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachpfhaomjbbfknlhpdchkaaaaaaaaaaaaaaachhaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaacaaaaaaabfhgegcaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaakaaaaaaamebgngcgegbgpfegpgehegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachaaaaaaaaaaaiebaeegdaaaaaaaaaaaaaaachcaaaaaaaaaaaaaaaegcaaaaaaaaaaaaaaachgcaaaaaaaaaaaaaachhcaaaaaaaaaaaaaaegcaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaajaaaaaaaehigfgehbgpfegpgehegpcaaaaaaaaaaaaaacaaaaaaafhbdegcaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaagaaaaaaabfhgpfegpgehegpcaaaaaaaaaaaaaacaaaaaaafhcd",
+        "f_expl_expr": "jhpnnagiieahaaaadaaaaaaaaaaaaaaaaaeghaaaaaaaaaaaaaaadaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaacaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachagkeokelhilmghodegcaaaaaaaaaaaaaaaegeaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachihhkcijhdfdmlcbeegbaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachbhlbnaaoncajaopdegcaaaaaaaaaaaaaaaegcaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgehaaaaaaegcaaaaaaaaaaaaaaaegecaaaaaaaaaaaaaaegbaaaaaaaaaaaaaaaegeaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachaaaaaaaaaaamoeaeegpcaaaaaaaaaaaaaafaaaaaaapengfghgbgegmcaaaaaaaaaaaaaajgfaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachlhebokhebokhelpdegpcaaaaaaaaaaaaaafaaaaaaaehigfgehbgegeaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachmobfilobfilobkpdegbaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaachlaaaaaaaaaaaaaaaeglaaaaaaaaaaaaaaachlaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaabdegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachkjjjjjjjjjjjjnpdchlaaaaaaaaaaaaaaachiaaaaaaaaaaaaaaaeggaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgloppppppchfbaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachpfhaomjbbfknlhpdchjaaaaaaaaaaaaaaachgaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaacaaaaaaabfhgegpcaaaaaaaaaaaaaacaaaaaaafhbdegpcaaaaaaaaaaaaaacaaaaaaafhcd",
+        "f_impl_expr": "jhpnnagiieahaaaadaaaaaaaaaaaaaaaaaeghaaaaaaaaaaaaaaadaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaacaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaegcaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaajaaaaaaapengfghgbgpfegpgehegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachagkeokelhilmghodegcaaaaaaaaaaaaaaaegeaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachihhkcijhdfdmlcbeegbaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachbhlbnaaoncajaopdegcaaaaaaaaaaaaaaaegcaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgehaaaaaaegcaaaaaaaaaaaaaaaegecaaaaaaaaaaaaaaegbaaaaaaaaaaaaaaaegeaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachaaaaaaaaaaamoeaeegpcaaaaaaaaaaaaaafaaaaaaapengfghgbgegmcaaaaaaaaaaaaaajgfaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachlhebokhebokhelpdegpcaaaaaaaaaaaaaafaaaaaaaehigfgehbgegeaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachmobfilobfilobkpdegbaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaachmaaaaaaaaaaaaaaaeglaaaaaaaaaaaaaaachmaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaabdegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachkjjjjjjjjjjjjnpdchmaaaaaaaaaaaaaaachjaaaaaaaaaaaaaaaeggaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgloppppppchgbaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachpfhaomjbbfknlhpdchkaaaaaaaaaaaaaaachhaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaacaaaaaaabfhgegcaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaajaaaaaaaehigfgehbgpfegpgehegpcaaaaaaaaaaaaaacaaaaaaafhbdegcaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaagaaaaaaabfhgpfegpgehegpcaaaaaaaaaaaaaacaaaaaaafhcd",
         "gnsf_nontrivial_f_LO": 1,
         "gnsf_purely_linear": 0,
         "name": "turbine",
@@ -535,14 +454,13 @@
             "$u_1 (\\dot{\\theta})$",
             "$u_2 (\\dot{Q_g})$"
         ],
-        "x": "jhpnnagiieahaaaadaaaaaaaaaaaaaaaaaegiaaaaaaaaaaaaaaaeaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaeaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaacaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaeaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaafaaaaaaapengfghgbgegpcaaaaaaaaaaaaaagaaaaaaamebgngcgegbgegpcaaaaaaaaaaaaaafaaaaaaaehigfgehbgegpcaaaaaaaaaaaaaacaaaaaaabfhg",
+        "x": "jhpnnagiieahaaaadaaaaaaaaaaaaaaaaaeghaaaaaaaaaaaaaaadaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaacaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaafaaaaaaapengfghgbgegpcaaaaaaaaaaaaaafaaaaaaaehigfgehbgegpcaaaaaaaaaaaaaacaaaaaaabfhg",
         "x_labels": [
             "$\\Omega$",
-            "$\\lambda$",
             "$\\theta$",
             "$Q_g$"
         ],
-        "xdot": "jhpnnagiieahaaaadaaaaaaaaaaaaaaaaaegiaaaaaaaaaaaaaaaeaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaeaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaacaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaeaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaajaaaaaaapengfghgbgpfegpgehegpcaaaaaaaaaaaaaakaaaaaaamebgngcgegbgpfegpgehegpcaaaaaaaaaaaaaajaaaaaaaehigfgehbgpfegpgehegpcaaaaaaaaaaaaaagaaaaaaabfhgpfegpgeh",
+        "xdot": "jhpnnagiieahaaaadaaaaaaaaaaaaaaaaaeghaaaaaaaaaaaaaaadaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaacaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaajaaaaaaapengfghgbgpfegpgehegpcaaaaaaaaaaaaaajaaaaaaaehigfgehbgpfegpgehegpcaaaaaaaaaaaaaagaaaaaaabfhgpfegpgeh",
         "z": "jhpnnagiieahaaaadaaaaaaaaaaaaaaaaaegeaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     },
     "name": "turbine",

@@ -53,45 +53,44 @@ extern "C" {
 
 casadi_real casadi_sq(casadi_real x) { return x*x;}
 
-static const casadi_int casadi_s0[8] = {4, 1, 0, 4, 0, 1, 2, 3};
+static const casadi_int casadi_s0[7] = {3, 1, 0, 3, 0, 1, 2};
 static const casadi_int casadi_s1[6] = {2, 1, 0, 2, 0, 1};
 static const casadi_int casadi_s2[4] = {0, 1, 0, 0};
 static const casadi_int casadi_s3[3] = {0, 0, 0};
 
-/* turbine_impl_dae_fun:(i0[4],i1[4],i2[2],i3[0],i4[],i5[0])->(o0[4]) */
+/* turbine_impl_dae_fun:(i0[3],i1[3],i2[2],i3[0],i4[],i5[0])->(o0[3]) */
 static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem) {
-  casadi_real a0, a1, a10, a11, a2, a3, a4, a5, a6, a7, a8, a9;
+  casadi_real a0, a1, a10, a11, a12, a2, a3, a4, a5, a6, a7, a8, a9;
   a0=arg[1]? arg[1][0] : 0;
   a1=8.4918139338268611e-08;
-  a2=1.2576214480779933e+07;
+  a2=9.0973773732493725e+05;
   a3=5.1759999999999995e-01;
   a4=116.;
   a5=6.1500000000000000e+01;
   a6=arg[0]? arg[0][0] : 0;
   a5=(a5*a6);
-  a7=12.;
+  a7=5.;
   a5=(a5/a7);
-  a7=8.0000000000000002e-02;
-  a8=arg[0]? arg[0][2] : 0;
-  a7=(a7*a8);
-  a7=(a5+a7);
-  a7=(1./a7);
-  a9=3.5000000000000003e-02;
-  a10=casadi_sq(a8);
-  a10=(a8*a10);
-  a11=1.;
-  a10=(a10+a11);
-  a9=(a9/a10);
-  a7=(a7-a9);
-  a4=(a4*a7);
-  a9=4.0000000000000002e-01;
-  a9=(a9*a8);
-  a4=(a4-a9);
-  a9=5.;
-  a4=(a4-a9);
+  a8=8.0000000000000002e-02;
+  a9=arg[0]? arg[0][1] : 0;
+  a8=(a8*a9);
+  a8=(a5+a8);
+  a8=(1./a8);
+  a10=3.5000000000000003e-02;
+  a11=casadi_sq(a9);
+  a11=(a9*a11);
+  a12=1.;
+  a11=(a11+a12);
+  a10=(a10/a11);
+  a8=(a8-a10);
+  a4=(a4*a8);
+  a10=4.0000000000000002e-01;
+  a10=(a10*a9);
+  a4=(a4-a10);
+  a4=(a4-a7);
   a3=(a3*a4);
   a4=-21.;
-  a4=(a4*a7);
+  a4=(a4*a8);
   a4=exp(a4);
   a3=(a3*a4);
   a4=6.7999999999999996e-03;
@@ -99,24 +98,19 @@ static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw,
   a3=(a3+a4);
   a2=(a2*a3);
   a2=(a2/a6);
-  a6=arg[0]? arg[0][3] : 0;
+  a6=arg[0]? arg[0][2] : 0;
   a2=(a2-a6);
   a1=(a1*a2);
   a0=(a0-a1);
   if (res[0]!=0) res[0][0]=a0;
   a0=arg[1]? arg[1][1] : 0;
-  a2=5.1250000000000000e+00;
-  a2=(a2*a1);
-  a0=(a0-a2);
+  a1=arg[2]? arg[2][0] : 0;
+  a0=(a0-a1);
   if (res[0]!=0) res[0][1]=a0;
   a0=arg[1]? arg[1][2] : 0;
-  a2=arg[2]? arg[2][0] : 0;
-  a0=(a0-a2);
+  a1=arg[2]? arg[2][1] : 0;
+  a0=(a0-a1);
   if (res[0]!=0) res[0][2]=a0;
-  a0=arg[1]? arg[1][3] : 0;
-  a2=arg[2]? arg[2][1] : 0;
-  a0=(a0-a2);
-  if (res[0]!=0) res[0][3]=a0;
   return 0;
 }
 
