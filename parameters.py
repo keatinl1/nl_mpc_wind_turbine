@@ -6,6 +6,7 @@ so that's what I'm using
 Jonkman:
     Data taken from: https://www.nrel.gov/docs/fy09osti/38060.pdf, pg6
     more clearly presented: https://www.tara.tcd.ie/handle/2262/83163, pg75
+    this is the best i think as there are constraints given in the pdf..
 
 OdehJonkman:
     Data taken from: https://onlinelibrary.wiley.com/doi/epdf/10.1002/we.2853, pg990
@@ -30,10 +31,12 @@ class Jonkman:
 
         # turbine
         self.radius = 61.5
-        self.moment_o_inertia = 11776047.0
+        # self.moment_o_inertia = 11776047.0
         # self.moment_o_inertia = 115.926E3
-        # self.moment_o_inertia = 11776047.0*3.0
-        # self.moment_o_inertia = 4.37e7 # ? https://forums.nrel.gov/t/rotor-and-nacelle-mass-moment-of-inertia-tensors/2015/3
+        self.moment_o_inertia = 11776047.0*3.0 # think this is the correct value
+        
+        # https://forums.nrel.gov/t/rotor-and-nacelle-mass-moment-of-inertia-tensors/2015/3
+        # self.moment_o_inertia = 4.37e7 # ?
 
         # environment 
         self.wind_speed = 5.0       
@@ -56,7 +59,6 @@ class OdehJonkman:
 
         # environment 
         self.wind_speed = 3.0        
-
 
 class Staino:    
     def __init__(self, **kwargs):

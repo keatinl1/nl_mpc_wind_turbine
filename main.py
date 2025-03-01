@@ -18,14 +18,14 @@ omega_reference = 7*wind_speed/radius
 
 '''
 
-x0 = np.array([0.5, 1e-3, 1e-3])
+x0 = np.array([omega_reference - 0.07, 1e-3, 1e-3])
 
 yref = np.array([omega_reference, 0.0, 0.0, 0.0, 0.0])
 yref_N = np.array([omega_reference, 0.0, 0.0])   
 
 # set cost
-Q_mat = 1 * np.diag([100, 0, 0])
-R_mat = 1 * np.diag([1e-2, 1e-2])
+Q_mat = 1 * np.diag([1, 0, 0])
+R_mat = 1 * np.diag([1, 1])
 
 
 # simulation time
@@ -111,7 +111,7 @@ def closed_loop_simulation():
     N_horizon = acados_ocp_solver.N
 
     # prepare simulation
-    Nsim = 100
+    Nsim = 200
     nx = ocp.model.x.rows()
     nu = ocp.model.u.rows()
 
