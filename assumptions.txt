@@ -1,7 +1,6 @@
 assume: 
 
     constant wind velocity 5m/s
-
     constant air density 1.225kg/m3
     
     optimal lambda is ~7 for 3 blade , therefore 0.56m/s is optimal (lambda = R*omega/V_wind)

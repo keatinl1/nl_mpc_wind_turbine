@@ -17,30 +17,30 @@ Staino:
 
 '''
 
-
 class Jonkman:
     def __init__(self):
-        # state constraints
+        # State constraints
         self.max_Omega   = 1.267     # rad/s
         self.max_theta   = 1.5708    # rad
         self.max_Qg      = 47402.91  # N*m
 
-        # input constraints
+        # Input constraints
         self.max_pitch_rate  = 0.139626  # rad/s
         self.max_torque_rate = 15000.0   # N*m/s
 
-        # turbine
+        # Turbine characteristics
         self.radius = 61.5
         # self.moment_o_inertia = 11776047.0
         # self.moment_o_inertia = 115.926E3
+        # self.moment_o_inertia = 4.37e7 # ?. https://forums.nrel.gov/t/rotor-and-nacelle-mass-moment-of-inertia-tensors/2015/3
         self.moment_o_inertia = 11776047.0*3.0 # think this is the correct value
         
-        # https://forums.nrel.gov/t/rotor-and-nacelle-mass-moment-of-inertia-tensors/2015/3
-        # self.moment_o_inertia = 4.37e7 # ?
-
-        # environment 
+        # Environment 
         self.wind_speed = 5.0       
 
+#*********************************************************************************************************************
+#* WILL LIKELY BE REMOVED 
+#*********************************************************************************************************************
 
 class OdehJonkman:
     def __init__(self):
