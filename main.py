@@ -93,7 +93,7 @@ def closed_loop_simulation():
     N_horizon = acados_ocp_solver.N
 
     # prepare simulation
-    Nsim = 100
+    Nsim = 1000
     nx = ocp.model.x.rows()
     nu = ocp.model.u.rows()
 
@@ -142,20 +142,6 @@ def closed_loop_simulation():
         xcurrent[2], yref_N[2],
         xcurrent[3], yref_N[3]
     ))
-
-    omega_ok = np.all(np.abs(simX[:, 0]) <= max_Omega)
-    theta_ok = np.all(np.abs(simX[:, 2]) <= max_theta)
-    qg_ok = np.all(np.abs(simX[:, 3]) <= max_Qg)
-    pitch_rate_ok = np.all(np.abs(simU[:, 0]) <= max_pitch_rate)
-    torque_rate_ok = np.all(np.abs(simU[:, 1]) <= max_torque_rate)
-
-    print("\nConstraint Check:")
-    print(f"Omega: {'PASS' if omega_ok else 'FAIL'}")
-    print(f"Theta: {'PASS' if theta_ok else 'FAIL'}")
-    print(f"Qg: {'PASS' if qg_ok else 'FAIL'}")
-    print(f"Pitch Rate: {'PASS' if pitch_rate_ok else 'FAIL'}")
-    print(f"Torque Rate: {'PASS' if torque_rate_ok else 'FAIL'}")
-
 
     # plot results
     plot_robot(
