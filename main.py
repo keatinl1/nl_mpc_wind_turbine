@@ -4,13 +4,6 @@ import numpy as np
 import scipy.linalg
 from utils import plot_robot
 
-# find optimal Omega
-from parameters import Jonkman
-params = Jonkman()
-wind_speed = params.wind_speed
-radius = params.radius
-omega_reference = 7*wind_speed/radius
-
 '''
     Sim is just one horizon
     x0 must be a member of the feasible set XF
@@ -18,14 +11,14 @@ omega_reference = 7*wind_speed/radius
 
 '''
 
-x0 = np.array([omega_reference - 0.07, 1e-3, 1e-3])
+x0 = np.array([1e-3, 1e-3, 1e-3])
 
-yref = np.array([omega_reference, 0.0, 0.0, 0.0, 0.0])
-yref_N = np.array([omega_reference, 0.0, 0.0])   
+yref = np.array([0.560, 0.0, 0.0, 0.0, 0.0])
+yref_N = np.array([0.560, 0.0, 0.0])   
 
 # set cost
 Q_mat = 1 * np.diag([1, 0, 0])
-R_mat = 1 * np.diag([1, 1])
+R_mat = 1 * np.diag([1000, 1e-6])
 
 
 # simulation time
@@ -75,15 +68,15 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.cost.yref = np.zeros((ny,))
     ocp.cost.yref_e = np.zeros((ny_e,))
 
-    # # set state constraints
-    # ocp.constraints.lbx = np.array([-max_Omega, -max_theta, -max_Qg])
-    # ocp.constraints.ubx = np.array([+max_Omega, +max_theta, +max_Qg])
-    # ocp.constraints.idxbx = np.array([0, 1, 2])
+    # set state constraints
+    ocp.constraints.lbx = np.array([-max_theta, -max_Qg])
+    ocp.constraints.ubx = np.array([+max_theta, +max_Qg])
+    ocp.constraints.idxbx = np.array([1, 2])
 
-    # # set input constraints
-    # ocp.constraints.lbu = np.array([-max_pitch_rate, -max_torque_rate])
-    # ocp.constraints.ubu = np.array([max_pitch_rate, max_torque_rate])
-    # ocp.constraints.idxbu = np.array([0, 1])
+    # set input constraints
+    ocp.constraints.lbu = np.array([-max_pitch_rate, -max_torque_rate])
+    ocp.constraints.ubu = np.array([max_pitch_rate, max_torque_rate])
+    ocp.constraints.idxbu = np.array([0, 1])
 
     # set initial condition
     ocp.constraints.x0 = x0
@@ -111,7 +104,7 @@ def closed_loop_simulation():
     N_horizon = acados_ocp_solver.N
 
     # prepare simulation
-    Nsim = 200
+    Nsim = 2000
     nx = ocp.model.x.rows()
     nu = ocp.model.u.rows()
 
