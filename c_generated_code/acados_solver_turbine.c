@@ -638,15 +638,18 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
 
     // x
     int* idxbx = malloc(NBX * sizeof(int));
-    idxbx[0] = 1;
-    idxbx[1] = 2;
+    idxbx[0] = 0;
+    idxbx[1] = 1;
+    idxbx[2] = 2;
     double* lubx = calloc(2*NBX, sizeof(double));
     double* lbx = lubx;
     double* ubx = lubx + NBX;
-    lbx[0] = -1.5708;
-    ubx[0] = 1.5708;
-    lbx[1] = -47402.91;
-    ubx[1] = 47402.91;
+    lbx[0] = -1.267;
+    ubx[0] = 1.267;
+    lbx[1] = -1.5708;
+    ubx[1] = 1.5708;
+    lbx[2] = -47402.91;
+    ubx[2] = 47402.91;
 
     for (int i = 1; i < N; i++)
     {

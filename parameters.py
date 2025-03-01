@@ -20,7 +20,7 @@ Staino:
 class Jonkman:
     def __init__(self):
         # State constraints
-        # self.max_Omega   = 1.267     # rad/s
+        self.max_Omega   = 1.267     # rad/s
         self.max_theta   = 1.5708    # rad
         self.max_Qg      = 47402.91  # N*m
 
