@@ -4,11 +4,20 @@ import numpy as np
 import scipy.linalg
 from utils import plot_robot
 
-# X0 = np.array([0.5691, 7.0, 0, 1e-3])  # Intital state, to avoid zero division make them very small
+'''
+    Sim is just one horizon
+    x0 must be a member of the feasible set XF
+    Any point in XF must be able to reach xN in one horizon
 
-X0 = np.array([1e-3, 1e-3, 1e-3, 1e-3])  # Intital state, to avoid zero division make them very small
+'''
 
-T_horizon = 1000  # Length of simulation horizon
+x0 = np.array([2.0, 6.0, 1e-3, 1e-3])  # Intital state, to avoid zero division make them very small
+
+
+Ts = 1.0        # Sample time
+N_horizon = 50  # number of steps in horizon
+
+time_of_sim = Ts*N_horizon  # Length of simulation horizon
 
 # state constraints
 max_Omega   = 1.267     # rad/s
@@ -20,8 +29,7 @@ max_pitch_rate  = 0.139626  # rad/s
 max_torque_rate = 15000.0   # N*m/s
 
 def create_ocp_solver_description() -> AcadosOcp:
-    N_horizon = 50  # Define the number of discretization steps
-
+    
     # create ocp object to formulate the OCP
     ocp = AcadosOcp()
 
@@ -35,7 +43,7 @@ def create_ocp_solver_description() -> AcadosOcp:
 
     # set cost
     Q_mat = 1 * np.diag([0, 100, 0, 0])
-    R_mat = 1 * np.diag([1, 1])
+    R_mat = 1 * np.diag([1e-2, 1e-2])
 
     ocp.cost.cost_type = "LINEAR_LS"
     ocp.cost.cost_type_e = "LINEAR_LS"
@@ -59,16 +67,16 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.cost.yref_e = np.zeros((ny_e,))
 
     # set state constraints
-    ocp.constraints.lbx = np.array([-max_Omega, -max_theta, -max_Qg])
-    ocp.constraints.ubx = np.array([+max_Omega, +max_theta, +max_Qg])
-    ocp.constraints.idxbx = np.array([0, 2, 3])
+    # ocp.constraints.lbx = np.array([-max_Omega, -max_theta, -max_Qg])
+    # ocp.constraints.ubx = np.array([+max_Omega, +max_theta, +max_Qg])
+    # ocp.constraints.idxbx = np.array([0, 2, 3])
 
-    ocp.constraints.lbu = np.array([-max_pitch_rate, -max_torque_rate])
-    ocp.constraints.ubu = np.array([max_pitch_rate, max_torque_rate])
-    ocp.constraints.idxbu = np.array([0, 1])
+    # ocp.constraints.lbu = np.array([-max_pitch_rate, -max_torque_rate])
+    # ocp.constraints.ubu = np.array([max_pitch_rate, max_torque_rate])
+    # ocp.constraints.idxbu = np.array([0, 1])
 
     # set initial condition
-    ocp.constraints.x0 = X0
+    ocp.constraints.x0 = x0
 
     # set options
     ocp.solver_options.qp_solver = "PARTIAL_CONDENSING_HPIPM"
@@ -77,7 +85,7 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.solver_options.nlp_solver_type = "SQP"
 
     # set prediction horizon
-    ocp.solver_options.tf = T_horizon
+    ocp.solver_options.tf = time_of_sim
 
     return ocp
 
@@ -93,18 +101,18 @@ def closed_loop_simulation():
     N_horizon = acados_ocp_solver.N
 
     # prepare simulation
-    Nsim = 1000
+    Nsim = 100
     nx = ocp.model.x.rows()
     nu = ocp.model.u.rows()
 
     simX = np.zeros((Nsim + 1, nx))
     simU = np.zeros((Nsim, nu))
 
-    xcurrent = X0
+    xcurrent = x0
     simX[0, :] = xcurrent
 
-    yref = np.array([0.0, 0.10, 0.0, 0.0, 0.0, 0.0])
-    yref_N = np.array([0.0, 0.10, 0.0, 0.0])
+    yref = np.array([0.0, 7.0, 0.0, 0.0, 0.0, 0.0])
+    yref_N = np.array([0.0, 7.0, 0.0, 0.0])
 
     # closed loop
     for i in range(Nsim):
@@ -120,7 +128,7 @@ def closed_loop_simulation():
         if status not in [0, 2]:
             acados_ocp_solver.print_statistics()
             plot_robot(
-                np.linspace(0, T_horizon / N_horizon * i, i + 1),
+                np.linspace(0, time_of_sim / N_horizon * i, i + 1),
                 simU[:i, :],
                 simX[: i + 1, :],
             )
@@ -145,7 +153,7 @@ def closed_loop_simulation():
 
     # plot results
     plot_robot(
-        np.linspace(0, T_horizon / N_horizon * Nsim, Nsim + 1), [None, None],  simU, simX,
+        np.linspace(0, time_of_sim / N_horizon * Nsim, Nsim + 1), [None, None],  simU, simX,
         x_labels=model.x_labels, u_labels=model.u_labels, time_label=model.t_label
     )
 

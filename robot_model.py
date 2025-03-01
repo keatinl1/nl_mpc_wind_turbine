@@ -1,6 +1,9 @@
 from acados_template import AcadosModel
 from casadi import SX, vertcat, pi, exp
 
+from parameters import Jonkman
+params = Jonkman()
+
 # Reference for model equations:
 # https://backend.orbit.dtu.dk/ws/portalfiles/portal/5832126/prod21318234687066.2070.pdf
 
@@ -28,11 +31,10 @@ def export_robot_model() -> AcadosModel:
     xdot = vertcat(Omega_dot, Lambda_dot, theta_dot, Qg_dot)
 
     rho = 1.225
-    V = 1.0
+    V = params.wind_speed
 
-    # Data taken from: https://www.nrel.gov/docs/fy09osti/38060.pdf, pg6
-    Jt = 11776047.0*3 # times 3 as 3 blade
-    R = 61.50
+    Jt = params.moment_o_inertia
+    R = params.radius
     
     # Cp 
     C1, C2, C3, C4, C5, C6 = 0.5176, 116, 0.4, 5, 21, 0.0068
