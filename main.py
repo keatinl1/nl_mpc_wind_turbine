@@ -17,7 +17,7 @@ yref = np.array([0.560, 0.0, 0.0, 0.0, 0.0])
 yref_N = np.array([0.560, 0.0, 0.0])   
 
 # set cost
-Q_mat = 1 * np.diag([1, 0, 0])
+Q_mat = 1 * np.diag([2.5, 0, 0])
 R_mat = 1 * np.diag([1000, 1e-6])
 
 
