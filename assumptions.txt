@@ -1,0 +1,11 @@
+assume: 
+
+    constant wind velocity 5m/s
+
+    constant air density 1.225kg/m3
+    
+    optimal lambda is ~7 for 3 blade , therefore 0.56m/s is optimal (lambda = R*omega/V_wind)
+    
+    x0 needs to be part of the feasible set. 0,0,0,0 is not part of this set, 
+    
+    therefore start at a point close to optimal (0.569105691, 7, 0, 0)

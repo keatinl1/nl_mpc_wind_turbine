@@ -75,12 +75,12 @@ int main()
     // initial condition
     double lbx0[NBX0];
     double ubx0[NBX0];
-    lbx0[0] = 0.56;
-    ubx0[0] = 0.56;
-    lbx0[1] = 7;
-    ubx0[1] = 7;
-    lbx0[2] = 0;
-    ubx0[2] = 0;
+    lbx0[0] = 0.001;
+    ubx0[0] = 0.001;
+    lbx0[1] = 0.001;
+    ubx0[1] = 0.001;
+    lbx0[2] = 0.001;
+    ubx0[2] = 0.001;
     lbx0[3] = 0.001;
     ubx0[3] = 0.001;
 

@@ -28,10 +28,10 @@ def export_robot_model() -> AcadosModel:
     xdot = vertcat(Omega_dot, Lambda_dot, theta_dot, Qg_dot)
 
     rho = 1.225
-    V = 5.0
+    V = 1
 
     # Data taken from: https://www.nrel.gov/docs/fy09osti/38060.pdf, pg6
-    Jt = 11776047.0 
+    Jt = 11776047.0*3 # times 3 as 3 blade
     R = 61.50
     
     # Cp 
@@ -46,7 +46,10 @@ def export_robot_model() -> AcadosModel:
     Q = (0.5*rho*pi*(R**2)*(V**3)*Cp)/Omega
 
     # dynamics
-    f_expl = vertcat((1/Jt)*(Q - Qg), (R/(Jt*V))*(Q - Qg), u1, u2)
+    f_expl = vertcat((1/Jt)*(Q - Qg), 
+                     (1/Jt)*(Q - Qg)*(R/V), 
+                     u1, 
+                     u2)
 
     f_impl = xdot - f_expl
 

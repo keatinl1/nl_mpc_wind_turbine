@@ -4,17 +4,20 @@ import numpy as np
 import scipy.linalg
 from utils import plot_robot
 
-X0 = np.array([0.56, 7.0, 0, 1e-3])  # Intital state, to avoid zero division make them very small
-T_horizon = 50  # Length of simulation horizon
+# X0 = np.array([0.5691, 7.0, 0, 1e-3])  # Intital state, to avoid zero division make them very small
+
+X0 = np.array([1e-3, 1e-3, 1e-3, 1e-3])  # Intital state, to avoid zero division make them very small
+
+T_horizon = 1000  # Length of simulation horizon
 
 # state constraints
-max_Omega   = 1.267 # rad/s
-max_theta   = 1.5708 # rad
-max_Qg      = 47402.91 # N*m
+max_Omega   = 1.267     # rad/s
+max_theta   = 1.5708    # rad
+max_Qg      = 47402.91  # N*m
 
 # input constraints
-max_pitch_rate  = 0.139626 # rad/s
-max_torque_rate = 15000.0 # N*m
+max_pitch_rate  = 0.139626  # rad/s
+max_torque_rate = 15000.0   # N*m/s
 
 def create_ocp_solver_description() -> AcadosOcp:
     N_horizon = 50  # Define the number of discretization steps
@@ -31,7 +34,7 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.solver_options.N_horizon = N_horizon
 
     # set cost
-    Q_mat = 1 * np.diag([0, 10, 0, 0])
+    Q_mat = 1 * np.diag([0, 100, 0, 0])
     R_mat = 1 * np.diag([1, 1])
 
     ocp.cost.cost_type = "LINEAR_LS"
@@ -56,27 +59,13 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.cost.yref_e = np.zeros((ny_e,))
 
     # set state constraints
-    ocp.constraints.lbx = np.array([-max_Omega])
-    ocp.constraints.ubx = np.array([+max_Omega])
-    ocp.constraints.idxbx = np.array([0])
+    ocp.constraints.lbx = np.array([-max_Omega, -max_theta, -max_Qg])
+    ocp.constraints.ubx = np.array([+max_Omega, +max_theta, +max_Qg])
+    ocp.constraints.idxbx = np.array([0, 2, 3])
 
-    ocp.constraints.lbx = np.array([-max_theta])
-    ocp.constraints.ubx = np.array([+max_theta])
-    ocp.constraints.idxbx = np.array([2])
-
-    ocp.constraints.lbx = np.array([-max_Qg])
-    ocp.constraints.ubx = np.array([+max_Qg])
-    ocp.constraints.idxbx = np.array([3])
-
-    # set input constraints
-    ocp.constraints.lbu = np.array([-max_pitch_rate])
-    ocp.constraints.ubu = np.array([max_pitch_rate])
-    ocp.constraints.idxbu = np.array([0])
-
-    ocp.constraints.lbu = np.array([-max_torque_rate])
-    ocp.constraints.ubu = np.array([max_torque_rate])
-    ocp.constraints.idxbu = np.array([1])
-
+    ocp.constraints.lbu = np.array([-max_pitch_rate, -max_torque_rate])
+    ocp.constraints.ubu = np.array([max_pitch_rate, max_torque_rate])
+    ocp.constraints.idxbu = np.array([0, 1])
 
     # set initial condition
     ocp.constraints.x0 = X0
@@ -114,8 +103,8 @@ def closed_loop_simulation():
     xcurrent = X0
     simX[0, :] = xcurrent
 
-    yref = np.array([0.0, 7.0, 0.0, 0.0, 0.0, 0.0])
-    yref_N = np.array([0.0, 7.0, 0.0, 0.0])
+    yref = np.array([0.0, 0.10, 0.0, 0.0, 0.0, 0.0])
+    yref_N = np.array([0.0, 0.10, 0.0, 0.0])
 
     # closed loop
     for i in range(Nsim):
@@ -144,12 +133,14 @@ def closed_loop_simulation():
         simX[i + 1, :] = xcurrent
 
     print("\nFinal system state:\n"
-    "Omega (ref): {:.4f} ({})\n"
-    "Theta (ref): {:.4f} ({})\n"
-    "Qg    (ref): {:.4f} ({})".format(
+    "Omega  (ref): {:.4f} ({})\n"
+    "Lambda (ref): {:.4f} ({})\n"
+    "Theta  (ref): {:.4f} ({})\n"
+    "Qg     (ref): {:.4f} ({})".format(
         xcurrent[0], yref_N[0],
         xcurrent[1], yref_N[1],
-        xcurrent[2], yref_N[2]
+        xcurrent[2], yref_N[2],
+        xcurrent[3], yref_N[3]
     ))
 
     omega_ok = np.all(np.abs(simX[:, 0]) <= max_Omega)
