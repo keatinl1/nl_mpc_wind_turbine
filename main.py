@@ -4,15 +4,32 @@ import numpy as np
 import scipy.linalg
 from utils import plot_robot
 
+# find the reference for turbine speed, 
+# Tip-speed ratio (lambda) is approx 7 at peak power
 from parameters import Jonkman
 param = Jonkman()
 wind = param.wind_speed
-ref_Omega = 7*wind / 61.5
+ref_Omega = 7*wind / 61.5 
 
 '''
-    Sim is just one horizon
-    x0 must be a member of the feasible set XF
-    Any point in XF must be able to reach xN in one horizon
+    sim is 2000 time steps long
+    horizon is 50 time steps
+    each time step a sequence of 50 inputs (u) is generated, 
+    the first u is applied to the system,
+    then another sequence is generated at the next time step .
+
+    x0 is the initial state of horizon,
+    xN is the terminal state of horizon.
+
+    Xf is the feasible set, 
+    set of initial states which there exists a feasible control sequence that drives the system to the terminal set.
+    x0 must be a member of the feasible set Xf
+
+    Xt is the terminal set, 
+    the terminal set is invariant (once inside there exist inputs to stay there), 
+        all constraints (x, u) are satified inside the set (considered inactive)
+        and the terminal cost is a continuous Lyapunov function (x_k+1 < x_k) inside the terminal set
+    xN must be a member of the terminal set Xt
 
 '''
 
@@ -22,13 +39,13 @@ yref = np.array([ref_Omega, 0.0, 0.0, 0.0, 0.0])
 yref_N = np.array([ref_Omega, 0.0, 0.0])   
 
 # set cost
-Q_mat = 1 * np.diag([6, 0, 0])
-R_mat = 1 * np.diag([900, 1e-6])
+Q_mat = 1 * np.diag([6, 0, 0])      # only care about Omega, as long as other states are within constraints
+R_mat = 1 * np.diag([900, 1e-6])    # use more torque than blade pitch to achieve goal, i.e. gen more power
 
 # simulation time
-Ts = 1.0                    # Sample time
+Ts = 1.0                    # Sample time (s)
 N_horizon = 50              # number of steps in horizon
-time_of_sim = Ts*N_horizon  # Length of simulation horizon
+time_of_sim = Ts*N_horizon  # Length of simulation horizon in seconds
 
 # state constraints
 max_Omega   = 1.267     # rad/s
@@ -51,29 +68,41 @@ def create_ocp_solver_description() -> AcadosOcp:
     # set dimensions
     ocp.solver_options.N_horizon = N_horizon
 
+    # LLS cost is functionally equivalent to a quadratic cost
+    # see: https://github.com/acados/acados/blob/main/docs/problem_formulation/problem_formulation_ocp_mex.pdf
+    # eg:
+    # where,    x e R^n, 
+    #           Q e R^{n x n} and is diagonal.
+    #           (x-xref)*Q*(x-xref) == sum((x-xref)^2*diag(Q))
+    # (_e means at the 'end' or terminal of horizon)
     ocp.cost.cost_type = "LINEAR_LS"
     ocp.cost.cost_type_e = "LINEAR_LS"
 
+    # Number of references 
+    # the state x_k is dependant on x_k-1 and u_k-1, NOT u_k, hence why u_N is not considered in the optimization
     ny = nx + nu
     ny_e = nx
 
+    # weights
     ocp.cost.W_e = Q_mat
     ocp.cost.W = scipy.linalg.block_diag(Q_mat, R_mat)
 
+    # ive kept the Vx and Vu matrices as identity matrices
+    # im already ignoring states and inputs that are not relevant
+    # in Q and R so its a bit redundant to zero them here also 
     ocp.cost.Vx = np.zeros((ny, nx))
     ocp.cost.Vx[:nx, :nx] = np.eye(nx)
 
     Vu = np.zeros((ny, nu))
     Vu[nx : nx + nu, 0:nu] = np.eye(nu)
     ocp.cost.Vu = Vu
-
+    
     ocp.cost.Vx_e = np.eye(nx)
-
     ocp.cost.yref = np.zeros((ny,))
     ocp.cost.yref_e = np.zeros((ny_e,))
 
     # set state constraints
-    ocp.constraints.lbx = np.array([-max_Omega, -max_theta, -max_Qg])
+    ocp.constraints.lbx = np.array([-max_Omega, 0, -max_Qg])
     ocp.constraints.ubx = np.array([+max_Omega, +max_theta, +max_Qg])
     ocp.constraints.idxbx = np.array([0, 1, 2])
 
@@ -85,7 +114,7 @@ def create_ocp_solver_description() -> AcadosOcp:
     # set initial condition
     ocp.constraints.x0 = x0
 
-    # set options
+    # set solver options, just the default options really
     ocp.solver_options.qp_solver = "PARTIAL_CONDENSING_HPIPM"
     ocp.solver_options.hessian_approx = "GAUSS_NEWTON" 
     ocp.solver_options.integrator_type = "IRK"
@@ -95,7 +124,6 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.solver_options.tf = time_of_sim
 
     return ocp
-
 
 def closed_loop_simulation():
 
@@ -108,7 +136,7 @@ def closed_loop_simulation():
     N_horizon = acados_ocp_solver.N
 
     # prepare simulation
-    Nsim = 2000
+    Nsim = 2000 # how many timesteps the sim should run for
     nx = ocp.model.x.rows()
     nu = ocp.model.u.rows()
 
