@@ -36,7 +36,7 @@ class Jonkman:
         self.moment_o_inertia = 11776047.0*3 # think this is the correct value as MoI given is for one blade and this is 3
         
         # Environment 
-        self.wind_speed = 2.50
+        self.wind_speed = 5.0
 
 
 #*********************************************************************************************************************

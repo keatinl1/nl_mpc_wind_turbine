@@ -45,7 +45,7 @@ def plot_robot(
         # Plot goal as a horizontal dashed line for the first state
         if i == 0:  
             plt.title(f"Wind speed: {wind_speed} m/s")
-            plt.axhline(y=goal, color="r", linestyle="--", label="Goal")
+            plt.axhline(y=goal, color="r", linestyle="--", label=f"Goal, {goal:.2f} rad/s")
             plt.legend()
 
     # Plot controls after states

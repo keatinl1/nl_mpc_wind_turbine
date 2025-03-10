@@ -36,14 +36,11 @@ ref_Omega = 7*wind / 61.5
 x0 = np.array([1e-6, 1e-6, 1e-6])
 
 yref = np.array([ref_Omega, 0.0, 0.0, 0.0, 0.0])
-yref_N = np.array([ref_Omega, 0.0, 0.0])   
+yref_N = np.array([ref_Omega, 0.0, 0.0])
 
 # set cost
-Q_mat = 1 * np.diag([6, 0, 0])      # only care about Omega, as long as other states are within constraints
-R_mat = 1 * np.diag([900, 1e-6])    # use more torque than blade pitch to achieve goal, i.e. gen more power
-
-# Q_mat = np.diag([1, 0, 0])      #Omega, theta, Qg
-# R_mat = np.diag([1, 1e-3])    #theta_dot, Qg_dot
+Q_mat = np.diag([6, 0, 0])      # only care about Omega, as long as other states are within constraints
+R_mat = np.diag([900, 1e-6])    # use more torque than blade pitch to achieve goal, i.e. gen more power
 
 # simulation time
 Ts = 1.0                    # Sample time (s)
@@ -122,9 +119,6 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.solver_options.hessian_approx = "GAUSS_NEWTON" 
     ocp.solver_options.integrator_type = "IRK"
     ocp.solver_options.nlp_solver_type = "SQP"
-
-    # problem was getting stuck so i switched to rti
-    # ocp.solver_options.nlp_solver_type = "SQP_RTI"
 
     # set prediction horizon
     ocp.solver_options.tf = time_of_sim
