@@ -4,6 +4,8 @@ import numpy as np
 from acados_template import latexify_plot
 
 def plot_robot(
+    wind_speed,
+    goal,
     shooting_nodes,
     u_max,
     U,
@@ -33,14 +35,18 @@ def plot_robot(
 
     t = shooting_nodes
 
-    # Plot states first
     for i in range(nx):
         plt.subplot(nx + nu + 1, 1, i + 1)  # Adjust index to start from 1
         (line,) = plt.plot(t, X_traj[:, i])
 
         plt.ylabel(x_labels[i])
-        # plt.xlabel(time_label)
         plt.grid()
+
+        # Plot goal as a horizontal dashed line for the first state
+        if i == 0:  
+            plt.title(f"Wind speed: {wind_speed} m/s")
+            plt.axhline(y=goal, color="r", linestyle="--", label="Goal")
+            plt.legend()
 
     # Plot controls after states
     for i in range(nu):

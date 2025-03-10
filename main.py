@@ -42,6 +42,9 @@ yref_N = np.array([ref_Omega, 0.0, 0.0])
 Q_mat = 1 * np.diag([6, 0, 0])      # only care about Omega, as long as other states are within constraints
 R_mat = 1 * np.diag([900, 1e-6])    # use more torque than blade pitch to achieve goal, i.e. gen more power
 
+# Q_mat = np.diag([1, 0, 0])      #Omega, theta, Qg
+# R_mat = np.diag([1, 1e-3])    #theta_dot, Qg_dot
+
 # simulation time
 Ts = 1.0                    # Sample time (s)
 N_horizon = 50              # number of steps in horizon
@@ -120,6 +123,9 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.solver_options.integrator_type = "IRK"
     ocp.solver_options.nlp_solver_type = "SQP"
 
+    # problem was getting stuck so i switched to rti
+    # ocp.solver_options.nlp_solver_type = "SQP_RTI"
+
     # set prediction horizon
     ocp.solver_options.tf = time_of_sim
 
@@ -172,9 +178,11 @@ def closed_loop_simulation():
         xcurrent = acados_integrator.simulate(xcurrent, simU[i, :])
         simX[i + 1, :] = xcurrent
 
+    print(xcurrent)
+
     # plot results
     plot_robot(
-        np.linspace(0, time_of_sim / N_horizon * Nsim, Nsim + 1), [None, None],  simU, simX,
+        wind, ref_Omega, np.linspace(0, time_of_sim / N_horizon * Nsim, Nsim + 1), [None, None],  simU, simX,
         x_labels=model.x_labels, u_labels=model.u_labels, time_label=model.t_label
     )
 
