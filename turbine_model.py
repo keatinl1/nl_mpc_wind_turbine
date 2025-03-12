@@ -1,18 +1,14 @@
 from acados_template import AcadosModel
-from casadi import SX, vertcat, exp
+from casadi import SX, vertcat, exp, pi
 import numpy as np
-
 
 # Define/import some constants
 from parameters import Jonkman
 params = Jonkman()
 Jt  = params.moment_o_inertia
+rho = params.air_density
 V   = params.wind_speed
 R   = params.radius
-
-C1, C2, C3, C4, C5, C6 = 0.5176, 116, 0.4, 5, 21, 0.0068
-rho = 1.225
-
 
 # Reference for model equations:
 # https://backend.orbit.dtu.dk/ws/portalfiles/portal/5832126/prod21318234687066.2070.pdf
@@ -37,14 +33,23 @@ def export_robot_model() -> AcadosModel:
     Qg_dot    = SX.sym("Qg_dot")
     xdot = vertcat(Omega_dot, theta_dot, Qg_dot)
 
+    # updated Cp
+    # is in DEGREES!!
+    c1 = 0.5176
+    c2 = 116
+    c3 = 0.4
+    c4 = 5
+    c5 = 21
+    c6 = 0.0068
+    
+    L = Omega * R / V
+    Li = 1 / (1 / (L + 0.08 * theta) - 0.035 / (theta**3 + 1))
+    Cp1 = c1 * (c2 / Li - c3 * theta - c4)  # Using scaled theta here
+    Cp2 = exp(-c5 / Li)
+    Cp3 = c6 * L
+    Cp = Cp1 * Cp2 + Cp3
 
-    # Calc Q which is used in Omega_dot
-    # lambda_i = 1/(1/(((R * Omega) / V) + 0.08*theta) - 0.035/(theta**3 + 1))
-    # Cp = C1*((C2/lambda_i) - C3*theta - C4)*exp(-C5/lambda_i) + C6*((R * Omega) / V)
-
-    Cp = (Qg*97*0.944) / (0.5*rho*12445*(V**3))
-
-    Q = (0.5*rho*np.pi*(R**2)*(V**3)*Cp)/Omega
+    Q = (0.5*rho*pi*(R**2)*(V**3)*Cp)/Omega
 
     # Explicit system dynamics
     f_expl = vertcat((1/Jt)*(Q - Qg), u1, u2)

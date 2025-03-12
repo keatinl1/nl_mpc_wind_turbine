@@ -14,7 +14,7 @@ class Jonkman:
     def __init__(self):
         # State constraints
         self.max_Omega   = 1.2670    # rad/s
-        self.max_theta   = 1.5708    # rad
+        self.max_theta   = 90.0    # rad
         self.max_Qg      = 47402.91  # N*m
 
         # Input constraints
@@ -26,4 +26,5 @@ class Jonkman:
         self.moment_o_inertia = 11776047.0*3 # think this is the correct value as MoI given is for one blade and this is 3
         
         # Environment 
-        self.wind_speed = 2.50
+        self.wind_speed = 5.0
+        self.air_density = 1.225

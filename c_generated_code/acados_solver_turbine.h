@@ -41,9 +41,9 @@
 #define TURBINE_NU     2
 #define TURBINE_NP     0
 #define TURBINE_NP_GLOBAL     0
-#define TURBINE_NBX    0
+#define TURBINE_NBX    1
 #define TURBINE_NBX0   3
-#define TURBINE_NBU    0
+#define TURBINE_NBU    1
 #define TURBINE_NSBX   0
 #define TURBINE_NSBU   0
 #define TURBINE_NSH    0
@@ -64,7 +64,7 @@
 #define TURBINE_NY0    5
 #define TURBINE_NY     5
 #define TURBINE_NYN    3
-#define TURBINE_N      50
+#define TURBINE_N      100
 #define TURBINE_NH     0
 #define TURBINE_NHN    0
 #define TURBINE_NH0    0

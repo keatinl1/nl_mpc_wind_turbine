@@ -11,11 +11,19 @@ params = Jonkman()
 wind = params.wind_speed
 Omega_ref = round(wind*7 / params.radius, 4)
 
-N_horizon = 50  # Define the number of discretization steps
-ts = 0.05
+N_horizon = 100  # Define the number of discretization steps
+# ts = 0.05
+ts = 0.2
 T_horizon = N_horizon * ts  # Define the horizon time
 
-X0 = np.array([1e-3, 0, 0])  # Intital state , avoid division by zero
+X0 = np.array([1e-6, 1e-6, 1e-6])  # Intital state , avoid division by zero
+
+# constraints
+max_Omega = params.max_Omega
+max_theta = params.max_theta
+max_Qg    = params.max_Qg
+max_pitch_rate  = params.max_pitch_rate
+max_torque_rate = params.max_torque_rate
 
 
 def create_ocp_solver_description() -> AcadosOcp:
@@ -33,7 +41,7 @@ def create_ocp_solver_description() -> AcadosOcp:
 
     # set cost
     Q_mat = np.diag([100, 0, 0])
-    R_mat = np.diag([1, 1e-6])
+    R_mat = np.diag([2, 1e-6])
 
     ocp.cost.cost_type = "LINEAR_LS"
     ocp.cost.cost_type_e = "LINEAR_LS"
@@ -56,10 +64,23 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.cost.yref = np.zeros((ny,))
     ocp.cost.yref_e = np.zeros((ny_e,))
 
-    # set constraints
-    # ocp.constraints.lbu = np.array([-F_max])
-    # ocp.constraints.ubu = np.array([+F_max])
-    # ocp.constraints.idxbu = np.array([0])
+    # # set state constraints
+    # ocp.constraints.lbx = np.array([-max_Omega, 0, -max_Qg])
+    # ocp.constraints.ubx = np.array([+max_Omega, +max_theta, +max_Qg])
+    # ocp.constraints.idxbx = np.array([0, 1, 2])
+
+    ocp.constraints.lbx = np.array([0])
+    ocp.constraints.ubx = np.array([+max_Qg])
+    ocp.constraints.idxbx = np.array([2])
+
+    # # set input constraints
+    # ocp.constraints.lbu = np.array([-max_pitch_rate, -max_torque_rate])
+    # ocp.constraints.ubu = np.array([max_pitch_rate, max_torque_rate])
+    # ocp.constraints.idxbu = np.array([0, 1])
+
+    ocp.constraints.lbu = np.array([-max_pitch_rate])
+    ocp.constraints.ubu = np.array([max_pitch_rate])
+    ocp.constraints.idxbu = np.array([0])
 
     ocp.constraints.x0 = X0
 
@@ -67,7 +88,7 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.solver_options.qp_solver = "PARTIAL_CONDENSING_HPIPM"  # FULL_CONDENSING_QPOASES
     ocp.solver_options.hessian_approx = "GAUSS_NEWTON"
     ocp.solver_options.integrator_type = "IRK"
-    ocp.solver_options.nlp_solver_type = "SQP"
+    ocp.solver_options.nlp_solver_type = "SQP_RTI"
 
     # set prediction horizon
     ocp.solver_options.tf = T_horizon
@@ -132,14 +153,18 @@ def closed_loop_simulation():
         xcurrent = acados_integrator.simulate(xcurrent, simU[i, :])
         simX[i + 1, :] = xcurrent
 
+        if i % 100 == 0:
+            print(i*100/Nsim)
+            print("percent complete")
+
     print("Reference: ", Omega_ref)
     print("Achieved:  ", round(xcurrent[0], 4))
 
-    # plot results
     plot_robot(
-        np.linspace(0, Nsim, Nsim + 1), [None, None], simU, simX,
+        wind, Omega_ref, np.linspace(0, Nsim, Nsim + 1), [None, None],  simU, simX,
         x_labels=model.x_labels, u_labels=model.u_labels, time_label=model.t_label
     )
+
 
 if __name__ == "__main__":
     closed_loop_simulation()
