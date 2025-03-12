@@ -41,7 +41,7 @@ def create_ocp_solver_description() -> AcadosOcp:
 
     # set cost
     Q_mat = np.diag([100, 0, 0])
-    R_mat = np.diag([2, 1e-6])
+    R_mat = np.diag([2, 1e-10])
 
     ocp.cost.cost_type = "LINEAR_LS"
     ocp.cost.cost_type_e = "LINEAR_LS"
@@ -65,22 +65,14 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.cost.yref_e = np.zeros((ny_e,))
 
     # # set state constraints
-    # ocp.constraints.lbx = np.array([-max_Omega, 0, -max_Qg])
+    # ocp.constraints.lbx = np.array([-max_Omega, 0, 0])
     # ocp.constraints.ubx = np.array([+max_Omega, +max_theta, +max_Qg])
     # ocp.constraints.idxbx = np.array([0, 1, 2])
-
-    ocp.constraints.lbx = np.array([0])
-    ocp.constraints.ubx = np.array([+max_Qg])
-    ocp.constraints.idxbx = np.array([2])
 
     # # set input constraints
     # ocp.constraints.lbu = np.array([-max_pitch_rate, -max_torque_rate])
     # ocp.constraints.ubu = np.array([max_pitch_rate, max_torque_rate])
     # ocp.constraints.idxbu = np.array([0, 1])
-
-    ocp.constraints.lbu = np.array([-max_pitch_rate])
-    ocp.constraints.ubu = np.array([max_pitch_rate])
-    ocp.constraints.idxbu = np.array([0])
 
     ocp.constraints.x0 = X0
 
@@ -120,12 +112,6 @@ def closed_loop_simulation():
     yref = np.array([Omega_ref, 0, 0, 0, 0])
     yref_N = np.array([Omega_ref, 0, 0])
 
-    # initialize solver
-    # for stage in range(N_horizon + 1):
-    #     acados_ocp_solver.set(stage, "x",  np.array([Omega_ref, 0, 0]))
-    # for stage in range(N_horizon):
-    #     acados_ocp_solver.set(stage, "u", np.zeros((nu,)))
-
     # closed loop
     for i in range(Nsim):
         # update yref
@@ -154,11 +140,13 @@ def closed_loop_simulation():
         simX[i + 1, :] = xcurrent
 
         if i % 100 == 0:
-            print(i*100/Nsim)
-            print("percent complete")
+            print(i*100/Nsim, "% complete")
 
+    print("100.0 % complete")
     print("Reference: ", Omega_ref)
     print("Achieved:  ", round(xcurrent[0], 4))
+
+    print(xcurrent)
 
     plot_robot(
         wind, Omega_ref, np.linspace(0, Nsim, Nsim + 1), [None, None],  simU, simX,

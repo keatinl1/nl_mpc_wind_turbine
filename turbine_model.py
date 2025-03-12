@@ -1,6 +1,6 @@
 from acados_template import AcadosModel
 from casadi import SX, vertcat, exp, pi
-import numpy as np
+
 
 # Define/import some constants
 from parameters import Jonkman
@@ -15,13 +15,13 @@ R   = params.radius
 
 def export_robot_model() -> AcadosModel:
     model_name = "turbine"
-    
+
     # States
     Omega = SX.sym("Omega") # Rotor speed
     theta = SX.sym("theta") # Blade pitch angle
     Qg    = SX.sym("Qg")    # Generator torque
     x = vertcat(Omega, theta, Qg)
-    
+
     # Inputs
     u1 = SX.sym("u1")  # Pitch rate
     u2 = SX.sym("u2")  # Generator torque rate
@@ -41,7 +41,7 @@ def export_robot_model() -> AcadosModel:
     c4 = 5
     c5 = 21
     c6 = 0.0068
-    
+
     L = Omega * R / V
     Li = 1 / (1 / (L + 0.08 * theta) - 0.035 / (theta**3 + 1))
     Cp1 = c1 * (c2 / Li - c3 * theta - c4)  # Using scaled theta here
