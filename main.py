@@ -108,7 +108,7 @@ def closed_loop_simulation():
     N_horizon = acados_ocp_solver.N
 
     # prepare simulation
-    Nsim = 2500
+    Nsim = 10000
     nx = ocp.model.x.rows()
     nu = ocp.model.u.rows()
 
