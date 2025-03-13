@@ -27,6 +27,6 @@ class Jonkman:
         
         # Environment 
         self.air_density = 1.225
-        self.wind_speed = 7.0   # cut in wind speed
-        # self.wind_speed = 11.0  # cut out wind speed
+        # self.wind_speed = 3.0   # cut in wind speed
         # self.wind_speed = 25.0  # cut out wind speed
+        self.wind_speed = 11.0  # wind speed 0 < V <= 11

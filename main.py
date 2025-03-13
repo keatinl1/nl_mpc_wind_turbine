@@ -12,8 +12,8 @@ wind = params.wind_speed
 Omega_ref = round(wind*7 / params.radius, 4)
 
 N_horizon = 100  # Define the number of discretization steps
-# ts = 0.05
-ts = 0.2
+ts = 0.05
+# ts = 0.2
 T_horizon = N_horizon * ts  # Define the horizon time
 
 X0 = np.array([1e-6, 1e-6, 1e-6])  # Intital state , avoid division by zero
@@ -41,8 +41,11 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.solver_options.N_horizon = N_horizon
 
     # set cost
-    Q_mat = np.diag([10, 1e-4, 0])
-    R_mat = np.diag([1, 1e-6])
+    # Q_mat = np.diag([10, 1e-4, 1e-12])
+    # R_mat = np.diag([1, 1e-6])
+
+    Q_mat = np.diag([10, 0.1, 0])
+    R_mat = np.diag([1000, 1e-4])
 
     ocp.cost.cost_type = "LINEAR_LS"
     ocp.cost.cost_type_e = "LINEAR_LS"
@@ -100,7 +103,7 @@ def closed_loop_simulation():
     N_horizon = acados_ocp_solver.N
 
     # prepare simulation
-    Nsim = 5000
+    Nsim = 2500
     nx = ocp.model.x.rows()
     nu = ocp.model.u.rows()
 
@@ -168,7 +171,7 @@ def closed_loop_simulation():
     print("Reference: ", Omega_ref)
     print("Achieved:  ", round(xcurrent[0], 4), "\n")
 
-    print(xcurrent, "\n", Pout)
+    print("Final state: ", xcurrent, "\n\nFinal power output: ", round(Pout, 2), "kW")
 
     plot_robot(
         Pwr_series, wind, Omega_ref, np.linspace(0, Nsim, Nsim + 1), [None, None],  simU, simX,
