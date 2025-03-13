@@ -12,8 +12,8 @@ wind = params.wind_speed
 Omega_ref = round(wind*7 / params.radius, 4)
 
 N_horizon = 100  # Define the number of discretization steps
-ts = 0.05
-# ts = 0.2
+# ts = 0.05
+ts = 0.2
 T_horizon = N_horizon * ts  # Define the horizon time
 
 X0 = np.array([1e-6, 1e-6, 1e-6])  # Intital state , avoid division by zero
@@ -41,11 +41,16 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.solver_options.N_horizon = N_horizon
 
     # set cost
-    # Q_mat = np.diag([10, 1e-4, 1e-12])
-    # R_mat = np.diag([1, 1e-6])
+    # working for 11m/s
+    # Q_mat = np.diag([10, 0.1, 0])
+    # R_mat = np.diag([1000, 1e-4])
 
-    Q_mat = np.diag([10, 0.1, 0])
-    R_mat = np.diag([1000, 1e-4])
+    # reaches both
+    # Q_mat = np.diag([10, 0, 0])
+    # R_mat = np.diag([1, 1])
+
+    Q_mat = np.diag([10, 0, 0])
+    R_mat = np.diag([1, 1e-3])
 
     ocp.cost.cost_type = "LINEAR_LS"
     ocp.cost.cost_type_e = "LINEAR_LS"
