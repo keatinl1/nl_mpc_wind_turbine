@@ -117,8 +117,8 @@ def closed_loop_simulation():
     xcurrent = X0
     simX[0, :] = xcurrent
 
-    yref = np.array([Omega_ref, 0, max_Qg, 0, 0])
-    yref_N = np.array([Omega_ref, 0, max_Qg])
+    yref = np.array([Omega_ref, 25, max_Qg, 0, 0])
+    yref_N = np.array([Omega_ref, 25, max_Qg])
 
     c1 = 0.5176
     c2 = 116
@@ -178,7 +178,7 @@ def closed_loop_simulation():
     print("Final state: ", xcurrent, "\n\nFinal power output: ", round(Pout, 2), "kW")
 
     plot_robot(
-        Pwr_series, wind, Omega_ref, np.linspace(0, Nsim, Nsim + 1), [None, None],  simU, simX,
+        Pwr_series, wind, Omega_ref, np.linspace(0, T_horizon / N_horizon * Nsim, Nsim + 1), [None, None],  simU, simX,
         x_labels=model.x_labels, u_labels=model.u_labels, time_label=model.t_label
     )
 
