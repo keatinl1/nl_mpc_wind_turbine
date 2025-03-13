@@ -25,6 +25,8 @@ max_Qg    = params.max_Qg
 max_pitch_rate  = params.max_pitch_rate
 max_torque_rate = params.max_torque_rate
 
+Pwr_series = []
+
 def create_ocp_solver_description() -> AcadosOcp:
 
     # create ocp object to formulate the OCP
@@ -39,8 +41,8 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.solver_options.N_horizon = N_horizon
 
     # set cost
-    Q_mat = np.diag([10, 1e-4, 1e-6])
-    R_mat = np.diag([1, 1e-3])
+    Q_mat = np.diag([10, 1e-4, 0])
+    R_mat = np.diag([1, 1e-6])
 
     ocp.cost.cost_type = "LINEAR_LS"
     ocp.cost.cost_type_e = "LINEAR_LS"
@@ -111,6 +113,15 @@ def closed_loop_simulation():
     yref = np.array([Omega_ref, 0, 0, 0, 0])
     yref_N = np.array([Omega_ref, 0, 0])
 
+    c1 = 0.5176
+    c2 = 116
+    c3 = 0.4
+    c4 = 5
+    c5 = 21
+    c6 = 0.0068
+
+    print("\n")
+
     # closed loop
     for i in range(Nsim):
         # update yref
@@ -134,6 +145,17 @@ def closed_loop_simulation():
             raise Exception(
                 f"acados acados_ocp_solver returned status {status} in closed loop instance {i} with {xcurrent}"
             )
+        
+
+        L = xcurrent[0] * params.radius / params.wind_speed
+        Li = 1 / (1 / (L + 0.08 * xcurrent[1]) - 0.035 / (xcurrent[1]**3 + 1))
+        Cp1 = c1 * (c2 / Li - c3 * xcurrent[1] - c4)  # Using scaled theta here
+        Cp2 = np.exp(-c5 / Li)
+        Cp3 = c6 * L
+        Cp = Cp1 * Cp2 + Cp3
+
+        Pout = (0.5*params.air_density*np.pi*(params.radius**2)*(params.wind_speed**3)*Cp)/1000
+        Pwr_series.append(Pout)
 
         # simulate system
         xcurrent = acados_integrator.simulate(xcurrent, simU[i, :])
@@ -144,12 +166,12 @@ def closed_loop_simulation():
 
     print("100.0 % complete\n")
     print("Reference: ", Omega_ref)
-    print("Achieved:  ", round(xcurrent[0], 4))
+    print("Achieved:  ", round(xcurrent[0], 4), "\n")
 
-    print(xcurrent)
+    print(xcurrent, "\n", Pout)
 
     plot_robot(
-        wind, Omega_ref, np.linspace(0, Nsim, Nsim + 1), [None, None],  simU, simX,
+        Pwr_series, wind, Omega_ref, np.linspace(0, Nsim, Nsim + 1), [None, None],  simU, simX,
         x_labels=model.x_labels, u_labels=model.u_labels, time_label=model.t_label
     )
 

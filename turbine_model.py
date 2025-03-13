@@ -51,8 +51,6 @@ def export_robot_model() -> AcadosModel:
 
     Q = (0.5*rho*pi*(R**2)*(V**3)*Cp)/(Omega*1000)
 
-    Pout = (0.5*rho*pi*(R**2)*(V**3)*Cp)
-
     # Explicit system dynamics
     f_expl = vertcat((1000/Jt)*(Q - Qg), u1, u2)
 
