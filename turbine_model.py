@@ -49,10 +49,12 @@ def export_robot_model() -> AcadosModel:
     Cp3 = c6 * L
     Cp = Cp1 * Cp2 + Cp3
 
-    Q = (0.5*rho*pi*(R**2)*(V**3)*Cp)/Omega
+    Q = (0.5*rho*pi*(R**2)*(V**3)*Cp)/(Omega*1000)
+
+    Pout = (0.5*rho*pi*(R**2)*(V**3)*Cp)
 
     # Explicit system dynamics
-    f_expl = vertcat((1/Jt)*(Q - Qg), u1, u2)
+    f_expl = vertcat((1000/Jt)*(Q - Qg), u1, u2)
 
     # Implicit system dynamics
     f_impl = xdot - f_expl
@@ -68,7 +70,7 @@ def export_robot_model() -> AcadosModel:
 
     # Names for labelling plots
     model.t_label = "$t$ [s]"
-    model.x_labels = ["$\\Omega$", "$\\theta$", "$Q_g$"]
-    model.u_labels = ["$\\dot{\\theta}$", "$\\dot{Q_g}$"]
+    model.x_labels = ["$\\Omega (rad/s)$", "$\\theta (deg)$", "$Q_g (kNm)$"]
+    model.u_labels = ["$\\dot{\\theta} (deg/s)$", "$\\dot{Q_g} (kNm)$"]
 
     return model

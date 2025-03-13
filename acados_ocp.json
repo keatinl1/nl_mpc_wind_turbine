@@ -10,8 +10,15 @@
         "constr_type_0": "BGH",
         "constr_type_e": "BGH",
         "has_x0": true,
-        "idxbu": [],
-        "idxbx": [],
+        "idxbu": [
+            0,
+            1
+        ],
+        "idxbx": [
+            0,
+            1,
+            2
+        ],
         "idxbx_0": [
             0,
             1,
@@ -34,8 +41,15 @@
         "idxsphi": [],
         "idxsphi_0": [],
         "idxsphi_e": [],
-        "lbu": [],
-        "lbx": [],
+        "lbu": [
+            -8.0,
+            -15.0
+        ],
+        "lbx": [
+            -1.267,
+            0.0,
+            0.0
+        ],
         "lbx_0": [
             1e-06,
             1e-06,
@@ -61,8 +75,15 @@
         "lsphi": [],
         "lsphi_0": [],
         "lsphi_e": [],
-        "ubu": [],
-        "ubx": [],
+        "ubu": [
+            8.0,
+            15.0
+        ],
+        "ubx": [
+            1.267,
+            90.0,
+            47.40291
+        ],
         "ubx_0": [
             1e-06,
             1e-06,
@@ -209,7 +230,7 @@
         "Vz_0": [],
         "W": [
             [
-                100.0,
+                10.0,
                 0.0,
                 0.0,
                 0.0,
@@ -217,14 +238,7 @@
             ],
             [
                 0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            [
-                0.0,
-                0.0,
+                0.0001,
                 0.0,
                 0.0,
                 0.0
@@ -232,8 +246,15 @@
             [
                 0.0,
                 0.0,
+                1e-06,
                 0.0,
-                2.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0,
+                0.0,
+                1.0,
                 0.0
             ],
             [
@@ -241,12 +262,12 @@
                 0.0,
                 0.0,
                 0.0,
-                1e-10
+                0.001
             ]
         ],
         "W_0": [
             [
-                100.0,
+                10.0,
                 0.0,
                 0.0,
                 0.0,
@@ -254,14 +275,7 @@
             ],
             [
                 0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            [
-                0.0,
-                0.0,
+                0.0001,
                 0.0,
                 0.0,
                 0.0
@@ -269,8 +283,15 @@
             [
                 0.0,
                 0.0,
+                1e-06,
                 0.0,
-                2.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0,
+                0.0,
+                1.0,
                 0.0
             ],
             [
@@ -278,24 +299,24 @@
                 0.0,
                 0.0,
                 0.0,
-                1e-10
+                0.001
             ]
         ],
         "W_e": [
             [
-                100,
-                0,
-                0
+                10.0,
+                0.0,
+                0.0
             ],
             [
-                0,
-                0,
-                0
+                0.0,
+                0.0001,
+                0.0
             ],
             [
-                0,
-                0,
-                0
+                0.0,
+                0.0,
+                1e-06
             ]
         ],
         "Zl": [],
@@ -349,8 +370,8 @@
     "dims": {
         "N": 100,
         "n_global_data": 0,
-        "nbu": 0,
-        "nbx": 0,
+        "nbu": 2,
+        "nbx": 3,
         "nbx_0": 3,
         "nbx_e": 0,
         "nbxe_0": 3,
@@ -438,8 +459,8 @@
         "dyn_impl_dae_fun": null,
         "dyn_impl_dae_fun_jac": null,
         "dyn_impl_dae_jac": null,
-        "f_expl_expr": "jhpnnagiieahaaaadaaaaaaaaaaaaaaaaaeghaaaaaaaaaaaaaaadaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaacaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachkcdgioapelegofodegcaaaaaaaaaaaaaaaegeaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachnendgiogommghhbeegbaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachbhlbnaaoncajaopdegcaaaaaaaaaaaaaaaegcaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgehaaaaaaegcaaaaaaaaaaaaaaaegecaaaaaaaaaaaaaaegbaaaaaaaaaaaaaaaegeaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachaaaaaaaaaaamoeaeegpcaaaaaaaaaaaaaafaaaaaaapengfghgbgegmcaaaaaaaaaaaaaajgpaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachlhebokhebokhelpdegpcaaaaaaaaaaaaaafaaaaaaaehigfgehbgegeaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachmobfilobfilobkpdegbaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaachlaaaaaaaaaaaaaaaeglaaaaaaaaaaaaaaachlaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaabdegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachkjjjjjjjjjjjjnpdchlaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgfaaaaaaaeggaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgloppppppchfbaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachpfhaomjbbfknlhpdchjaaaaaaaaaaaaaaachgaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaacaaaaaaabfhgegpcaaaaaaaaaaaaaacaaaaaaafhbdegpcaaaaaaaaaaaaaacaaaaaaafhcd",
-        "f_impl_expr": "jhpnnagiieahaaaadaaaaaaaaaaaaaaaaaeghaaaaaaaaaaaaaaadaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaacaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaegcaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaajaaaaaaapengfghgbgpfegpgehegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachkcdgioapelegofodegcaaaaaaaaaaaaaaaegeaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachnendgiogommghhbeegbaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachbhlbnaaoncajaopdegcaaaaaaaaaaaaaaaegcaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgehaaaaaaegcaaaaaaaaaaaaaaaegecaaaaaaaaaaaaaaegbaaaaaaaaaaaaaaaegeaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachaaaaaaaaaaamoeaeegpcaaaaaaaaaaaaaafaaaaaaapengfghgbgegmcaaaaaaaaaaaaaajgpaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachlhebokhebokhelpdegpcaaaaaaaaaaaaaafaaaaaaaehigfgehbgegeaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachmobfilobfilobkpdegbaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaachmaaaaaaaaaaaaaaaeglaaaaaaaaaaaaaaachmaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaabdegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachkjjjjjjjjjjjjnpdchmaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgfaaaaaaaeggaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgloppppppchgbaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachpfhaomjbbfknlhpdchkaaaaaaaaaaaaaaachhaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaacaaaaaaabfhgegcaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaajaaaaaaaehigfgehbgpfegpgehegpcaaaaaaaaaaaaaacaaaaaaafhbdegcaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaagaaaaaaabfhgpfegpgehegpcaaaaaaaaaaaaaacaaaaaaafhcd",
+        "f_expl_expr": "jhpnnagiieahaaaadaaaaaaaaaaaaaaaaaeghaaaaaaaaaaaaaaadaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaacaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachhnapcedlifoknpodegcaaaaaaaaaaaaaaaegeaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachjjmicgpmklmphabeegbaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachbhlbnaaoncajaopdegcaaaaaaaaaaaaaaaegcaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgehaaaaaaegcaaaaaaaaaaaaaaaegecaaaaaaaaaaaaaaegbaaaaaaaaaaaaaaaegeaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachaaaaaaaaaaamoeaeegpcaaaaaaaaaaaaaafaaaaaaapengfghgbgegmcaaaaaaaaaaaaaajgdaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachlhebokhebokhelpdegpcaaaaaaaaaaaaaafaaaaaaaehigfgehbgegeaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachmobfilobfilobkpdegbaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaachlaaaaaaaaaaaaaaaeglaaaaaaaaaaaaaaachlaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaabdegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachkjjjjjjjjjjjjnpdchlaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgfaaaaaaaeggaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgloppppppchfbaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachpfhaomjbbfknlhpdchjaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgiodaaaaachgaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaacaaaaaaabfhgegpcaaaaaaaaaaaaaacaaaaaaafhbdegpcaaaaaaaaaaaaaacaaaaaaafhcd",
+        "f_impl_expr": "jhpnnagiieahaaaadaaaaaaaaaaaaaaaaaeghaaaaaaaaaaaaaaadaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaacaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaegcaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaajaaaaaaapengfghgbgpfegpgehegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachhnapcedlifoknpodegcaaaaaaaaaaaaaaaegeaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachjjmicgpmklmphabeegbaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachbhlbnaaoncajaopdegcaaaaaaaaaaaaaaaegcaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgehaaaaaaegcaaaaaaaaaaaaaaaegecaaaaaaaaaaaaaaegbaaaaaaaaaaaaaaaegeaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachaaaaaaaaaaamoeaeegpcaaaaaaaaaaaaaafaaaaaaapengfghgbgegmcaaaaaaaaaaaaaajgdaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachlhebokhebokhelpdegpcaaaaaaaaaaaaaafaaaaaaaehigfgehbgegeaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachmobfilobfilobkpdegbaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaachmaaaaaaaaaaaaaaaeglaaaaaaaaaaaaaaachmaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaabdegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachkjjjjjjjjjjjjnpdchmaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgfaaaaaaaeggaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgloppppppchgbaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaachpfhaomjbbfknlhpdchkaaaaaaaaaaaaaaaegdaaaaaaaaaaaaaaaegmcaaaaaaaaaaaaaajgiodaaaaachhaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaacaaaaaaabfhgegcaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaajaaaaaaaehigfgehbgpfegpgehegpcaaaaaaaaaaaaaacaaaaaaafhbdegcaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaagaaaaaaabfhgpfegpgehegpcaaaaaaaaaaaaaacaaaaaaafhcd",
         "gnsf_nontrivial_f_LO": 1,
         "gnsf_purely_linear": 0,
         "name": "turbine",
@@ -451,14 +472,14 @@
         "t_label": "$t$ [s]",
         "u": "jhpnnagiieahaaaadaaaaaaaaaaaaaaaaaeggaaaaaaaaaaaaaaacaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaacaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaacaaaaaaafhbdegpcaaaaaaaaaaaaaacaaaaaaafhcd",
         "u_labels": [
-            "$\\dot{\\theta}$",
-            "$\\dot{Q_g}$"
+            "$\\dot{\\theta} (deg/s)$",
+            "$\\dot{Q_g} (kNm)$"
         ],
         "x": "jhpnnagiieahaaaadaaaaaaaaaaaaaaaaaeghaaaaaaaaaaaaaaadaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaacaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaafaaaaaaapengfghgbgegpcaaaaaaaaaaaaaafaaaaaaaehigfgehbgegpcaaaaaaaaaaaaaacaaaaaaabfhg",
         "x_labels": [
-            "$\\Omega$",
-            "$\\theta$",
-            "$Q_g$"
+            "$\\Omega (rad/s)$",
+            "$\\theta (deg)$",
+            "$Q_g (kNm)$"
         ],
         "xdot": "jhpnnagiieahaaaadaaaaaaaaaaaaaaaaaeghaaaaaaaaaaaaaaadaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaacaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaegpcaaaaaaaaaaaaaajaaaaaaapengfghgbgpfegpgehegpcaaaaaaaaaaaaaajaaaaaaaehigfgehbgpfegpgehegpcaaaaaaaaaaaaaagaaaaaaabfhgpfegpgeh",
         "z": "jhpnnagiieahaaaadaaaaaaaaaaaaaaaaaegeaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"

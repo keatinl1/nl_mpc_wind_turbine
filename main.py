@@ -25,7 +25,6 @@ max_Qg    = params.max_Qg
 max_pitch_rate  = params.max_pitch_rate
 max_torque_rate = params.max_torque_rate
 
-
 def create_ocp_solver_description() -> AcadosOcp:
 
     # create ocp object to formulate the OCP
@@ -40,8 +39,8 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.solver_options.N_horizon = N_horizon
 
     # set cost
-    Q_mat = np.diag([100, 0, 0])
-    R_mat = np.diag([2, 1e-10])
+    Q_mat = np.diag([10, 1e-4, 1e-6])
+    R_mat = np.diag([1, 1e-3])
 
     ocp.cost.cost_type = "LINEAR_LS"
     ocp.cost.cost_type_e = "LINEAR_LS"
@@ -64,15 +63,15 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.cost.yref = np.zeros((ny,))
     ocp.cost.yref_e = np.zeros((ny_e,))
 
-    # # set state constraints
-    # ocp.constraints.lbx = np.array([-max_Omega, 0, 0])
-    # ocp.constraints.ubx = np.array([+max_Omega, +max_theta, +max_Qg])
-    # ocp.constraints.idxbx = np.array([0, 1, 2])
+    # set state constraints
+    ocp.constraints.lbx = np.array([-max_Omega, 0, 0])
+    ocp.constraints.ubx = np.array([+max_Omega, +max_theta, +max_Qg])
+    ocp.constraints.idxbx = np.array([0, 1, 2])
 
-    # # set input constraints
-    # ocp.constraints.lbu = np.array([-max_pitch_rate, -max_torque_rate])
-    # ocp.constraints.ubu = np.array([max_pitch_rate, max_torque_rate])
-    # ocp.constraints.idxbu = np.array([0, 1])
+    # set input constraints
+    ocp.constraints.lbu = np.array([-max_pitch_rate, -max_torque_rate])
+    ocp.constraints.ubu = np.array([max_pitch_rate, max_torque_rate])
+    ocp.constraints.idxbu = np.array([0, 1])
 
     ocp.constraints.x0 = X0
 
@@ -99,7 +98,7 @@ def closed_loop_simulation():
     N_horizon = acados_ocp_solver.N
 
     # prepare simulation
-    Nsim = 2000
+    Nsim = 5000
     nx = ocp.model.x.rows()
     nu = ocp.model.u.rows()
 
@@ -123,6 +122,7 @@ def closed_loop_simulation():
         simU[i, :] = acados_ocp_solver.solve_for_x0(xcurrent)
         status = acados_ocp_solver.get_status()
 
+
         if status not in [0, 2]:
             acados_ocp_solver.print_statistics()
             plot_robot(
@@ -142,7 +142,7 @@ def closed_loop_simulation():
         if i % 100 == 0:
             print(i*100/Nsim, "% complete")
 
-    print("100.0 % complete")
+    print("100.0 % complete\n")
     print("Reference: ", Omega_ref)
     print("Achieved:  ", round(xcurrent[0], 4))
 

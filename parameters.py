@@ -15,16 +15,18 @@ class Jonkman:
         # State constraints
         self.max_Omega   = 1.2670    # rad/s
         self.max_theta   = 90.0      # deg
-        self.max_Qg      = 47402.91  # N*m
+        self.max_Qg      = 47.40291  # kN*m
 
         # Input constraints
         self.max_pitch_rate  = 8         # deg/s
-        self.max_torque_rate = 15000.0   # N*m/s
+        self.max_torque_rate = 15.00   # kN*m/s
 
         # Turbine characteristics
         self.radius = 61.5 # length of a single blade = radius of rotor
         self.moment_o_inertia = 11776047.0*3 # think this is the correct value as MoI given is for one blade and this is 3
         
         # Environment 
-        self.wind_speed = 15.0
         self.air_density = 1.225
+        self.wind_speed = 3.0   # cut in wind speed
+        # self.wind_speed = 11.0  # cut out wind speed
+        # self.wind_speed = 25.0  # cut out wind speed
