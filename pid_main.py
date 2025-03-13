@@ -127,32 +127,28 @@ def closed_loop_simulation():
     c5 = 21
     c6 = 0.0068
 
+    Kp_O = 10.
+    Ki_O = 0.01
+    Kp_t = 1.
+
+    Omega_error_sum = 0
+
     print("\n")
 
     # closed loop
     for i in range(Nsim):
-        # update yref
-        for j in range(N_horizon):
-            acados_ocp_solver.set(j, "yref", yref)
-        acados_ocp_solver.set(N_horizon, "yref", yref_N)
 
-        # solve ocp
-        simU[i, :] = acados_ocp_solver.solve_for_x0(xcurrent)
-        status = acados_ocp_solver.get_status()
+        print(xcurrent)
 
+        Omega_error = Omega_ref - xcurrent[0]
+        Omega_error_sum = Omega_error_sum + Omega_error
 
-        if status not in [0, 2]:
-            acados_ocp_solver.print_statistics()
-            plot_robot(
-                np.linspace(0, T_horizon / N_horizon * i, i + 1),
-                None,
-                simU[:i, :],
-                simX[: i + 1, :],
-            )
-            raise Exception(
-                f"acados acados_ocp_solver returned status {status} in closed loop instance {i} with {xcurrent}"
-            )
-        
+        theta_error = 25 - xcurrent[1]
+
+        Qg_error = max_Qg-xcurrent[2]
+
+        simU[i, 0] = min(8, Kp_t*theta_error-(Kp_O*Omega_error + Ki_O*Omega_error_sum)) # set the blade pitch rate
+        simU[i, 1] = min(15, Qg_error-(Kp_O*Omega_error)) #+ Ki_O*Omega_error_sum) # set the generator torque rate
 
         L = xcurrent[0] * params.radius / params.wind_speed
         Li = 1 / (1 / (L + 0.08 * xcurrent[1]) - 0.035 / (xcurrent[1]**3 + 1))
@@ -168,11 +164,8 @@ def closed_loop_simulation():
         xcurrent = acados_integrator.simulate(xcurrent, simU[i, :])
         simX[i + 1, :] = xcurrent
 
-        if i % 100 == 0:
-            print(i*100/Nsim, "% complete")
 
-    print("100.0 % complete\n")
-    print("Reference: ", Omega_ref)
+    print("\nReference: ", Omega_ref)
     print("Achieved:  ", round(xcurrent[0], 4), "\n")
 
     print("Final state: ", xcurrent, "\n\nFinal power output: ", round(Pout, 2), "kW")

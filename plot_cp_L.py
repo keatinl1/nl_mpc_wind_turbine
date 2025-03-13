@@ -13,7 +13,7 @@ c6 = 0.0068
 L = np.arange(0.1, 14.1, 0.1)  # Start from 0.1 to prevent 1/0 error
 
 # Theta values in degrees (scaled for radians)
-theta_values = np.array([0, 5, 10, 12.5, 15, 20, 30])
+theta_values = np.array([0, 5, 10, 12.5, 15, 20, 25, 30])
 
 plt.figure(figsize=(8, 5))
 
