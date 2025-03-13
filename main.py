@@ -11,9 +11,9 @@ params = Jonkman()
 wind = params.wind_speed
 Omega_ref = round(wind*7 / params.radius, 4)
 
-N_horizon = 100  # Define the number of discretization steps
-# ts = 0.05
-ts = 0.2
+N_horizon = 50  # Define the number of discretization steps
+ts = 0.05
+# ts = 0.2
 T_horizon = N_horizon * ts  # Define the horizon time
 
 X0 = np.array([1e-6, 1e-6, 1e-6])  # Intital state , avoid division by zero
@@ -50,7 +50,7 @@ def create_ocp_solver_description() -> AcadosOcp:
     # R_mat = np.diag([1, 1])
 
     Q_mat = np.diag([10, 1e-6, 1e-6])
-    R_mat = np.diag([1, 1e-3])
+    R_mat = np.diag([1e-3, 1e-3])
 
     ocp.cost.cost_type = "LINEAR_LS"
     ocp.cost.cost_type_e = "LINEAR_LS"
