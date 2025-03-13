@@ -49,7 +49,7 @@ def create_ocp_solver_description() -> AcadosOcp:
     # Q_mat = np.diag([10, 0, 0])
     # R_mat = np.diag([1, 1])
 
-    Q_mat = np.diag([10, 0, 0])
+    Q_mat = np.diag([10, 1e-6, 1e-6])
     R_mat = np.diag([1, 1e-3])
 
     ocp.cost.cost_type = "LINEAR_LS"
@@ -118,8 +118,8 @@ def closed_loop_simulation():
     xcurrent = X0
     simX[0, :] = xcurrent
 
-    yref = np.array([Omega_ref, 0, 0, 0, 0])
-    yref_N = np.array([Omega_ref, 0, 0])
+    yref = np.array([Omega_ref, 0, max_Qg, 0, 0])
+    yref_N = np.array([Omega_ref, 0, max_Qg])
 
     c1 = 0.5176
     c2 = 116
