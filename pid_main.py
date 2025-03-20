@@ -117,9 +117,6 @@ def closed_loop_simulation():
     xcurrent = X0
     simX[0, :] = xcurrent
 
-    yref = np.array([Omega_ref, 0, max_Qg, 0, 0])
-    yref_N = np.array([Omega_ref, 0, max_Qg])
-
     c1 = 0.5176
     c2 = 116
     c3 = 0.4
@@ -130,6 +127,7 @@ def closed_loop_simulation():
     Kp_O = 10.
     Ki_O = 0.01
     Kp_t = 1.
+    Kp_Q = 1.
 
     Omega_error_sum = 0
 
@@ -139,19 +137,25 @@ def closed_loop_simulation():
     for i in range(Nsim):
 
         print(xcurrent)
+        if np.any(np.isnan(xcurrent)):
+            break
 
+        # Angular vel errors
         Omega_error = Omega_ref - xcurrent[0]
         Omega_error_sum = Omega_error_sum + Omega_error
 
-        theta_error = 25 - xcurrent[1]
+        # Blade pitch errors
+        theta_error = 0. - xcurrent[1]
 
+        # Generator torque error
         Qg_error = max_Qg-xcurrent[2]
 
-        simU[i, 0] = min(8, Kp_t*theta_error-(Kp_O*Omega_error + Ki_O*Omega_error_sum)) # set the blade pitch rate
-        simU[i, 1] = min(15, Qg_error-(Kp_O*Omega_error)) #+ Ki_O*Omega_error_sum) # set the generator torque rate
+        simU[i, 0] = Kp_t*theta_error + (Kp_O*Omega_error + Ki_O*Omega_error_sum) # set the blade pitch rate
+        simU[i, 1] = Kp_Q*Qg_error    + (Kp_O*Omega_error + Ki_O*Omega_error_sum) #+ Ki_O*Omega_error_sum) # set the generator torque rate
 
         L = xcurrent[0] * params.radius / params.wind_speed
         Li = 1 / (1 / (L + 0.08 * xcurrent[1]) - 0.035 / (xcurrent[1]**3 + 1))
+
         Cp1 = c1 * (c2 / Li - c3 * xcurrent[1] - c4)  # Using scaled theta here
         Cp2 = np.exp(-c5 / Li)
         Cp3 = c6 * L

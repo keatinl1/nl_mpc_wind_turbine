@@ -11,7 +11,8 @@ params = Jonkman()
 wind = params.wind_speed
 Omega_ref = round(wind*7 / params.radius, 4)
 
-N_horizon = 50  # Define the number of discretization steps
+# N_horizon = 50  # Define the number of discretization steps
+N_horizon = 20
 ts = 0.05
 T_horizon = N_horizon * ts  # Define the horizon time
 
@@ -48,8 +49,11 @@ def create_ocp_solver_description() -> AcadosOcp:
     # Q_mat = np.diag([10, 0, 0])
     # R_mat = np.diag([1, 1])
 
+    # Q_mat = np.diag([10, 1e-6, 1e-6])
+    # R_mat = np.diag([1e-2, 1e-3])
+
     Q_mat = np.diag([10, 1e-6, 1e-6])
-    R_mat = np.diag([1e-2, 1e-3])
+    R_mat = np.diag([1e-2, 1e-6])
 
     ocp.cost.cost_type = "LINEAR_LS"
     ocp.cost.cost_type_e = "LINEAR_LS"
@@ -107,7 +111,7 @@ def closed_loop_simulation():
     N_horizon = acados_ocp_solver.N
 
     # prepare simulation
-    Nsim = 20000
+    Nsim = 10000
     nx = ocp.model.x.rows()
     nu = ocp.model.u.rows()
 
@@ -117,8 +121,8 @@ def closed_loop_simulation():
     xcurrent = X0
     simX[0, :] = xcurrent
 
-    yref = np.array([Omega_ref, 25, max_Qg, 0, 0])
-    yref_N = np.array([Omega_ref, 25, max_Qg])
+    yref = np.array([Omega_ref, 0, max_Qg, 0, 0])
+    yref_N = np.array([Omega_ref, 0, max_Qg])
 
     c1 = 0.5176
     c2 = 116

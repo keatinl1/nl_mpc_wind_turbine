@@ -64,7 +64,7 @@
 #define TURBINE_NY0    5
 #define TURBINE_NY     5
 #define TURBINE_NYN    3
-#define TURBINE_N      50
+#define TURBINE_N      20
 #define TURBINE_NH     0
 #define TURBINE_NHN    0
 #define TURBINE_NH0    0

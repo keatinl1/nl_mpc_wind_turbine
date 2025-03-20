@@ -428,37 +428,7 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
         cost_scaling[17] = 0.05;
         cost_scaling[18] = 0.05;
         cost_scaling[19] = 0.05;
-        cost_scaling[20] = 0.05;
-        cost_scaling[21] = 0.05;
-        cost_scaling[22] = 0.05;
-        cost_scaling[23] = 0.05;
-        cost_scaling[24] = 0.05;
-        cost_scaling[25] = 0.05;
-        cost_scaling[26] = 0.05;
-        cost_scaling[27] = 0.05;
-        cost_scaling[28] = 0.05;
-        cost_scaling[29] = 0.05;
-        cost_scaling[30] = 0.05;
-        cost_scaling[31] = 0.05;
-        cost_scaling[32] = 0.05;
-        cost_scaling[33] = 0.05;
-        cost_scaling[34] = 0.05;
-        cost_scaling[35] = 0.05;
-        cost_scaling[36] = 0.05;
-        cost_scaling[37] = 0.05;
-        cost_scaling[38] = 0.05;
-        cost_scaling[39] = 0.05;
-        cost_scaling[40] = 0.05;
-        cost_scaling[41] = 0.05;
-        cost_scaling[42] = 0.05;
-        cost_scaling[43] = 0.05;
-        cost_scaling[44] = 0.05;
-        cost_scaling[45] = 0.05;
-        cost_scaling[46] = 0.05;
-        cost_scaling[47] = 0.05;
-        cost_scaling[48] = 0.05;
-        cost_scaling[49] = 0.05;
-        cost_scaling[50] = 1;
+        cost_scaling[20] = 1;
         for (int i = 0; i <= N; i++)
         {
             ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, i, "scaling", &cost_scaling[i]);
@@ -489,7 +459,7 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
     W_0[1+(NY0) * 1] = 0.000001;
     W_0[2+(NY0) * 2] = 0.000001;
     W_0[3+(NY0) * 3] = 0.01;
-    W_0[4+(NY0) * 4] = 0.001;
+    W_0[4+(NY0) * 4] = 0.000001;
     ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, 0, "W", W_0);
     free(W_0);
     double* Vx_0 = calloc(NY0*NX, sizeof(double));
@@ -519,7 +489,7 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
     W[1+(NY) * 1] = 0.000001;
     W[2+(NY) * 2] = 0.000001;
     W[3+(NY) * 3] = 0.01;
-    W[4+(NY) * 4] = 0.001;
+    W[4+(NY) * 4] = 0.000001;
 
     for (int i = 1; i < N; i++)
     {
@@ -754,7 +724,7 @@ static void turbine_acados_create_set_opts(turbine_solver_capsule* capsule)
     ocp_nlp_solver_opts_set(nlp_config, nlp_opts, "levenberg_marquardt", &levenberg_marquardt);
 
     /* options QP solver */
-    int qp_solver_cond_N;const int qp_solver_cond_N_ori = 50;
+    int qp_solver_cond_N;const int qp_solver_cond_N_ori = 20;
     qp_solver_cond_N = N < qp_solver_cond_N_ori ? N : qp_solver_cond_N_ori; // use the minimum value here
     ocp_nlp_solver_opts_set(nlp_config, nlp_opts, "qp_cond_N", &qp_solver_cond_N);
 
