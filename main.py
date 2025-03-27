@@ -11,7 +11,7 @@ params = Jonkman()
 wind = params.wind_speed
 Omega_ref = round(wind*7 / params.radius, 4)
 
-N_horizon = 400  # Define the number of discretization steps
+N_horizon = 500  # Define the number of discretization steps
 ts = 0.05
 T_horizon = N_horizon * ts  # Define the horizon time
 
@@ -41,7 +41,7 @@ def create_ocp_solver_description() -> AcadosOcp:
 
     # set cost
     Q_mat = np.diag([10, 1e-6, 1e-6])
-    R_mat = np.diag([100, 1e-6])
+    R_mat = np.diag([150, 1])
 
     ocp.cost.cost_type = "LINEAR_LS"
     ocp.cost.cost_type_e = "LINEAR_LS"
@@ -65,9 +65,14 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.cost.yref_e = np.zeros((ny_e,))
 
     # set state constraints
-    ocp.constraints.lbx = np.array([-max_Omega, 0, 0])
+    ocp.constraints.lbx = np.array([-max_Omega, 0, -max_Qg])
     ocp.constraints.ubx = np.array([+max_Omega, +max_theta, +max_Qg])
     ocp.constraints.idxbx = np.array([0, 1, 2])
+
+    # set terminal state constraints
+    ocp.constraints.lbx_e = np.array([Omega_ref])
+    ocp.constraints.ubx_e = np.array([Omega_ref])
+    ocp.constraints.idxbx_e = np.array([0])
 
     # set input constraints
     ocp.constraints.lbu = np.array([-max_pitch_rate, -max_torque_rate])
@@ -99,7 +104,7 @@ def closed_loop_simulation():
     N_horizon = acados_ocp_solver.N
 
     # prepare simulation
-    Nsim = 15000
+    Nsim = 2000
     nx = ocp.model.x.rows()
     nu = ocp.model.u.rows()
 
