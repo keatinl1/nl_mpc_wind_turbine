@@ -9,9 +9,9 @@ from utils import plot_robot
 
 params = Jonkman()
 wind = params.wind_speed
-Omega_ref = round(wind*7 / params.radius, 4)
+Omega_ref = min(1.25, round(wind*7 / params.radius, 4))
 
-N_horizon = 500  # Define the number of discretization steps
+N_horizon = 1000  # Define the number of discretization steps
 ts = 0.05
 T_horizon = N_horizon * ts  # Define the horizon time
 
@@ -41,7 +41,7 @@ def create_ocp_solver_description() -> AcadosOcp:
 
     # set cost
     Q_mat = np.diag([10, 1e-6, 1e-6])
-    R_mat = np.diag([150, 1])
+    R_mat = np.diag([10, 1])
 
     ocp.cost.cost_type = "LINEAR_LS"
     ocp.cost.cost_type_e = "LINEAR_LS"
@@ -70,9 +70,9 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.constraints.idxbx = np.array([0, 1, 2])
 
     # set terminal state constraints
-    ocp.constraints.lbx_e = np.array([Omega_ref])
-    ocp.constraints.ubx_e = np.array([Omega_ref])
-    ocp.constraints.idxbx_e = np.array([0])
+    ocp.constraints.lbx_e = np.array([Omega_ref, 0, -max_Qg])
+    ocp.constraints.ubx_e = np.array([Omega_ref, +max_theta, +max_Qg])
+    ocp.constraints.idxbx_e = np.array([0, 1, 2])
 
     # set input constraints
     ocp.constraints.lbu = np.array([-max_pitch_rate, -max_torque_rate])
@@ -83,9 +83,10 @@ def create_ocp_solver_description() -> AcadosOcp:
 
     # set options
     ocp.solver_options.qp_solver = "PARTIAL_CONDENSING_HPIPM"  # FULL_CONDENSING_QPOASES
-    ocp.solver_options.hessian_approx = "GAUSS_NEWTON"
+    # ocp.solver_options.hessian_approx = "GAUSS_NEWTON"
+    ocp.solver_options.hessian_approx = "EXACT"
     ocp.solver_options.integrator_type = "IRK"
-    ocp.solver_options.nlp_solver_type = "SQP_RTI"
+    ocp.solver_options.nlp_solver_type = "SQP"
 
     # set prediction horizon
     ocp.solver_options.tf = T_horizon
