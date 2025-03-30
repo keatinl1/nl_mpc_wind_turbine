@@ -40,6 +40,7 @@ MODEL_SRC+= turbine_model/turbine_impl_dae_fun_jac_x_xdot_z.c
 MODEL_SRC+= turbine_model/turbine_impl_dae_fun_jac_x_xdot_u_z.c
 MODEL_SRC+= turbine_model/turbine_impl_dae_fun_jac_x_xdot_u.c
 MODEL_SRC+= turbine_model/turbine_impl_dae_jac_x_xdot_u_z.c
+MODEL_SRC+= turbine_model/turbine_impl_dae_hess.c
 
 MODEL_OBJ := $(MODEL_SRC:.c=.o)
 # optimal control problem - mostly CasADi exports

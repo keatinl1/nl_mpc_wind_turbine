@@ -9,7 +9,7 @@ from utils import plot_robot
 
 params = Jonkman()
 wind = params.wind_speed
-Omega_ref = min(1.25, round(wind*7 / params.radius, 4))
+Omega_ref = min(1.00, round(wind*7 / params.radius, 4))
 
 N_horizon = 1000  # Define the number of discretization steps
 ts = 0.05
@@ -137,7 +137,6 @@ def closed_loop_simulation():
         # solve ocp
         simU[i, :] = acados_ocp_solver.solve_for_x0(xcurrent)
         status = acados_ocp_solver.get_status()
-
 
         if status not in [0, 2]:
             acados_ocp_solver.print_statistics()

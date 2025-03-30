@@ -354,6 +354,10 @@ void turbine_acados_create_setup_functions(turbine_solver_capsule* capsule)
     for (int i = 0; i < N; i++) {
         MAP_CASADI_FNC(impl_dae_jac_x_xdot_u_z[i], turbine_impl_dae_jac_x_xdot_u_z);
     }
+    capsule->impl_dae_hess = (external_function_external_param_casadi *) malloc(sizeof(external_function_external_param_casadi)*N);
+    for (int i = 0; i < N; i++) {
+        MAP_CASADI_FNC(impl_dae_hess[i], turbine_impl_dae_hess);
+    }
 
 
 #undef MAP_CASADI_FNC
@@ -1425,6 +1429,7 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
                                    "impl_dae_fun_jac_x_xdot_z", &capsule->impl_dae_fun_jac_x_xdot_z[i]);
         ocp_nlp_dynamics_model_set_external_param_fun(nlp_config, nlp_dims, nlp_in, i,
                                    "impl_dae_jac_x_xdot_u", &capsule->impl_dae_jac_x_xdot_u_z[i]);
+        ocp_nlp_dynamics_model_set_external_param_fun(nlp_config, nlp_dims, nlp_in, i, "impl_dae_hess", &capsule->impl_dae_hess[i]);
     }
 
     /**** Cost ****/
@@ -1438,7 +1443,7 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
     W_0[0+(NY0) * 0] = 10;
     W_0[1+(NY0) * 1] = 0.000001;
     W_0[2+(NY0) * 2] = 0.000001;
-    W_0[3+(NY0) * 3] = 10;
+    W_0[3+(NY0) * 3] = 1;
     W_0[4+(NY0) * 4] = 1;
     ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, 0, "W", W_0);
     free(W_0);
@@ -1468,7 +1473,7 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
     W[0+(NY) * 0] = 10;
     W[1+(NY) * 1] = 0.000001;
     W[2+(NY) * 2] = 0.000001;
-    W[3+(NY) * 3] = 10;
+    W[3+(NY) * 3] = 1;
     W[4+(NY) * 4] = 1;
 
     for (int i = 1; i < N; i++)
@@ -1632,8 +1637,8 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
     double* lubx_e = calloc(2*NBXN, sizeof(double));
     double* lbx_e = lubx_e;
     double* ubx_e = lubx_e + NBXN;
-    lbx_e[0] = 1.25;
-    ubx_e[0] = 1.25;
+    lbx_e[0] = 1;
+    ubx_e[0] = 1;
     ubx_e[1] = 90;
     lbx_e[2] = -47.40291;
     ubx_e[2] = 47.40291;
@@ -1668,6 +1673,17 @@ static void turbine_acados_create_set_opts(turbine_solver_capsule* capsule)
     ************************************************/
 
 
+    int nlp_solver_exact_hessian = 1;
+    ocp_nlp_solver_opts_set(nlp_config, nlp_opts, "exact_hess", &nlp_solver_exact_hessian);
+
+    int exact_hess_dyn = 1;
+    ocp_nlp_solver_opts_set(nlp_config, nlp_opts, "exact_hess_dyn", &exact_hess_dyn);
+
+    int exact_hess_cost = 1;
+    ocp_nlp_solver_opts_set(nlp_config, nlp_opts, "exact_hess_cost", &exact_hess_cost);
+
+    int exact_hess_constr = 1;
+    ocp_nlp_solver_opts_set(nlp_config, nlp_opts, "exact_hess_constr", &exact_hess_constr);
 
     int fixed_hess = 0;
     ocp_nlp_solver_opts_set(nlp_config, nlp_opts, "fixed_hess", &fixed_hess);
@@ -2138,10 +2154,12 @@ int turbine_acados_free(turbine_solver_capsule* capsule)
         external_function_external_param_casadi_free(&capsule->impl_dae_fun[i]);
         external_function_external_param_casadi_free(&capsule->impl_dae_fun_jac_x_xdot_z[i]);
         external_function_external_param_casadi_free(&capsule->impl_dae_jac_x_xdot_u_z[i]);
+        external_function_external_param_casadi_free(&capsule->impl_dae_hess[i]);
     }
     free(capsule->impl_dae_fun);
     free(capsule->impl_dae_fun_jac_x_xdot_z);
     free(capsule->impl_dae_jac_x_xdot_u_z);
+    free(capsule->impl_dae_hess);
 
     // cost
 

@@ -102,6 +102,7 @@ typedef struct turbine_solver_capsule
     external_function_external_param_casadi *impl_dae_fun_jac_x_xdot_z;
     external_function_external_param_casadi *impl_dae_jac_x_xdot_u_z;
 
+    external_function_external_param_casadi *impl_dae_hess;
 
 
 

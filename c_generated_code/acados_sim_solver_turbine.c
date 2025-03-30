@@ -107,6 +107,14 @@ int turbine_acados_sim_create(turbine_sim_solver_capsule * capsule)
     capsule->sim_impl_dae_jac_x_xdot_u_z->casadi_n_in = &turbine_impl_dae_jac_x_xdot_u_z_n_in;
     capsule->sim_impl_dae_jac_x_xdot_u_z->casadi_n_out = &turbine_impl_dae_jac_x_xdot_u_z_n_out;
     external_function_param_casadi_create(capsule->sim_impl_dae_jac_x_xdot_u_z, np, &ext_fun_opts);
+    capsule->sim_impl_dae_hess = (external_function_param_casadi *) malloc(sizeof(external_function_param_casadi));
+    capsule->sim_impl_dae_hess->casadi_fun = &turbine_impl_dae_hess;
+    capsule->sim_impl_dae_hess->casadi_work = &turbine_impl_dae_hess_work;
+    capsule->sim_impl_dae_hess->casadi_sparsity_in = &turbine_impl_dae_hess_sparsity_in;
+    capsule->sim_impl_dae_hess->casadi_sparsity_out = &turbine_impl_dae_hess_sparsity_out;
+    capsule->sim_impl_dae_hess->casadi_n_in = &turbine_impl_dae_hess_n_in;
+    capsule->sim_impl_dae_hess->casadi_n_out = &turbine_impl_dae_hess_n_out;
+    external_function_param_casadi_create(capsule->sim_impl_dae_hess, np, &ext_fun_opts);
 
     
 
@@ -161,6 +169,8 @@ int turbine_acados_sim_create(turbine_sim_solver_capsule * capsule)
                  "impl_ode_fun_jac_x_xdot", capsule->sim_impl_dae_fun_jac_x_xdot_z);
     turbine_sim_config->model_set(turbine_sim_in->model,
                  "impl_ode_jac_x_xdot_u", capsule->sim_impl_dae_jac_x_xdot_u_z);
+    turbine_sim_config->model_set(turbine_sim_in->model,
+                "impl_dae_hess", capsule->sim_impl_dae_hess);
 
     // sim solver
     sim_solver *turbine_sim_solver = sim_solver_create(turbine_sim_config,
@@ -246,6 +256,8 @@ int turbine_acados_sim_free(turbine_sim_solver_capsule *capsule)
     free(capsule->sim_impl_dae_fun);
     free(capsule->sim_impl_dae_fun_jac_x_xdot_z);
     free(capsule->sim_impl_dae_jac_x_xdot_u_z);
+    external_function_param_casadi_free(capsule->sim_impl_dae_hess);
+    free(capsule->sim_impl_dae_hess);
 
     return 0;
 }
@@ -264,6 +276,7 @@ int turbine_acados_sim_update_params(turbine_sim_solver_capsule *capsule, double
     capsule->sim_impl_dae_fun[0].set_param(capsule->sim_impl_dae_fun, p);
     capsule->sim_impl_dae_fun_jac_x_xdot_z[0].set_param(capsule->sim_impl_dae_fun_jac_x_xdot_z, p);
     capsule->sim_impl_dae_jac_x_xdot_u_z[0].set_param(capsule->sim_impl_dae_jac_x_xdot_u_z, p);
+    capsule->sim_impl_dae_hess[0].set_param(capsule->sim_impl_dae_hess, p);
 
     return status;
 }

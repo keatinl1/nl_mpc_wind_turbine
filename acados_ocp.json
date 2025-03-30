@@ -60,7 +60,7 @@
             1e-06
         ],
         "lbx_e": [
-            1.25,
+            1.0,
             0.0,
             -47.40291
         ],
@@ -98,7 +98,7 @@
             1e-06
         ],
         "ubx_e": [
-            1.25,
+            1.0,
             90.0,
             47.40291
         ],
@@ -266,7 +266,7 @@
                 0.0,
                 0.0,
                 0.0,
-                10.0,
+                1.0,
                 0.0
             ],
             [
@@ -303,7 +303,7 @@
                 0.0,
                 0.0,
                 0.0,
-                10.0,
+                1.0,
                 0.0
             ],
             [
@@ -427,7 +427,8 @@
         "turbine_model/turbine_impl_dae_fun_jac_x_xdot_z.c",
         "turbine_model/turbine_impl_dae_fun_jac_x_xdot_u_z.c",
         "turbine_model/turbine_impl_dae_fun_jac_x_xdot_u.c",
-        "turbine_model/turbine_impl_dae_jac_x_xdot_u_z.c"
+        "turbine_model/turbine_impl_dae_jac_x_xdot_u_z.c",
+        "turbine_model/turbine_impl_dae_hess.c"
     ],
     "external_function_files_ocp": [],
     "json_file": "acados_ocp.json",
@@ -1541,7 +1542,7 @@
         "globalization_funnel_sufficient_decrease_factor": 0.9,
         "globalization_line_search_use_sufficient_descent": 0,
         "globalization_use_SOC": 0,
-        "hessian_approx": "GAUSS_NEWTON",
+        "hessian_approx": "EXACT",
         "hpipm_mode": "BALANCE",
         "integrator_type": "IRK",
         "levenberg_marquardt": 0.0,

@@ -68,6 +68,14 @@ const int *turbine_impl_dae_fun_jac_x_xdot_u_sparsity_in(int);
 const int *turbine_impl_dae_fun_jac_x_xdot_u_sparsity_out(int);
 int turbine_impl_dae_fun_jac_x_xdot_u_n_in(void);
 int turbine_impl_dae_fun_jac_x_xdot_u_n_out(void);
+// implicit ODE - hessian
+int turbine_impl_dae_hess(const real_t** arg, real_t** res, int* iw, real_t* w, void *mem);
+int turbine_impl_dae_hess_work(int *, int *, int *, int *);
+const int *turbine_impl_dae_hess_sparsity_in(int);
+const int *turbine_impl_dae_hess_sparsity_out(int);
+int turbine_impl_dae_hess_n_in(void);
+int turbine_impl_dae_hess_n_out(void);
+    
   
 
 
