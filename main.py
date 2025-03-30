@@ -12,7 +12,7 @@ wind = params.wind_speed
 # Omega_ref = min(1.00, round(wind*7 / params.radius, 4))
 Omega_ref = min(1.2670, round(wind*7.0 / params.radius, 4))
 
-N_horizon = 300
+N_horizon = 350
 ts = 0.05
 T_horizon = N_horizon * ts  # Define the horizon time
 
@@ -70,9 +70,12 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.constraints.ubx = np.array([+max_Omega, +max_theta, +max_Qg])
     ocp.constraints.idxbx = np.array([0, 1, 2])
 
+    term_l_Omega = max(0, Omega_ref-0.1)
+    term_u_Omega = min(Omega_ref+0.1, max_Omega)
+
     # set terminal state constraints
-    ocp.constraints.lbx_e = np.array([Omega_ref-0.1, 0, -max_Qg])
-    ocp.constraints.ubx_e = np.array([Omega_ref+0.1, +max_theta, +max_Qg])
+    ocp.constraints.lbx_e = np.array([term_l_Omega, 0, -max_Qg])
+    ocp.constraints.ubx_e = np.array([term_u_Omega, +max_theta, +max_Qg])
     ocp.constraints.idxbx_e = np.array([0, 1, 2])
 
     # set input constraints
