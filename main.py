@@ -70,8 +70,8 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.constraints.ubx = np.array([+max_Omega, +max_theta, +max_Qg])
     ocp.constraints.idxbx = np.array([0, 1, 2])
 
-    term_l_Omega = max(0, Omega_ref-0.1)
-    term_u_Omega = min(Omega_ref+0.1, max_Omega)
+    term_l_Omega = max(0, Omega_ref-0.15)
+    term_u_Omega = min(Omega_ref+0.15, max_Omega)
 
     # set terminal state constraints
     ocp.constraints.lbx_e = np.array([term_l_Omega, 0, -max_Qg])
