@@ -9,10 +9,9 @@ from utils import plot_robot
 
 params = Jonkman()
 wind = params.wind_speed
-# Omega_ref = min(1.00, round(wind*7 / params.radius, 4))
-Omega_ref = min(1.2670, round(wind*7.0 / params.radius, 4))
+Omega_ref = min(1.267, round(wind*7.0 / params.radius, 3))
 
-N_horizon = 350
+N_horizon = 600
 ts = 0.05
 T_horizon = N_horizon * ts  # Define the horizon time
 
@@ -41,8 +40,8 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.solver_options.N_horizon = N_horizon
 
     # set cost
-    Q_mat = np.diag([10, 1e-6, 1e-6])
-    R_mat = np.diag([1, 1])
+    Q_mat = np.diag([10, 1e-6, 1e-3])
+    R_mat = np.diag([5, 1])
 
     ocp.cost.cost_type = "LINEAR_LS"
     ocp.cost.cost_type_e = "LINEAR_LS"
@@ -50,7 +49,10 @@ def create_ocp_solver_description() -> AcadosOcp:
     ny = nx + nu
     ny_e = nx
 
-    ocp.cost.W_e = Q_mat
+    # ocp.cost.W_e = Q_mat
+    # ocp.cost.W_e = np.array([[10.1264, 0.1264, 0.0000], [0.1264, 0.1264, 0.0000], [0.0000, 0.0000, 0.0000]])
+
+    ocp.cost.W_e = np.zeros((ny_e, ny_e))
     ocp.cost.W = scipy.linalg.block_diag(Q_mat, R_mat)
 
     ocp.cost.Vx = np.zeros((ny, nx))
@@ -70,12 +72,9 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.constraints.ubx = np.array([+max_Omega, +max_theta, +max_Qg])
     ocp.constraints.idxbx = np.array([0, 1, 2])
 
-    term_l_Omega = max(0, Omega_ref-0.15)
-    term_u_Omega = min(Omega_ref+0.15, max_Omega)
-
     # set terminal state constraints
-    ocp.constraints.lbx_e = np.array([term_l_Omega, 0, -max_Qg])
-    ocp.constraints.ubx_e = np.array([term_u_Omega, +max_theta, +max_Qg])
+    ocp.constraints.lbx_e = np.array([Omega_ref, 0, -max_Qg])
+    ocp.constraints.ubx_e = np.array([Omega_ref, +max_theta, +max_Qg])
     ocp.constraints.idxbx_e = np.array([0, 1, 2])
 
     # set input constraints
@@ -86,8 +85,7 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.constraints.x0 = X0
 
     # set options
-    ocp.solver_options.qp_solver = "PARTIAL_CONDENSING_HPIPM"  # FULL_CONDENSING_QPOASES
-    # ocp.solver_options.hessian_approx = "GAUSS_NEWTON"
+    ocp.solver_options.qp_solver = "PARTIAL_CONDENSING_HPIPM"
     ocp.solver_options.hessian_approx = "EXACT"
     ocp.solver_options.integrator_type = "IRK"
     ocp.solver_options.nlp_solver_type = "SQP"
@@ -109,7 +107,7 @@ def closed_loop_simulation():
     N_horizon = acados_ocp_solver.N
 
     # prepare simulation
-    Nsim = 4000
+    Nsim = 2500
     nx = ocp.model.x.rows()
     nu = ocp.model.u.rows()
 
@@ -154,7 +152,6 @@ def closed_loop_simulation():
                 f"acados acados_ocp_solver returned status {status} in closed loop instance {i} with {xcurrent}"
             )
         
-
         L = xcurrent[0] * params.radius / params.wind_speed
         Li = 1 / (1 / (L + 0.08 * xcurrent[1]) - 0.035 / (xcurrent[1]**3 + 1))
         Cp1 = c1 * (c2 / Li - c3 * xcurrent[1] - c4)  # Using scaled theta here
