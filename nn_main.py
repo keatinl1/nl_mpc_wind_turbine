@@ -1,6 +1,10 @@
 import scipy.linalg
 import numpy as np
-import csv
+import torch
+
+# Load the model
+NN_model = torch.jit.load("controller_model.pt")
+NN_model.eval()
 
 from acados_template import AcadosOcp, AcadosOcpSolver, AcadosSimSolver
 from parameters import Jonkman
@@ -65,21 +69,6 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.cost.yref = np.zeros((ny,))
     ocp.cost.yref_e = np.zeros((ny_e,))
 
-    # set state constraints
-    ocp.constraints.lbx = np.array([-max_Omega, 0, -max_Qg])
-    ocp.constraints.ubx = np.array([+max_Omega, +max_theta, +max_Qg])
-    ocp.constraints.idxbx = np.array([0, 1, 2])
-
-    # set terminal state constraints
-    ocp.constraints.lbx_e = np.array([Omega_ref, 0, -max_Qg])
-    ocp.constraints.ubx_e = np.array([Omega_ref, +max_theta, +max_Qg])
-    ocp.constraints.idxbx_e = np.array([0, 1, 2])
-
-    # set input constraints
-    ocp.constraints.lbu = np.array([-max_pitch_rate, -max_torque_rate])
-    ocp.constraints.ubu = np.array([max_pitch_rate, max_torque_rate])
-    ocp.constraints.idxbu = np.array([0, 1])
-
     ocp.constraints.x0 = X0
 
     # set options
@@ -105,7 +94,7 @@ def closed_loop_simulation():
     N_horizon = acados_ocp_solver.N
 
     # prepare simulation
-    Nsim = 2500
+    Nsim = 10000
     nx = ocp.model.x.rows()
     nu = ocp.model.u.rows()
 
@@ -129,27 +118,10 @@ def closed_loop_simulation():
 
     # closed loop
     for i in range(Nsim):
-        # update yref
-        for j in range(N_horizon):
-            acados_ocp_solver.set(j, "yref", yref)
-        acados_ocp_solver.set(N_horizon, "yref", yref_N)
+ 
+        state = torch.tensor([xcurrent[0], xcurrent[1], xcurrent[2], 5.5], dtype=torch.float32)
+        simU[i, :] = NN_model(state).detach().numpy()
 
-        # solve ocp
-        simU[i, :] = acados_ocp_solver.solve_for_x0(xcurrent)
-        status = acados_ocp_solver.get_status()
-
-        if status not in [0, 2]:
-            acados_ocp_solver.print_statistics()
-            plot_robot(
-                np.linspace(0, T_horizon / N_horizon * i, i + 1),
-                None,
-                simU[:i, :],
-                simX[: i + 1, :],
-            )
-            raise Exception(
-                f"acados acados_ocp_solver returned status {status} in closed loop instance {i} with {xcurrent}"
-            )
-        
         L = xcurrent[0] * params.radius / params.wind_speed
         Li = 1 / (1 / (L + 0.08 * xcurrent[1]) - 0.035 / (xcurrent[1]**3 + 1))
         Cp1 = c1 * (c2 / Li - c3 * xcurrent[1] - c4)  # Using scaled theta here
@@ -159,13 +131,6 @@ def closed_loop_simulation():
 
         Pout = (0.5*params.air_density*np.pi*(params.radius**2)*(params.wind_speed**3)*Cp)/1000
         Pwr_series.append(Pout)
-
-        data_point = [xcurrent[0], xcurrent[1], xcurrent[2], simU[i, 0], simU[i, 1]]
-
-        # # Use 'a' (append mode) to add data without overwriting
-        # with open('data.csv', 'a', newline='') as f:
-        #     writer = csv.writer(f)
-        #     writer.writerow(data_point)
 
         # simulate system
         xcurrent = acados_integrator.simulate(xcurrent, simU[i, :])

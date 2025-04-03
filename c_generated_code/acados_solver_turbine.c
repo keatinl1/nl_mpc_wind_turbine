@@ -1166,26 +1166,6 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
 
 
     /* constraints that are the same for initial and intermediate */
-    // u
-    int* idxbu = malloc(NBU * sizeof(int));
-    idxbu[0] = 0;
-    idxbu[1] = 1;
-    double* lubu = calloc(2*NBU, sizeof(double));
-    double* lbu = lubu;
-    double* ubu = lubu + NBU;
-    lbu[0] = -8;
-    ubu[0] = 8;
-    lbu[1] = -15;
-    ubu[1] = 15;
-
-    for (int i = 0; i < N; i++)
-    {
-        ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, i, "idxbu", idxbu);
-        ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, i, "lbu", lbu);
-        ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, i, "ubu", ubu);
-    }
-    free(idxbu);
-    free(lubu);
 
 
 
@@ -1194,28 +1174,6 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
 
 
 
-    // x
-    int* idxbx = malloc(NBX * sizeof(int));
-    idxbx[0] = 0;
-    idxbx[1] = 1;
-    idxbx[2] = 2;
-    double* lubx = calloc(2*NBX, sizeof(double));
-    double* lbx = lubx;
-    double* ubx = lubx + NBX;
-    lbx[0] = -1.267;
-    ubx[0] = 1.267;
-    ubx[1] = 90;
-    lbx[2] = -47.40291;
-    ubx[2] = 47.40291;
-
-    for (int i = 1; i < N; i++)
-    {
-        ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, i, "idxbx", idxbx);
-        ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, i, "lbx", lbx);
-        ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, i, "ubx", ubx);
-    }
-    free(idxbx);
-    free(lubx);
 
 
 
@@ -1225,25 +1183,6 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
 
     /* terminal constraints */
 
-    // set up bounds for last stage
-    // x
-    int* idxbx_e = malloc(NBXN * sizeof(int));
-    idxbx_e[0] = 0;
-    idxbx_e[1] = 1;
-    idxbx_e[2] = 2;
-    double* lubx_e = calloc(2*NBXN, sizeof(double));
-    double* lbx_e = lubx_e;
-    double* ubx_e = lubx_e + NBXN;
-    lbx_e[0] = 0.911;
-    ubx_e[0] = 0.911;
-    ubx_e[1] = 90;
-    lbx_e[2] = -47.40291;
-    ubx_e[2] = 47.40291;
-    ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, N, "idxbx", idxbx_e);
-    ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, N, "lbx", lbx_e);
-    ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, N, "ubx", ubx_e);
-    free(idxbx_e);
-    free(lubx_e);
 
 
 
