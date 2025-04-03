@@ -49,9 +49,6 @@ def create_ocp_solver_description() -> AcadosOcp:
     ny = nx + nu
     ny_e = nx
 
-    # ocp.cost.W_e = Q_mat
-    # ocp.cost.W_e = np.array([[10.1264, 0.1264, 0.0000], [0.1264, 0.1264, 0.0000], [0.0000, 0.0000, 0.0000]])
-
     ocp.cost.W_e = np.zeros((ny_e, ny_e))
     ocp.cost.W = scipy.linalg.block_diag(Q_mat, R_mat)
 

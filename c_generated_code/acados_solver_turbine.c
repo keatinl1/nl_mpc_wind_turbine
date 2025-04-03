@@ -1234,8 +1234,8 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
     double* lubx_e = calloc(2*NBXN, sizeof(double));
     double* lbx_e = lubx_e;
     double* ubx_e = lubx_e + NBXN;
-    lbx_e[0] = 1.252;
-    ubx_e[0] = 1.252;
+    lbx_e[0] = 0.911;
+    ubx_e[0] = 0.911;
     ubx_e[1] = 90;
     lbx_e[2] = -47.40291;
     ubx_e[2] = 47.40291;
