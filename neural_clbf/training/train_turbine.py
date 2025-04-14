@@ -5,6 +5,9 @@ import torch.multiprocessing
 import pytorch_lightning as pl
 from pytorch_lightning import loggers as pl_loggers
 
+from pytorch_lightning.callbacks import ModelCheckpoint
+
+
 from neural_clbf.controllers import NeuralCLBFController
 from neural_clbf.datamodules.episodic_datamodule import (
     EpisodicDataModule,
@@ -14,6 +17,7 @@ from neural_clbf.experiments import (
     ExperimentSuite,
     CLFContourExperiment,
     RolloutStateSpaceExperiment,
+    RolloutTimeSeriesExperiment
 )
 from neural_clbf.training.utils import current_git_hash
 
@@ -78,20 +82,29 @@ def main(args):
         y_axis_label="$Q_g$",
         plot_unsafe_region=False,
     )
-    rollout_experiment = RolloutStateSpaceExperiment(
+
+    rollout_experiment = RolloutTimeSeriesExperiment(
         "Rollout",
         start_x,
-        Turbine.OMEGA,
-        "$\\theta$",
-        Turbine.THETA,
-        "$\\theta$",
-        [Turbine.QG],        # ← FIXED
-        ["$Q_g$"],           # ← FIXED       
+        [Turbine.OMEGA, Turbine.THETA, Turbine.QG],
+        ["$\\Omega$","$\\theta$", "$Q_g$"],
+        [Turbine.U1, Turbine.U2],
+        ["$\\theta_dot$", "$Q_gdot$"],
         scenarios=scenarios,
         n_sims_per_start=1,
         t_sim=5.0,
     )
+
     experiment_suite = ExperimentSuite([V_contour_experiment, rollout_experiment])
+
+    checkpoint_callback = ModelCheckpoint(
+        dirpath="./checkpoints/turbine/",  # Folder to save checkpoints
+        filename="clbf_turb",  # Customize if needed
+        save_top_k=1,  # Save top 3 checkpoints
+        monitor="Total loss / val",  # Make sure your model logs this
+        mode="min",  # Lower val_loss = better
+        save_last=True,  # Always save the last epoch too
+    )
 
     # Initialize the controller
     clbf_controller = NeuralCLBFController(
@@ -119,6 +132,7 @@ def main(args):
 
     trainer = pl.Trainer.from_argparse_args(
         args,
+        callbacks=[checkpoint_callback],
         logger=tb_logger,
         reload_dataloaders_every_epoch=True,
         max_epochs=1,
@@ -129,9 +143,7 @@ def main(args):
     torch.autograd.set_detect_anomaly(True)
     trainer.fit(clbf_controller)
 
-    torch.save(clbf_controller, "modelnew.pt", _use_new_zipfile_serialization=False)
 
-    torch.save(clbf_controller.state_dict(), 'model_weights.pth')
 
 if __name__ == "__main__":
     parser = ArgumentParser()

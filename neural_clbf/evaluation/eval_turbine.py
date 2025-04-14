@@ -9,26 +9,13 @@ matplotlib.use('TkAgg')
 def plot_turbine():
     # Load the checkpoint file. This should include the experiment suite used during
     # training.
-    log_file = "saved_models/review/turbine.ckpt"
+    log_file = "saved_models/review/clbf_turb-v2.ckpt"
     neural_controller = NeuralCLBFController.load_from_checkpoint(log_file)
 
     # Update parameters
     neural_controller.experiment_suite.experiments[1].start_x = torch.tensor(
         [
-            [1.5, 0.0, 1.5],
-            [0.9, 0.0, 1.5],
-            [0.3, 0.0, 1.5],
-            [0.0, 0.0, 1.5],
-            [0.3, 0.0, 1.5],
-            [0.9,0.0, 1.5],
-            [1.5,0.0, 1.5],
-            [1.5,0.0, -1.5],
-            [0.9,0.0, -1.5],
-            [0.3,0.0, -1.5],
-            [0.0,0.0, -1.5],
-            [0.3,0.0, -1.5],
-            [0.9,0.0, -1.5],
-            [1.5,0.0, -1.5],
+            [1e-6, 1e-6, 1e-6],
         ]
     )
 
