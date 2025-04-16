@@ -63,14 +63,14 @@ class Turbine(ControlAffineSystem):
 
     @property
     def state_limits(self) -> Tuple[torch.Tensor, torch.Tensor]:
-        upper_limit = torch.ones(self.n_dims)
+        upper_limit = torch.zeros(self.n_dims)
         upper_limit[Turbine.OMEGA] = 1.2670
         upper_limit[Turbine.THETA] = 90.0
         upper_limit[Turbine.QG]    = 47.40291
 
-        lower_limit = torch.ones(self.n_dims)
-        lower_limit[Turbine.OMEGA] = 0.0
-        lower_limit[Turbine.THETA] = 0.0
+        lower_limit = torch.zeros(self.n_dims)
+        lower_limit[Turbine.OMEGA] = 1e-6
+        lower_limit[Turbine.THETA] = 1e-6
         lower_limit[Turbine.QG]    = -47.40291
 
         return (upper_limit, lower_limit)
@@ -78,7 +78,6 @@ class Turbine(ControlAffineSystem):
     @property
     def control_limits(self) -> Tuple[torch.Tensor, torch.Tensor]:
         # define upper and lower limits based around the nominal equilibrium input
-
         upper_limit = torch.ones(self.n_controls)
         upper_limit[Turbine.U1] = 8.0
         upper_limit[Turbine.U2] = 15.0
@@ -89,57 +88,24 @@ class Turbine(ControlAffineSystem):
 
         return (upper_limit, lower_limit)
 
-    # def safe_mask(self, x):
-    #     O_l = 1e-6
-    #     O_u = 1.27
-
-    #     t_l = 0.0
-    #     t_u = 90.0
-
-    #     qg_l = -47.0
-    #     qg_u = 47.0
-
-    #     omega_safe = (x[:, Turbine.OMEGA] >= O_l) & (x[:, Turbine.OMEGA] <= O_u)
-    #     theta_safe = (x[:, Turbine.THETA] >= t_l) & (x[:, Turbine.THETA] <= t_u)
-    #     qg_safe = (x[:, Turbine.QG] >= qg_l) & (x[:, Turbine.QG] <= qg_u)
-
-    #     safe_mask = omega_safe & theta_safe & qg_safe
-
-    #     return safe_mask
-    
-    # def unsafe_mask(self, x):
-    #     O_l = 1e-6
-    #     O_u = 1.27
-
-    #     t_l = 0.0
-    #     t_u = 90.0
-
-    #     qg_l = -47.0
-    #     qg_u = 47.0
-
-    #     omega_unsafe = (x[:, Turbine.OMEGA] <= O_l) | (x[:, Turbine.OMEGA] >= O_u)
-    #     theta_unsafe = (x[:, Turbine.THETA] <= t_l) | (x[:, Turbine.THETA] >= t_u)
-    #     qg_unsafe = (x[:, Turbine.QG] <= qg_l) | (x[:, Turbine.QG] >= qg_u)
-
-    #     unsafe_mask = omega_unsafe | theta_unsafe | qg_unsafe
-
-    #     return unsafe_mask    
-
-    # def goal_mask(self, x):
-    #     omega_near_goal = (x[:, Turbine.OMEGA] - 0.626).abs() <= 0.01
-    #     qg_near_goal = (x[:, Turbine.QG]).abs() <= 47.0       # Example
-    #     return omega_near_goal & qg_near_goal
-
     def safe_mask(self, x):
         """Return the mask of x indicating safe regions for the obstacle task
 
         args:
-            x: a tensor of (batch_size, self.n_dims) points in the state space
-        returns:
-            a tensor of (batch_size,) booleans indicating whether the corresponding
-            point is in this region.
+            x: a tensor of points in the state space
         """
-        safe_mask = x.norm(dim=-1) <= 0.5
+        safe_mask = torch.ones_like(x[:, 0], dtype=torch.bool)
+
+        # Get position of head of segway
+        Omega = x[:, Turbine.OMEGA]
+        theta = x[:, Turbine.THETA]
+        Qg = x[:, Turbine.QG]
+
+        upper_satisfied = (Omega <= 1.2670) & (theta <= 90.0) & (Qg <= 47.0)
+        lower_satisfied = (Omega >= 1e-6) & (theta >= 1e-6) & (Qg >= -47.0)
+        safe_mask = torch.logical_and(
+            upper_satisfied, lower_satisfied
+        )
 
         return safe_mask
 
@@ -147,12 +113,21 @@ class Turbine(ControlAffineSystem):
         """Return the mask of x indicating unsafe regions for the obstacle task
 
         args:
-            x: a tensor of (batch_size, self.n_dims) points in the state space
-        returns:
-            a tensor of (batch_size,) booleans indicating whether the corresponding
-            point is in this region.
+            x: a tensor of points in the state space
         """
-        unsafe_mask = x.norm(dim=-1) >= 1.5
+        unsafe_mask = torch.zeros_like(x[:, 0], dtype=torch.bool)
+
+        # Get position of head of segway
+        Omega = x[:, Turbine.OMEGA]
+        theta = x[:, Turbine.THETA]
+        Qg = x[:, Turbine.QG]
+
+        upper_violation = (Omega > 1.2670) | (theta > 90.0) | (Qg > 47.0)
+        lower_violation = (Omega < 1e-6) | (theta < 0.0) | (Qg < -47.0)
+
+        unsafe_mask = torch.logical_or(
+            lower_violation, upper_violation
+        )
 
         return unsafe_mask
 
@@ -160,16 +135,14 @@ class Turbine(ControlAffineSystem):
         """Return the mask of x indicating points in the goal set
 
         args:
-            x: a tensor of (batch_size, self.n_dims) points in the state space
-        returns:
-            a tensor of (batch_size,) booleans indicating whether the corresponding
-            point is in this region.
+            x: a tensor of points in the state space
         """
-        goal_mask = x.norm(dim=-1) <= 0.3
+
+        Omega = x[:, Turbine.OMEGA]
+
+        goal_mask = (Omega - 0.56) <= 0.1
 
         return goal_mask
-
-
 
     def _f(self, x: torch.Tensor, params: Scenario):
         """
@@ -190,13 +163,10 @@ class Turbine(ControlAffineSystem):
         # Extract the needed parameters
         R, I, p, V = params['R'], params['I'], params['p'], params['V']
         # and state variables
-        Omega = x[:, Turbine.OMEGA]
-        theta = x[:, Turbine.THETA]
-        Qg    = x[:, Turbine.QG]
-
         epsilon = 1e-6
         Omega_clamped = x[:, Turbine.OMEGA].clamp(min=epsilon)
         theta_clamped = x[:, Turbine.THETA].clamp(min=epsilon)
+        Qg    = x[:, Turbine.QG]
 
         # The derivatives of theta is just its velocity
         c1 = 0.5176
@@ -219,18 +189,26 @@ class Turbine(ControlAffineSystem):
 
         # Explicit system dynamics
         f[:, Turbine.OMEGA, 0] = (1000/I)*(Q - Qg*97)
-        f[:, Turbine.THETA, 0] = 0
-        f[:, Turbine.QG, 0]    = 0
 
         return f
 
     def _g(self, x: torch.Tensor, params: Scenario):
+        """
+        Return the control-dependent part of the control-affine dynamics.
+
+        args:
+            x: bs x self.n_dims tensor of state
+            params: a dictionary giving the parameter values for the system. If None,
+                    default to the nominal parameters used at initialization
+        returns:
+            g: bs x self.n_dims x self.n_controls tensor
+        """
         # Extract batch size and set up a tensor for holding the result
         batch_size = x.shape[0]
         g = torch.zeros((batch_size, self.n_dims, self.n_controls))
         g = g.type_as(x)
 
-        # Effect on theta dot
+        # Effect on theta and qg
         g[:, Turbine.THETA, Turbine.U1] = 1.0
         g[:, Turbine.QG, Turbine.U2]    = 1.0
 

@@ -134,7 +134,7 @@ def main(args):
         callbacks=[checkpoint_callback],
         logger=tb_logger,
         reload_dataloaders_every_epoch=True,
-        max_epochs=1,
+        max_epochs=50,
         gradient_clip_val=100.0,
     )
 

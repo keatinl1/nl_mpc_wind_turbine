@@ -9,7 +9,7 @@ matplotlib.use('TkAgg')
 def plot_turbine():
     # Load the checkpoint file. This should include the experiment suite used during
     # training.
-    log_file = "saved_models/review/clbf_turb.ckpt"
+    log_file = "saved_models/review/clbf_turb-v10.ckpt"
     neural_controller = NeuralCLBFController.load_from_checkpoint(log_file)
 
     # Update parameters
