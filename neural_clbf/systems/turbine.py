@@ -89,46 +89,87 @@ class Turbine(ControlAffineSystem):
 
         return (upper_limit, lower_limit)
 
+    # def safe_mask(self, x):
+    #     O_l = 1e-6
+    #     O_u = 1.27
+
+    #     t_l = 0.0
+    #     t_u = 90.0
+
+    #     qg_l = -47.0
+    #     qg_u = 47.0
+
+    #     omega_safe = (x[:, Turbine.OMEGA] >= O_l) & (x[:, Turbine.OMEGA] <= O_u)
+    #     theta_safe = (x[:, Turbine.THETA] >= t_l) & (x[:, Turbine.THETA] <= t_u)
+    #     qg_safe = (x[:, Turbine.QG] >= qg_l) & (x[:, Turbine.QG] <= qg_u)
+
+    #     safe_mask = omega_safe & theta_safe & qg_safe
+
+    #     return safe_mask
+    
+    # def unsafe_mask(self, x):
+    #     O_l = 1e-6
+    #     O_u = 1.27
+
+    #     t_l = 0.0
+    #     t_u = 90.0
+
+    #     qg_l = -47.0
+    #     qg_u = 47.0
+
+    #     omega_unsafe = (x[:, Turbine.OMEGA] <= O_l) | (x[:, Turbine.OMEGA] >= O_u)
+    #     theta_unsafe = (x[:, Turbine.THETA] <= t_l) | (x[:, Turbine.THETA] >= t_u)
+    #     qg_unsafe = (x[:, Turbine.QG] <= qg_l) | (x[:, Turbine.QG] >= qg_u)
+
+    #     unsafe_mask = omega_unsafe | theta_unsafe | qg_unsafe
+
+    #     return unsafe_mask    
+
+    # def goal_mask(self, x):
+    #     omega_near_goal = (x[:, Turbine.OMEGA] - 0.626).abs() <= 0.01
+    #     qg_near_goal = (x[:, Turbine.QG]).abs() <= 47.0       # Example
+    #     return omega_near_goal & qg_near_goal
+
     def safe_mask(self, x):
-        O_l = 1e-6
-        O_u = 1.27
+        """Return the mask of x indicating safe regions for the obstacle task
 
-        t_l = 0.0
-        t_u = 90.0
-
-        qg_l = -47.0
-        qg_u = 47.0
-
-        omega_safe = (x[:, Turbine.OMEGA] >= O_l) & (x[:, Turbine.OMEGA] <= O_u)
-        theta_safe = (x[:, Turbine.THETA] >= t_l) & (x[:, Turbine.THETA] <= t_u)
-        qg_safe = (x[:, Turbine.QG] >= qg_l) & (x[:, Turbine.QG] <= qg_u)
-
-        safe_mask = omega_safe & theta_safe & qg_safe
+        args:
+            x: a tensor of (batch_size, self.n_dims) points in the state space
+        returns:
+            a tensor of (batch_size,) booleans indicating whether the corresponding
+            point is in this region.
+        """
+        safe_mask = x.norm(dim=-1) <= 0.5
 
         return safe_mask
-    
+
     def unsafe_mask(self, x):
-        O_l = 1e-6
-        O_u = 1.27
+        """Return the mask of x indicating unsafe regions for the obstacle task
 
-        t_l = 0.0
-        t_u = 90.0
+        args:
+            x: a tensor of (batch_size, self.n_dims) points in the state space
+        returns:
+            a tensor of (batch_size,) booleans indicating whether the corresponding
+            point is in this region.
+        """
+        unsafe_mask = x.norm(dim=-1) >= 1.5
 
-        qg_l = -47.0
-        qg_u = 47.0
-
-        omega_unsafe = (x[:, Turbine.OMEGA] <= O_l) | (x[:, Turbine.OMEGA] >= O_u)
-        theta_unsafe = (x[:, Turbine.THETA] <= t_l) | (x[:, Turbine.THETA] >= t_u)
-        qg_unsafe = (x[:, Turbine.QG] <= qg_l) | (x[:, Turbine.QG] >= qg_u)
-
-        unsafe_mask = omega_unsafe | theta_unsafe | qg_unsafe
-
-        return unsafe_mask    
+        return unsafe_mask
 
     def goal_mask(self, x):
-        omega_near_goal = (x[:, Turbine.OMEGA] - 0.626).abs() <= 0.3
-        qg_near_goal = (x[:, Turbine.QG]).abs() <= 47.0       # Example
-        return omega_near_goal & qg_near_goal
+        """Return the mask of x indicating points in the goal set
+
+        args:
+            x: a tensor of (batch_size, self.n_dims) points in the state space
+        returns:
+            a tensor of (batch_size,) booleans indicating whether the corresponding
+            point is in this region.
+        """
+        goal_mask = x.norm(dim=-1) <= 0.3
+
+        return goal_mask
+
+
 
     def _f(self, x: torch.Tensor, params: Scenario):
         """

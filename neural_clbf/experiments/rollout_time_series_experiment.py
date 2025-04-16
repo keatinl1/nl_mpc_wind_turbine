@@ -228,8 +228,11 @@ class RolloutTimeSeriesExperiment(Experiment):
         for i, state_label in enumerate(self.plot_x_labels):
             ax = axs[i]
             state_mask = results_df["measurement"] == state_label
+            # sns.lineplot(
+            #     ax=ax, x="t", y="value", hue="Parameters", data=results_df[state_mask]
+            # )
             sns.lineplot(
-                ax=ax, x="t", y="value", hue="Parameters", data=results_df[state_mask]
+                ax=ax, x="t", y="value", data=results_df[state_mask]
             )
             ax.set_ylabel(state_label)
             # Clear the x label since the plots are stacked
@@ -239,8 +242,11 @@ class RolloutTimeSeriesExperiment(Experiment):
         for i, control_label in enumerate(self.plot_u_labels):
             ax = axs[len(self.plot_x_indices) + i]
             control_mask = results_df["measurement"] == control_label
+            # sns.lineplot(
+            #     ax=ax, x="t", y="value", hue="Parameters", data=results_df[control_mask]
+            # )
             sns.lineplot(
-                ax=ax, x="t", y="value", hue="Parameters", data=results_df[control_mask]
+                ax=ax, x="t", y="value", color='orange', data=results_df[control_mask]
             )
             ax.set_ylabel(control_label)
             # Clear the x label since the plots are stacked
@@ -250,8 +256,11 @@ class RolloutTimeSeriesExperiment(Experiment):
         if plot_V:
             ax = axs[-1]
             V_mask = results_df["measurement"] == "V"
+            # sns.lineplot(
+            #     ax=ax, x="t", y="value", hue="Parameters", data=results_df[V_mask]
+            # )
             sns.lineplot(
-                ax=ax, x="t", y="value", hue="Parameters", data=results_df[V_mask]
+                ax=ax, x="t", y="value", color='r', data=results_df[V_mask]
             )
             ax.set_ylabel("$V$")
             # Clear the x label since the plots are stacked

@@ -16,7 +16,6 @@ from neural_clbf.systems import Turbine
 from neural_clbf.experiments import (
     ExperimentSuite,
     CLFContourExperiment,
-    RolloutStateSpaceExperiment,
     RolloutTimeSeriesExperiment
 )
 from neural_clbf.training.utils import current_git_hash
@@ -89,16 +88,16 @@ def main(args):
         [Turbine.OMEGA, Turbine.THETA, Turbine.QG],
         ["$\\Omega$","$\\theta$", "$Q_g$"],
         [Turbine.U1, Turbine.U2],
-        ["$\\theta_dot$", "$Q_gdot$"],
-        scenarios=scenarios,
+        ["$\\dot{\\theta}$", "$\\dot{Q}_g$"],
+        # scenarios=scenarios,
         n_sims_per_start=1,
-        t_sim=5.0,
+        t_sim=200.0,
     )
 
     experiment_suite = ExperimentSuite([V_contour_experiment, rollout_experiment])
 
     checkpoint_callback = ModelCheckpoint(
-        dirpath="./checkpoints/turbine/",  # Folder to save checkpoints
+        dirpath="./../evaluation/saved_models/review/",  # Folder to save checkpoints
         filename="clbf_turb",  # Customize if needed
         save_top_k=1,  # Save top 3 checkpoints
         monitor="Total loss / val",  # Make sure your model logs this
