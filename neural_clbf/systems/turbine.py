@@ -101,8 +101,8 @@ class Turbine(ControlAffineSystem):
         theta = x[:, Turbine.THETA]
         Qg = x[:, Turbine.QG]
 
-        upper_satisfied = (Omega <= 1.2670) & (theta <= 90.0) & (Qg <= 47.0)
-        lower_satisfied = (Omega >= 1e-6) & (theta >= 1e-6) & (Qg >= -47.0)
+        upper_satisfied = (Omega <= 1.2670) & (theta <= 90.0) & (Qg <= 47.40291)
+        lower_satisfied = (Omega >= 1e-6) & (theta >= 1e-6) & (Qg >= -47.40291)
         safe_mask = torch.logical_and(
             upper_satisfied, lower_satisfied
         )
@@ -122,8 +122,8 @@ class Turbine(ControlAffineSystem):
         theta = x[:, Turbine.THETA]
         Qg = x[:, Turbine.QG]
 
-        upper_violation = (Omega > 1.2670) | (theta > 90.0) | (Qg > 47.0)
-        lower_violation = (Omega < 1e-6) | (theta < 0.0) | (Qg < -47.0)
+        upper_violation = (Omega > 1.2670) | (theta > 90.0) | (Qg > 47.40291)
+        lower_violation = (Omega < 1e-6) | (theta < 1e-6) | (Qg < -47.40291)
 
         unsafe_mask = torch.logical_or(
             lower_violation, upper_violation
@@ -139,8 +139,11 @@ class Turbine(ControlAffineSystem):
         """
 
         Omega = x[:, Turbine.OMEGA]
+        radius = 61.5
 
-        goal_mask = (Omega - 0.56) <= 0.1
+        Omega_ref = params['V']*7.0 / radius
+
+        goal_mask = torch.abs(Omega - Omega_ref) <= 0.1
 
         return goal_mask
 

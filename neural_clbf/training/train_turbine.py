@@ -28,10 +28,6 @@ controller_period = 0.05
 start_x = torch.tensor(
     [
         [1e-6, 1e-6, 1e-6],
-        [1e-6, 1e-6, -100],
-        [1e-6, 1e-6, 100],
-        [1e-6, -5.0, 1e-6],
-        [1.3, 1e-6, 1e-6]
     ]
 )
 simulation_dt = 0.05
@@ -41,7 +37,11 @@ def main(args):
     # Define the scenarios
     nominal_params = {"R": 61.5, "I": 11776047.0*3, "p": 1.225, "V":5.5}
     scenarios = [
-        nominal_params
+        nominal_params,
+        {"R": 61.5, "I": 11776047.0*3, "p": 1.225, "V":1.0},
+        {"R": 61.5, "I": 11776047.0*3, "p": 1.225, "V":3.0},
+        {"R": 61.5, "I": 11776047.0*3, "p": 1.225, "V":8.0},
+        {"R": 61.5, "I": 11776047.0*3, "p": 1.225, "V":10.0},
     ]
 
     # Define the dynamics model
@@ -54,9 +54,9 @@ def main(args):
 
     # Initialize the DataModule
     initial_conditions = [
-        (1e-6, 1.27),      # OMEGA: full range
+        (1e-6, 1.2670),      # OMEGA: full range
         (1e-6, 90.0),      # THETA: full range
-        (-47.0, 47.0),    # QG: full range
+        (-47.40291, 47.40291),    # QG: full range
     ]
     data_module = EpisodicDataModule(
         dynamics_model,
@@ -67,19 +67,6 @@ def main(args):
         max_points=100000,
         val_split=0.1,
         batch_size=64,
-        quotas={"safe": 0.2, "unsafe": 0.2, "goal": 0.4},
-    )
-
-    # Define the experiment suite
-    V_contour_experiment = CLFContourExperiment(
-        "V_Contour",
-        domain=[(0.0, 90.0), (0.0, 90.0)],
-        n_grid=30,
-        x_axis_index=Turbine.OMEGA,
-        y_axis_index=Turbine.QG,
-        x_axis_label="$\\Omega$",
-        y_axis_label="$Q_g$",
-        plot_unsafe_region=False,
     )
 
     rollout_experiment = RolloutTimeSeriesExperiment(
@@ -89,20 +76,20 @@ def main(args):
         ["$\\Omega$","$\\theta$", "$Q_g$"],
         [Turbine.U1, Turbine.U2],
         ["$\\dot{\\theta}$", "$\\dot{Q}_g$"],
-        # scenarios=scenarios,
+        scenarios=scenarios,
         n_sims_per_start=1,
         t_sim=200.0,
     )
 
-    experiment_suite = ExperimentSuite([V_contour_experiment, rollout_experiment])
+    experiment_suite = ExperimentSuite([rollout_experiment])
 
     checkpoint_callback = ModelCheckpoint(
-        dirpath="./../evaluation/saved_models/review/",  # Folder to save checkpoints
-        filename="clbf_turb",  # Customize if needed
-        save_top_k=1,  # Save top 3 checkpoints
-        monitor="Total loss / val",  # Make sure your model logs this
-        mode="min",  # Lower val_loss = better
-        save_last=True,  # Always save the last epoch too
+        dirpath="./../evaluation/saved_models/review/",
+        filename="clbf_turb",
+        save_top_k=1,
+        monitor="Total loss / val",
+        mode="min",
+        save_last=True,
     )
 
     # Initialize the controller
@@ -134,7 +121,7 @@ def main(args):
         callbacks=[checkpoint_callback],
         logger=tb_logger,
         reload_dataloaders_every_epoch=True,
-        max_epochs=50,
+        max_epochs=1,
         gradient_clip_val=100.0,
     )
 
