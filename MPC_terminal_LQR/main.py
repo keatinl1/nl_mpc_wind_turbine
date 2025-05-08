@@ -14,7 +14,7 @@ terminal = Terminal()
 wind = params.wind_speed
 Omega_ref = min(1.267, round(wind*7.0 / params.radius, 3))
 
-N_horizon = 100
+N_horizon = 75
 ts = 0.05
 T_horizon = N_horizon * ts  # Define the horizon time
 
@@ -60,7 +60,7 @@ def create_ocp_solver_description() -> AcadosOcp:
     
     # Cost
     ocp.cost.cost_type = "LINEAR_LS"
-    Q_mat = np.diag([1.0, 0.0, 1e-6])
+    Q_mat = np.diag([10.0, 1e-3, 1e-6])
     R_mat = np.diag([10.0, 1e-6])
     ocp.cost.W = scipy.linalg.block_diag(Q_mat, R_mat)
 
