@@ -14,19 +14,11 @@ terminal = Terminal()
 wind = params.wind_speed
 Omega_ref = min(1.267, round(wind*7.0 / params.radius, 3))
 
-N_horizon = 600
+N_horizon = 100
 ts = 0.05
 T_horizon = N_horizon * ts  # Define the horizon time
 
-X0 = np.array([1e-6, 1e-6, 1e-6])  # Intital state , avoid division by zero
-
-# A = np.matrix([[0.931182495471548,	-3.16483306239544e-05,	-0.0119248284494955],
-#     [0,	1,	0],
-#     [0,	0,	1]])
-
-# B = np.matrix([[-8.00609660621020e-07,	-0.000301663078895172],
-#     [0.05,	0.0],
-#     [0.0,	0.05]])
+X0 = np.array([1e-6, 1e-6, 1e-6])  # Intital state to avoid division by zero
 
 A = np.matrix([[1.00328388015914,	2.83524513602228e-05,	-0.000137510290574019],
     [0,	1,	0],
@@ -69,7 +61,7 @@ def create_ocp_solver_description() -> AcadosOcp:
     # Cost
     ocp.cost.cost_type = "LINEAR_LS"
     Q_mat = np.diag([1.0, 0.0, 1e-6])
-    R_mat = np.diag([1.0, 1e-6])
+    R_mat = np.diag([10.0, 1e-6])
     ocp.cost.W = scipy.linalg.block_diag(Q_mat, R_mat)
 
     ocp.cost.Vx = np.zeros((ny, nx))
