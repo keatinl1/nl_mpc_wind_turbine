@@ -4,7 +4,6 @@ import numpy as np
 from acados_template import latexify_plot
 
 def plot_robot(
-    Pwr_series,
     wind_speed,
     goal,
     shooting_nodes,
@@ -32,7 +31,7 @@ def plot_robot(
     N_sim = X_traj.shape[0]
     nx = X_traj.shape[1]
     nu = U.shape[1]
-    fig, axs = plt.subplots(nx + nu + 1, 1, figsize=(9, 9), sharex=True)  # Add one more subplot for the power series
+    fig, axs = plt.subplots(nx + nu, 1, figsize=(9, 9), sharex=True)  # Add one more subplot for the power series
 
     t = shooting_nodes
 
@@ -62,12 +61,6 @@ def plot_robot(
             plt.ylim([-1.2 * u_max[i], 1.2 * u_max[i]])
         plt.grid()
 
-    # Plot power series at the bottom
-    plt.subplot(nx + nu + 1, 1, nx + nu + 1)
-    plt.plot(t[:len(Pwr_series)], Pwr_series, color="tab:red")
-    plt.ylabel("$Pwr_{out} (kW)$")
-    plt.xlabel(time_label)
-    plt.grid()
 
     plt.subplots_adjust(left=None, bottom=None, right=None, top=None, hspace=0.4)
 
