@@ -201,7 +201,7 @@ def closed_loop_simulation():
     simZ = np.zeros((Nsim + 1, nx))
     simV = np.zeros((Nsim, nu))
 
-    pred_Z = np.zeros((N_horizon+1, nx)) 
+    pred_Z = np.zeros((N_horizon, nx)) 
 
     # set initial conditions
     xcurrent = X0
@@ -222,29 +222,24 @@ def closed_loop_simulation():
 
         # NOMINAL 
         simV[i, :] = acados_ocp_solver_z.solve_for_x0(zcurrent)
-
-        for k in range(N_horizon+1):
+        for k in range(N_horizon):
             pred_Z[k, :] = acados_ocp_solver_z.get(k, "x")
-
-        print(pred_Z)
-        print("\n")
-
         z_status = acados_ocp_solver_z.get_status()
 
         if z_status not in [0, 2]:
-            acados_ocp_solver.print_statistics()
+            acados_ocp_solver_z.print_statistics()
             raise Exception(
                 f"Z: returned status {z_status} in closed loop instance {i} with {xcurrent}"
             )
 
-        # # ACTUAL
-        # w = rand(0 - wind*0.1)
-        # x = x + w
-        # for j in range(N_horizon):
-        #     acados_ocp_solver.set(j, "yref", yref)
-        # acados_ocp_solver.set(N_horizon, "yref", yref_N)
-        # simU[i, :] = acados_ocp_solver.solve_for_x0(xcurrent)
-        # x_status = acados_ocp_solver.get_status()
+        # ACTUAL
+        w = rand(0 - wind*0.1)
+        x = x + w
+        for j in range(N_horizon):
+            acados_ocp_solver.set(j, "yref", yref)
+        acados_ocp_solver.set(N_horizon, "yref", yref_N)
+        simU[i, :] = acados_ocp_solver.solve_for_x0(xcurrent)
+        x_status = acados_ocp_solver.get_status()
 
         # if x_status not in [0, 2]:
         #     acados_ocp_solver.print_statistics()
