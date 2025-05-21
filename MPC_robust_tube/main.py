@@ -174,6 +174,21 @@ def create_actual_x_ocp() -> AcadosOcp:
 
     return ocp
 
+def get_disturbance(i, seed=42):
+    np.random.seed(seed + i)  # deterministic
+
+    # Relative scales for each state (say, 1% of range)
+    delta_omega = 0.01 * (1.26 - 1e-6)
+    delta_theta = 0.01 * (90.0 - 0.0)
+    delta_qg    = 0.01 * (47.0 - (-47.0))
+
+    # Sinusoidal + noise
+    d0 = delta_omega * (np.sin(0.01 * i) + 0.2 * np.random.randn())
+    d1 = delta_theta * (np.sin(0.0001 * i) + 0.2 * np.random.randn())
+    d2 = delta_qg    * (np.sin(0.02 * i + 1.0) + 0.2 * np.random.randn())
+
+    return np.array([abs(d0), abs(d1), abs(d2)])
+
 def closed_loop_simulation():
 
     # create nominal sys
@@ -220,7 +235,7 @@ def closed_loop_simulation():
     # closed loop
     for i in range(Nsim):
 
-        # NOMINAL 
+        # Z: NOMINAL 
         simV[i, :] = acados_ocp_solver_z.solve_for_x0(zcurrent)
         for k in range(N_horizon):
             pred_Z[k, :] = acados_ocp_solver_z.get(k, "x")
@@ -232,26 +247,28 @@ def closed_loop_simulation():
                 f"Z: returned status {z_status} in closed loop instance {i} with {xcurrent}"
             )
 
-        # ACTUAL
-        w = rand(0 - wind*0.1)
-        x = x + w
+        # X: ACTUAL
         for j in range(N_horizon):
-            acados_ocp_solver.set(j, "yref", yref)
-        acados_ocp_solver.set(N_horizon, "yref", yref_N)
-        simU[i, :] = acados_ocp_solver.solve_for_x0(xcurrent)
-        x_status = acados_ocp_solver.get_status()
+            acados_ocp_solver_x.set(j, "yref", np.concatenate((pred_Z[j, :], np.zeros(nu))))
+        simU[i, :] = acados_ocp_solver_x.solve_for_x0(xcurrent)
+        x_status = acados_ocp_solver_x.get_status()
 
-        # if x_status not in [0, 2]:
-        #     acados_ocp_solver.print_statistics()
-        #     raise Exception(
-        #         f"X: returned status {x_status} in closed loop instance {i} with {xcurrent}"
-        #     )
+        if x_status not in [0, 2]:
+            acados_ocp_solver_x.print_statistics()
+            raise Exception(
+                f"X: returned status {x_status} in closed loop instance {i} with {xcurrent}"
+            )
 
 
-        # # update system
+        # update system
         # z+ = f(z, v0)
-        # xcurrent = acados_integrator.simulate(xcurrent, simU[i, :])
-        simX[i + 1, :] = xcurrent
+        zcurrent = acados_integrator_z.simulate(zcurrent, simV[i, :])
+        simZ[i + 1, :] = zcurrent
+
+        # x+ = f(x, u0) + w
+        xcurrent = acados_integrator_x.simulate(xcurrent, simU[i, :])
+        w = get_disturbance(i)
+        simX[i + 1, :] = xcurrent + w
 
         if i % 100 == 0:
             print(round(i*100/Nsim, 2), "% complete")
