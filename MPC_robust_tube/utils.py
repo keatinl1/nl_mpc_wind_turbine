@@ -36,7 +36,7 @@ def plot_robot(
     t = shooting_nodes
 
     for i in range(nx):
-        plt.subplot(nx + nu + 1, 1, i + 1)  # Adjust index to start from 1
+        plt.subplot(nx + nu, 1, i + 1)  # Adjust index to start from 1
         (line,) = plt.plot(t, X_traj[:, i])
 
         plt.ylabel(x_labels[i])
@@ -50,7 +50,7 @@ def plot_robot(
 
     # Plot controls after states
     for i in range(nu):
-        plt.subplot(nx + nu + 1, 1, nx + i + 1)  # Controls start after states
+        plt.subplot(nx + nu, 1, nx + i + 1)  # Controls start after states
         (line,) = plt.step(t, np.append([U[0, i]], U[:, i]), color="tab:orange")
 
         plt.ylabel(u_labels[i])

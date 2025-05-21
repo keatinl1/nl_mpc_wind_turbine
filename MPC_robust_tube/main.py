@@ -7,14 +7,14 @@ import control
 # import objects
 from terminal_components import Terminal
 from parameters import Jonkman
-from linear_model import model
+from linear_model import Lin_model
 
 # import functions
 from turbine_model import export_robot_model
 from utils import plot_robot
 
 # instantiate some objects
-linear_model = model()
+linear_model = Lin_model()
 terminal = Terminal()
 params = Jonkman()
 
@@ -29,13 +29,14 @@ max_torque_rate = params.max_torque_rate
 
 # declare params
 Omega_ref = min(1.267, round(wind*7.0 / params.radius, 3))
-X0 = np.array([1e-6, 1e-6, 1e-6])
 N_horizon = 75
 ts = 0.05
 T_horizon = N_horizon * ts
 
-def create_nominal_z_ocp() -> AcadosOcp:
+Z0 = np.array([1e-6, 1e-6, 1e-6])
+X0 = np.array([1e-6, 1e-6, 1e-6])
 
+def create_nominal_z_ocp() -> AcadosOcp:
     # create ocp object to formulate the OCP
     ocp = AcadosOcp()
 
@@ -52,7 +53,6 @@ def create_nominal_z_ocp() -> AcadosOcp:
     ny_e = nx
 
     # Stage ==============================================================
-
     # Cost
     ocp.cost.cost_type = "LINEAR_LS"
     Q_mat = np.diag([10.0, 1e-3, 1e-6])
@@ -67,7 +67,7 @@ def create_nominal_z_ocp() -> AcadosOcp:
 
     # Constraints
     # state
-    ocp.constraints.lbx = np.array([-max_Omega, 0, -max_Qg])
+    ocp.constraints.lbx = np.array([1e-6, 0.0, -max_Qg])
     ocp.constraints.ubx = np.array([+max_Omega, +max_theta, +max_Qg])
     ocp.constraints.idxbx = np.array([0, 1, 2])
 
@@ -75,9 +75,6 @@ def create_nominal_z_ocp() -> AcadosOcp:
     ocp.constraints.lbu = np.array([-max_pitch_rate, -max_torque_rate])
     ocp.constraints.ubu = np.array([max_pitch_rate, max_torque_rate])
     ocp.constraints.idxbu = np.array([0, 1])
-
-
-
 
     # Terminal =========================================================
     # Cost
@@ -91,12 +88,11 @@ def create_nominal_z_ocp() -> AcadosOcp:
     ocp.constraints.lg_e = -1e10 * np.ones_like(terminal.b)
     ocp.constraints.ug_e = terminal.b.transpose()
 
-
-    # Output Cost (doesnt exist) ========================================
+    # Output Cost (n/a) ===============================================
     ocp.cost.yref = np.zeros((ny,))
     ocp.cost.yref_e = np.zeros((ny_e,))
 
-    ocp.constraints.x0 = X0
+    ocp.constraints.x0 = Z0
 
     # set options
     ocp.solver_options.qp_solver = "PARTIAL_CONDENSING_HPIPM"
@@ -110,7 +106,6 @@ def create_nominal_z_ocp() -> AcadosOcp:
     return ocp
 
 def create_actual_x_ocp() -> AcadosOcp:
-
     # create ocp object to formulate the OCP
     ocp = AcadosOcp()
 
@@ -141,7 +136,7 @@ def create_actual_x_ocp() -> AcadosOcp:
 
     # Constraints
     # state
-    ocp.constraints.lbx = np.array([-max_Omega, 0, -max_Qg])
+    ocp.constraints.lbx = np.array([1e-6, 0.0, -max_Qg])
     ocp.constraints.ubx = np.array([+max_Omega, +max_theta, +max_Qg])
     ocp.constraints.idxbx = np.array([0, 1, 2])
 
@@ -181,18 +176,21 @@ def create_actual_x_ocp() -> AcadosOcp:
 
 def closed_loop_simulation():
 
-    # create solvers
+    # create nominal sys
     ocp_z = create_nominal_z_ocp()
+    model_z = ocp_z.model
+    acados_ocp_solver_z = AcadosOcpSolver(ocp_z)
+    acados_integrator_z = AcadosSimSolver(ocp_z)
+    N_horizon = acados_ocp_solver_z.N
+
+    # create actual sys
     ocp_x = create_actual_x_ocp()
+    model_x = ocp_x.model
+    acados_ocp_solver_x = AcadosOcpSolver(ocp_x)
+    acados_integrator_x = AcadosSimSolver(ocp_x)
+    N_horizon = acados_ocp_solver_x.N
 
-    # i think using the same model, solver, integrator is fine
-    model = ocp_z.model
-    acados_ocp_solver = AcadosOcpSolver(ocp_z)
-    acados_integrator = AcadosSimSolver(ocp_z)
-
-    N_horizon = acados_ocp_solver.N
-
-    # prepare simulation
+    # prep sim
     Nsim = 2500
     nx = ocp_z.model.x.rows()
     nu = ocp_z.model.u.rows()
@@ -200,52 +198,64 @@ def closed_loop_simulation():
     simX = np.zeros((Nsim + 1, nx))
     simU = np.zeros((Nsim, nu))
 
-    xcurrent = X0
-    simX[0, :] = xcurrent
+    simZ = np.zeros((Nsim + 1, nx))
+    simV = np.zeros((Nsim, nu))
 
+    pred_Z = np.zeros((N_horizon+1, nx)) 
+
+    # set initial conditions
+    xcurrent = X0
+    zcurrent = Z0
+
+    simX[0, :] = xcurrent
+    simZ[0, :] = zcurrent
+
+    # reference is constaint for nominal
     yref = np.array([Omega_ref, 0, max_Qg, 0, 0])
     yref_N = np.array([Omega_ref, 0, max_Qg])
-
-    print("\n")
-
     for j in range(N_horizon):
-        acados_ocp_solver.set(j, "yref", yref)
-    acados_ocp_solver.set(N_horizon, "yref", yref_N)
-
+        acados_ocp_solver_z.set(j, "yref", yref)
+    acados_ocp_solver_z.set(N_horizon, "yref", yref_N)
 
     # closed loop
     for i in range(Nsim):
 
         # NOMINAL 
-        simU[i, :] = acados_ocp_solver.solve_for_x0(xcurrent)
-        predicted_states = func()
-        z_status = acados_ocp_solver.get_status()
+        simV[i, :] = acados_ocp_solver_z.solve_for_x0(zcurrent)
+
+        for k in range(N_horizon+1):
+            pred_Z[k, :] = acados_ocp_solver_z.get(k, "x")
+
+        print(pred_Z)
+        print("\n")
+
+        z_status = acados_ocp_solver_z.get_status()
 
         if z_status not in [0, 2]:
             acados_ocp_solver.print_statistics()
             raise Exception(
-                f"Z: returned status {status} in closed loop instance {i} with {xcurrent}"
+                f"Z: returned status {z_status} in closed loop instance {i} with {xcurrent}"
             )
 
-        # ACTUAL
-        w = rand(0 - wind*0.1)
-        x = x + w
-        for j in range(N_horizon):
-            acados_ocp_solver.set(j, "yref", yref)
-        acados_ocp_solver.set(N_horizon, "yref", yref_N)
-        simU[i, :] = acados_ocp_solver.solve_for_x0(xcurrent)
-        status = acados_ocp_solver.get_status()
+        # # ACTUAL
+        # w = rand(0 - wind*0.1)
+        # x = x + w
+        # for j in range(N_horizon):
+        #     acados_ocp_solver.set(j, "yref", yref)
+        # acados_ocp_solver.set(N_horizon, "yref", yref_N)
+        # simU[i, :] = acados_ocp_solver.solve_for_x0(xcurrent)
+        # x_status = acados_ocp_solver.get_status()
 
-        if status not in [0, 2]:
-            acados_ocp_solver.print_statistics()
-            raise Exception(
-                f"acados acados_ocp_solver returned status {status} in closed loop instance {i} with {xcurrent}"
-            )
+        # if x_status not in [0, 2]:
+        #     acados_ocp_solver.print_statistics()
+        #     raise Exception(
+        #         f"X: returned status {x_status} in closed loop instance {i} with {xcurrent}"
+        #     )
 
 
-        # update system
-        z+ = f(z, v0)
-        xcurrent = acados_integrator.simulate(xcurrent, simU[i, :])
+        # # update system
+        # z+ = f(z, v0)
+        # xcurrent = acados_integrator.simulate(xcurrent, simU[i, :])
         simX[i + 1, :] = xcurrent
 
         if i % 100 == 0:
@@ -255,11 +265,11 @@ def closed_loop_simulation():
     print("Reference: ", Omega_ref)
     print("Achieved:  ", round(xcurrent[0], 4), "\n")
 
-    print("Final state: ", xcurrent, "\n\nFinal power output: ", round(Pout, 2), "kW")
+    print("Final state: ", xcurrent)
 
     plot_robot(
-        Pwr_series, wind, Omega_ref, np.linspace(0, T_horizon / N_horizon * Nsim, Nsim + 1), [None, None],  simU, simX,
-        x_labels=model.x_labels, u_labels=model.u_labels, time_label=model.t_label
+        wind, Omega_ref, np.linspace(0, T_horizon / N_horizon * Nsim, Nsim + 1), [None, None],  simU, simX,
+        x_labels=model_z.x_labels, u_labels=model_z.u_labels, time_label=model_z.t_label
     )
 
 if __name__ == "__main__":

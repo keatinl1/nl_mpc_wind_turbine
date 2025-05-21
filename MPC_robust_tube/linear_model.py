@@ -1,6 +1,6 @@
 import numpy as np
 
-class model: 
+class Lin_model: 
     def __init__(self):
         self.A = np.matrix([[1.00328388015914,	2.83524513602228e-05,	-0.000137510290574019],
             [0,	1,	0],
