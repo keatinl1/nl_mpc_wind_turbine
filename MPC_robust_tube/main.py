@@ -36,6 +36,8 @@ T_horizon = N_horizon * ts
 Z0 = np.array([1e-6, 1e-6, 1e-6])
 X0 = np.array([1e-6, 1e-6, 1e-6])
 
+prev_disturbance = np.zeros(3)
+
 def create_nominal_z_ocp() -> AcadosOcp:
     # create ocp object to formulate the OCP
     ocp = AcadosOcp()
@@ -174,20 +176,25 @@ def create_actual_x_ocp() -> AcadosOcp:
 
     return ocp
 
-def get_disturbance(i, seed=42):
-    np.random.seed(seed + i)  # deterministic
+def get_disturbance(i):
+    """
+    Generate smooth, low-frequency disturbance using sine/cosine functions.
+    Designed to simulate realistic drift and slow disturbance evolution.
+    """
+    # Amplitude scales
+    delta_omega = 0.07 * (1.26 - 1e-6)
+    delta_theta = 0.001 * (90.0 - 0.0)
+    delta_qg    = 0.07 * (47.0 - (-47.0))
 
-    # Relative scales for each state (say, 1% of range)
-    delta_omega = 0.01 * (1.26 - 1e-6)
-    delta_theta = 0.01 * (90.0 - 0.0)
-    delta_qg    = 0.01 * (47.0 - (-47.0))
+    # Slow time base
+    t = i * 1.0
 
-    # Sinusoidal + noise
-    d0 = delta_omega * (np.sin(0.01 * i) + 0.2 * np.random.randn())
-    d1 = delta_theta * (np.sin(0.0001 * i) + 0.2 * np.random.randn())
-    d2 = delta_qg    * (np.sin(0.02 * i + 1.0) + 0.2 * np.random.randn())
+    # Use low-frequency sinusoids with phase offset
+    d0 = delta_omega * (0.5 * np.sin(0.01 * t) + 0.3 * np.sin(0.003 * t + 1.0))
+    d1 = delta_theta * (0.6 * np.sin(0.008 * t + 0.5) + 0.2 * np.cos(0.002 * t))
+    d2 = delta_qg    * (0.7 * np.sin(0.005 * t + 0.3) + 0.2 * np.cos(0.0015 * t + 1.0))
 
-    return np.array([abs(d0), abs(d1), abs(d2)])
+    return np.array([d0, d1, d2])
 
 def closed_loop_simulation():
 
@@ -206,7 +213,7 @@ def closed_loop_simulation():
     N_horizon = acados_ocp_solver_x.N
 
     # prep sim
-    Nsim = 2500
+    Nsim = 2000
     nx = ocp_z.model.x.rows()
     nu = ocp_z.model.u.rows()
 
@@ -260,7 +267,6 @@ def closed_loop_simulation():
                 f"X: returned status {x_status} in closed loop instance {i} with {xcurrent}"
             )
 
-
         # update system
         # z+ = f(z, v0)
         zcurrent = acados_integrator_z.simulate(zcurrent, simV[i, :])
@@ -281,8 +287,15 @@ def closed_loop_simulation():
     print("Final state: ", xcurrent)
 
     plot_robot(
-        wind, Omega_ref, np.linspace(0, T_horizon / N_horizon * Nsim, Nsim + 1), [None, None],  simU, simX,
-        x_labels=model_z.x_labels, u_labels=model_z.u_labels, time_label=model_z.t_label
+        wind, Omega_ref,
+        np.linspace(0, T_horizon / N_horizon * Nsim, Nsim + 1),
+        [None, None],  # u_max if needed
+        simU,
+        simX,
+        Z_traj=simZ,
+        x_labels=model_z.x_labels,
+        u_labels=model_z.u_labels,
+        time_label=model_z.t_label
     )
 
 if __name__ == "__main__":
