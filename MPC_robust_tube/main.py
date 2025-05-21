@@ -250,6 +250,7 @@ def closed_loop_simulation():
         # X: ACTUAL
         for j in range(N_horizon):
             acados_ocp_solver_x.set(j, "yref", np.concatenate((pred_Z[j, :], np.zeros(nu))))
+        acados_ocp_solver_x.set(N_horizon, "yref", pred_Z[-1, :])    
         simU[i, :] = acados_ocp_solver_x.solve_for_x0(xcurrent)
         x_status = acados_ocp_solver_x.get_status()
 
