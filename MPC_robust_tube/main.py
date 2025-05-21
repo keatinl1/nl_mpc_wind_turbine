@@ -177,10 +177,6 @@ def create_actual_x_ocp() -> AcadosOcp:
     return ocp
 
 def get_disturbance(i):
-    """
-    Generate smooth, low-frequency disturbance using sine/cosine functions.
-    Designed to simulate realistic drift and slow disturbance evolution.
-    """
     # Amplitude scales
     delta_omega = 0.07 * (1.26 - 1e-6)
     delta_theta = 0.001 * (90.0 - 0.0)
