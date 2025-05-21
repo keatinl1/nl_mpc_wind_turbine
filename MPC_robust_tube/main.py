@@ -1,43 +1,41 @@
+# import libraries
+from acados_template import AcadosOcp, AcadosOcpSolver, AcadosSimSolver
 import scipy.linalg
 import numpy as np
 import control
 
-from acados_template import AcadosOcp, AcadosOcpSolver, AcadosSimSolver
-from parameters import Jonkman
+# import objects
 from terminal_components import Terminal
+from parameters import Jonkman
+from linear_model import model
+
+# import functions
 from turbine_model import export_robot_model
 from utils import plot_robot
 
+# instantiate some objects
 params = Jonkman()
 terminal = Terminal()
+linear_model = model()
 
+# get data from classes
+A, B = linear_model.A, linear_model.B
 wind = params.wind_speed
-Omega_ref = min(1.267, round(wind*7.0 / params.radius, 3))
-
-N_horizon = 75
-ts = 0.05
-T_horizon = N_horizon * ts  # Define the horizon time
-
-X0 = np.array([1e-6, 1e-6, 1e-6])  # Intital state to avoid division by zero
-
-A = np.matrix([[1.00328388015914,	2.83524513602228e-05,	-0.000137510290574019],
-    [0,	1,	0],
-    [0,	0,	1]])
-
-B = np.matrix([[7.08423977775850e-07,	-3.43587881682179e-06],
-    [0.05,	0.0],
-    [0.0,	0.05]])
-
-# constraints
 max_Omega = params.max_Omega
 max_theta = params.max_theta
 max_Qg    = params.max_Qg
 max_pitch_rate  = params.max_pitch_rate
 max_torque_rate = params.max_torque_rate
 
+# declare some params
+Omega_ref = min(1.267, round(wind*7.0 / params.radius, 3))
+X0 = np.array([1e-6, 1e-6, 1e-6])
+N_horizon = 75
+ts = 0.05
+T_horizon = N_horizon * ts
 Pwr_series = []
 
-def create_ocp_solver_description() -> AcadosOcp:
+def create_nominal_z_ocp() -> AcadosOcp:
 
     # create ocp object to formulate the OCP
     ocp = AcadosOcp()
@@ -115,21 +113,99 @@ def create_ocp_solver_description() -> AcadosOcp:
 
     return ocp
 
+def create_actual_x_ocp() -> AcadosOcp:
+
+    # create ocp object to formulate the OCP
+    ocp = AcadosOcp()
+
+    model = export_robot_model()
+    ocp.model = model
+    nx = model.x.rows()
+    nu = model.u.rows()
+
+    # set dimensions
+    ocp.solver_options.N_horizon = N_horizon
+
+    # set cost
+    ny = nx + nu
+    ny_e = nx
+
+
+
+    # Stage ==============================================================
+
+    # Cost
+    ocp.cost.cost_type = "LINEAR_LS"
+    Q_mat = np.diag([10.0, 1e-3, 1e-6])
+    R_mat = np.diag([10.0, 1e-6])
+    ocp.cost.W = scipy.linalg.block_diag(Q_mat, R_mat)
+
+    ocp.cost.Vx = np.zeros((ny, nx))
+    ocp.cost.Vx[:nx, :nx] = np.eye(nx)
+    Vu = np.zeros((ny, nu))
+    Vu[nx : nx + nu, 0:nu] = np.eye(nu)
+    ocp.cost.Vu = Vu
+
+    # Constraints
+    # state
+    ocp.constraints.lbx = np.array([-max_Omega, 0, -max_Qg])
+    ocp.constraints.ubx = np.array([+max_Omega, +max_theta, +max_Qg])
+    ocp.constraints.idxbx = np.array([0, 1, 2])
+
+    # input
+    ocp.constraints.lbu = np.array([-max_pitch_rate, -max_torque_rate])
+    ocp.constraints.ubu = np.array([max_pitch_rate, max_torque_rate])
+    ocp.constraints.idxbu = np.array([0, 1])
+
+
+
+
+    # Terminal =========================================================
+    # Cost
+    ocp.cost.cost_type_e = "LINEAR_LS"
+    _, P, _ = control.dlqr(A, B, Q_mat, R_mat)
+    ocp.cost.W_e = P
+
+    ocp.cost.Vx_e = np.eye(nx)
+
+    # set terminal state constraints
+    ocp.constraints.lbx = np.array([ref_O, ref_t, ref_Qg])
+    ocp.constraints.ubx = np.array([ref_O, ref_t, ref_Qg])
+    ocp.constraints.idxbx = np.array([0, 1, 2])
+
+
+    # Output Cost (doesnt exist) ========================================
+    ocp.cost.yref = np.zeros((ny,))
+    ocp.cost.yref_e = np.zeros((ny_e,))
+
+    ocp.constraints.x0 = X0
+
+    # set options
+    ocp.solver_options.qp_solver = "PARTIAL_CONDENSING_HPIPM"
+    ocp.solver_options.hessian_approx = "GAUSS_NEWTON"
+    ocp.solver_options.integrator_type = "IRK"
+    ocp.solver_options.nlp_solver_type = "SQP"
+
+    # set prediction horizon
+    ocp.solver_options.tf = T_horizon
+
+    return ocp
 
 def closed_loop_simulation():
 
     # create solvers
-    ocp = create_ocp_solver_description()
-    model = ocp.model
-    acados_ocp_solver = AcadosOcpSolver(ocp)
-    acados_integrator = AcadosSimSolver(ocp)
+    ocp_z = create_nominal_z_ocp()
+    ocp_x = create_actual_x_ocp()
+    model = ocp_z.model
+    acados_ocp_solver = AcadosOcpSolver(ocp_z)
+    acados_integrator = AcadosSimSolver(ocp_z)
 
     N_horizon = acados_ocp_solver.N
 
     # prepare simulation
     Nsim = 2500
-    nx = ocp.model.x.rows()
-    nu = ocp.model.u.rows()
+    nx = ocp_z.model.x.rows()
+    nu = ocp_z.model.u.rows()
 
     simX = np.zeros((Nsim + 1, nx))
     simU = np.zeros((Nsim, nu))
@@ -181,8 +257,6 @@ def closed_loop_simulation():
 
         Pout = (0.5*params.air_density*np.pi*(params.radius**2)*(params.wind_speed**3)*Cp)/1000
         Pwr_series.append(Pout)
-
-        data_point = [xcurrent[0], xcurrent[1], xcurrent[2], simU[i, 0], simU[i, 1]]
 
         # simulate system
         xcurrent = acados_integrator.simulate(xcurrent, simU[i, :])
