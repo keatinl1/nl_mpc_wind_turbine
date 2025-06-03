@@ -1,39 +1,43 @@
-# import libraries
-from acados_template import AcadosOcp, AcadosOcpSolver, AcadosSimSolver
+'''
+Robust tube-based NMPC for wind turbines 
+
+bounded distubances:
+Omega +-0.4
+theta +-1.0
+Qg    +-0.47
+
+author: Luke Keating
+date: 03/06/2025
+
+'''
+
+# standard imports
 import scipy.linalg
 import numpy as np
 import control
 
-# import objects
-from set_load import Zf_set, Z_set
-from parameters import Jonkman
-from linear_model import Lin_model
-
 # import functions
-from turbine_model import export_robot_model
+from src.turbine_model import export_robot_model
 from utils import plot_robot
 
-# instantiate some objects
-terminal = Zf_set()
-nominal = Z_set()
+# import objects
+from acados_template import AcadosOcp, AcadosOcpSolver, AcadosSimSolver
+from src.set.set_load import ZfSet, ZSet
+from src.linear_model import LinearModel
+from src.parameters import Jonkman
 
-linear_model = Lin_model()
+# instantiate them
+linear_model = LinearModel()
 params = Jonkman()
+terminal = ZfSet()
+stage = ZSet()
 
-# get data from classes
-A, B = linear_model.A, linear_model.B
-wind = params.wind_speed
-max_Omega = params.max_Omega
-max_theta = params.max_theta
-max_Qg    = params.max_Qg
-max_pitch_rate  = params.max_pitch_rate
-max_torque_rate = params.max_torque_rate
-
-# declare params
-Omega_ref = min(1.267, round(wind*7.0 / params.radius, 3))
-N_horizon = 150
+# some other params
 ts = 0.05
+N_horizon = 150
 T_horizon = N_horizon * ts
+Omega_ref = min(1.267, round(params.wind_speed*7.0 / params.radius, 3))
+
 
 Z0 = np.array([1e-6, 1e-6, 1e-6])
 X0 = np.array([1e-6, 1e-6, 1e-6])
@@ -71,20 +75,20 @@ def create_nominal_z_ocp() -> AcadosOcp:
 
     # Constraints
     # state
-    # print(nominal.A.shape, nominal.b.shape)
-    # ocp.constraints.C = nominal.A
-    # ocp.constraints.lg = -1e10 * np.ones_like(nominal.b)
-    # ocp.constraints.ug = nominal.b.transpose()
+    # print(stage.A.shape, stage.b.shape)
+    # ocp.constraints.C = stage.A
+    # ocp.constraints.lg = -1e10 * np.ones_like(stage.b)
+    # ocp.constraints.ug = stage.b.transpose()
 
     # input
-    ocp.constraints.lbu = np.array([-max_pitch_rate, -max_torque_rate])
-    ocp.constraints.ubu = np.array([max_pitch_rate, max_torque_rate])
+    ocp.constraints.lbu = np.array([-params.max_pitch_rate, -params.max_torque_rate])
+    ocp.constraints.ubu = np.array([params.max_pitch_rate, params.max_torque_rate])
     ocp.constraints.idxbu = np.array([0, 1])
 
     # Terminal =========================================================
     # Cost
     ocp.cost.cost_type_e = "LINEAR_LS"
-    _, P, _ = control.dlqr(A, B, Q_mat, R_mat)
+    _, P, _ = control.dlqr(linear_model.A, linear_model.B, Q_mat, R_mat)
     ocp.cost.W_e = P
     ocp.cost.Vx_e = np.eye(nx)
 
@@ -143,13 +147,13 @@ def create_actual_x_ocp() -> AcadosOcp:
 
     # Constraints
     # state
-    ocp.constraints.lbx = np.array([1e-6, 0.0, -max_Qg])
-    ocp.constraints.ubx = np.array([+max_Omega, +max_theta, +max_Qg])
+    ocp.constraints.lbx = np.array([1e-6, 0.0, -params.max_Qg])
+    ocp.constraints.ubx = np.array([+params.max_Omega, +params.max_theta, +params.max_Qg])
     ocp.constraints.idxbx = np.array([0, 1, 2])
 
     # input
-    ocp.constraints.lbu = np.array([-max_pitch_rate, -max_torque_rate])
-    ocp.constraints.ubu = np.array([max_pitch_rate, max_torque_rate])
+    ocp.constraints.lbu = np.array([-params.max_pitch_rate, -params.max_torque_rate])
+    ocp.constraints.ubu = np.array([params.max_pitch_rate, params.max_torque_rate])
     ocp.constraints.idxbu = np.array([0, 1])
 
     # Terminal =========================================================
@@ -234,8 +238,8 @@ def closed_loop_simulation():
     simZ[0, :] = zcurrent
 
     # reference is constaint for nominal
-    yref = np.array([Omega_ref, 0, max_Qg, 0, 0])
-    yref_N = np.array([Omega_ref, 0, max_Qg])
+    yref = np.array([Omega_ref, 0, params.max_Qg, 0, 0])
+    yref_N = np.array([Omega_ref, 0, params.max_Qg])
     for j in range(N_horizon):
         acados_ocp_solver_z.set(j, "yref", yref)
     acados_ocp_solver_z.set(N_horizon, "yref", yref_N)
@@ -288,7 +292,7 @@ def closed_loop_simulation():
     print("Final state: ", xcurrent)
 
     plot_robot(
-        wind, Omega_ref,
+        params.wind_speed, Omega_ref,
         np.linspace(0, T_horizon / N_horizon * Nsim, Nsim + 1),
         [None, None],  # u_max if needed
         simU,

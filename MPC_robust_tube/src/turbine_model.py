@@ -3,7 +3,7 @@ from casadi import SX, vertcat, exp, pi
 
 
 # Define/import some constants
-from parameters import Jonkman
+from src.parameters import Jonkman
 params = Jonkman()
 Jt  = params.moment_o_inertia
 rho = params.air_density

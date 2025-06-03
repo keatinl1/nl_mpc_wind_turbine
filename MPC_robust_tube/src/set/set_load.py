@@ -1,8 +1,7 @@
-import numpy as np
 import scipy.io as sio
 
-Zf_mat = sio.loadmat("./Zf_set.mat")
-Z_mat = sio.loadmat("./Z_set.mat")
+zf_set = sio.loadmat("./src/set/Zf_set.mat")
+z_set = sio.loadmat("./src/set/Z_set.mat")
 
 def ensure_nx3(A):
     if A.shape[1] == 3:
@@ -14,12 +13,12 @@ def ensure_nx3(A):
     else:
         raise ValueError(f"Cannot reshape A to nx3 form. Got shape {A.shape}")
 
-class Zf_set:
+class ZfSet:
     def __init__(self):
-        self.A = ensure_nx3(Zf_mat['A'])
-        self.b = Zf_mat['b']
+        self.A = ensure_nx3(zf_set['A'])
+        self.b = zf_set['b']
 
-class Z_set:
+class ZSet:
     def __init__(self):
-        self.A = ensure_nx3(Z_mat['A'])
-        self.b = Z_mat['b']
+        self.A = ensure_nx3(z_set['A'])
+        self.b = z_set['b']
