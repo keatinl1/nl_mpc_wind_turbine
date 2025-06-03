@@ -27,19 +27,22 @@ from utils import plot_robot
 # === Instantiate Classes ===
 linear_model = LinearModel()
 params = Jonkman()
-terminal = ZfSet()
-stage = ZSet()
+terminal_set = ZfSet()
+stage_set = ZSet()
 
 # === Time settings ===
 ts = 0.05
-N_horizon = 600
+N_horizon = 60
 T_horizon = N_horizon * ts
 
 # === References and initial states ===
 Omega_ref = min(1.267, round(params.wind_speed*7.0 / params.radius, 3))
-Z0 = np.full(3, 1e-6)
-X0 = np.full(3, 1e-6)
+Z0 = np.array([0.6, 1e-6, 1e-6])
+X0 = np.array([1e-6, 1e-6, 1e-6])
 prev_disturbance = np.zeros(3)
+
+Q = np.diag([1.0, 1e-1, 1e-3])
+R = np.diag([1.0, 1e-6])
 
 def create_nominal_z_ocp() -> AcadosOcp:
     # === Create OCP object and configure ===
@@ -57,9 +60,6 @@ def create_nominal_z_ocp() -> AcadosOcp:
     ocp.solver_options.tf = T_horizon
     
     # === Cost weights ===
-    Q = np.diag([10.0, 1e-3, 1e-6])
-    R = np.diag([10.0, 1e-6])
-
     ocp.cost.W = scipy.linalg.block_diag(Q, R)
     ocp.cost.W_e = control.dlqr(linear_model.A, linear_model.B, Q, R)[1]
 
@@ -80,21 +80,21 @@ def create_nominal_z_ocp() -> AcadosOcp:
     ocp.cost.yref = np.zeros((ny,))
     ocp.cost.yref_e = np.zeros((ny_e,))
 
-    # === Constraints: State ===
-    ocp.constraints.C = stage.A
-    ocp.constraints.lg = -1e10 * np.ones_like(stage.b)
-    ocp.constraints.ug = stage.b.transpose()
-    ocp.constraints.D = np.zeros((stage.A.shape[0], nu)) # D is necessary for stage
+    # # === Constraints: State ===
+    # ocp.constraints.C = stage_set.A
+    # ocp.constraints.lg = -1e10 * np.ones_like(stage_set.b)
+    # ocp.constraints.ug = stage_set.b.transpose()
+    # ocp.constraints.D = np.zeros((stage_set.A.shape[0], nu)) # D is necessary for stage
 
-    # === Constraints: Input ===
-    ocp.constraints.idxbu = np.array([0, 1])
-    ocp.constraints.lbu = -np.array([params.max_pitch_rate, params.max_torque_rate])
-    ocp.constraints.ubu =  np.array([params.max_pitch_rate, params.max_torque_rate])
+    # # === Constraints: Input ===
+    # ocp.constraints.idxbu = np.array([0, 1])
+    # ocp.constraints.lbu = -np.array([params.max_pitch_rate, params.max_torque_rate])
+    # ocp.constraints.ubu =  np.array([params.max_pitch_rate, params.max_torque_rate])
 
-    # === Constraints: Terminal state ===
-    ocp.constraints.C_e = terminal.A
-    ocp.constraints.lg_e = -1e10 * np.ones(terminal.A.shape[0])
-    ocp.constraints.ug_e = terminal.b.reshape(-1)
+    # # === Constraints: Terminal state ===
+    # ocp.constraints.C_e = terminal_set.A
+    # ocp.constraints.lg_e = -1e10 * np.ones(terminal_set.A.shape[0])
+    # ocp.constraints.ug_e = terminal_set.b.reshape(-1)
 
     # === Further options ===
     ocp.solver_options.qp_solver = "PARTIAL_CONDENSING_HPIPM"
@@ -108,88 +108,72 @@ def create_nominal_z_ocp() -> AcadosOcp:
     return ocp
 
 def create_actual_x_ocp() -> AcadosOcp:
-    # create ocp object to formulate the OCP
+    # === Create OCP object and configure ===
     ocp = AcadosOcp()
-
     model = export_robot_model()
     ocp.model = model
+
     nx = model.x.rows()
-    nu = model.u.rows()
-
-    # set dimensions
-    ocp.solver_options.N_horizon = N_horizon
-
-    # set cost
+    nu = model.u.rows() 
     ny = nx + nu
     ny_e = nx
 
-    # Stage ==============================================================
-    # Cost
+    # === Horizon === 
+    ocp.solver_options.N_horizon = N_horizon
+    ocp.solver_options.tf = T_horizon
+
+    # === Cost weights ===
+    ocp.cost.W = scipy.linalg.block_diag(Q, R)
+    ocp.cost.W_e = np.zeros((nx, nx))
+
     ocp.cost.cost_type = "LINEAR_LS"
-    Q_mat = np.diag([10.0, 1e-3, 1e-6])
-    R_mat = np.diag([10.0, 1e-6])
-    ocp.cost.W = scipy.linalg.block_diag(Q_mat, R_mat)
+    ocp.cost.cost_type_e = "LINEAR_LS"
 
-    ocp.cost.Vx = np.zeros((ny, nx))
-    ocp.cost.Vx[:nx, :nx] = np.eye(nx)
-    Vu = np.zeros((ny, nu))
-    Vu[nx : nx + nu, 0:nu] = np.eye(nu)
-    ocp.cost.Vu = Vu
+    # === Cost mapping ===
+    ocp.cost.Vx = np.vstack([
+        np.eye(nx),
+        np.zeros((nu, nx))
+    ])
+    ocp.cost.Vu = np.vstack([
+        np.zeros((nx, nu)),
+        np.eye(nu)
+    ])
+    ocp.cost.Vx_e = np.eye(nx)
 
-    # Constraints
-    # state
+    ocp.cost.yref = np.zeros((ny,))
+    ocp.cost.yref_e = np.zeros((ny_e,))
+
+    # === Constraints: State ===
     ocp.constraints.lbx = np.array([1e-6, 0.0, -params.max_Qg])
     ocp.constraints.ubx = np.array([+params.max_Omega, +params.max_theta, +params.max_Qg])
     ocp.constraints.idxbx = np.array([0, 1, 2])
 
-    # input
+    # === Constraints: Input ===
     ocp.constraints.lbu = np.array([-params.max_pitch_rate, -params.max_torque_rate])
     ocp.constraints.ubu = np.array([params.max_pitch_rate, params.max_torque_rate])
     ocp.constraints.idxbu = np.array([0, 1])
 
-    # Terminal =========================================================
-    # Cost
-    ocp.cost.cost_type_e = "LINEAR_LS"
-    ocp.cost.W_e = np.zeros((nx, nx))
-    ocp.cost.Vx_e = np.eye(nx)
-
-    # Constraints
-    # state
+    # === Constraints: Terminal state ===
+    # initialise as this, but we will update in the loop
     ocp.constraints.lbx = np.array([0.0, 0.0, 0.0])
     ocp.constraints.ubx = np.array([0.0, 0.0, 0.0])
     ocp.constraints.idxbx = np.array([0, 1, 2])
 
-    # Output Cost (doesnt exist) ========================================
-    ocp.cost.yref = np.zeros((ny,))
-    ocp.cost.yref_e = np.zeros((ny_e,))
-
-    ocp.constraints.x0 = X0
-
-    # set options
+    # === Further options ===
     ocp.solver_options.qp_solver = "PARTIAL_CONDENSING_HPIPM"
     ocp.solver_options.hessian_approx = "GAUSS_NEWTON"
     ocp.solver_options.integrator_type = "IRK"
     ocp.solver_options.nlp_solver_type = "SQP"
 
-    # set prediction horizon
-    ocp.solver_options.tf = T_horizon
+    # === Initial state ===
+    ocp.constraints.x0 = Z0
 
     return ocp
 
-def get_disturbance(i):
-    # Amplitude scales
-    delta_omega = 0.07 * (1.26 - 1e-6)
-    delta_theta = 0.001 * (90.0 - 0.0)
-    delta_qg    = 0.07 * (47.0 - (-47.0))
-
-    # Slow time base
-    t = i * 1.0
-
-    # Use low-frequency sinusoids with phase offset
-    d0 = delta_omega * (0.5 * np.sin(0.01 * t) + 0.3 * np.sin(0.003 * t + 1.0))
-    d1 = delta_theta * (0.6 * np.sin(0.008 * t + 0.5) + 0.2 * np.cos(0.002 * t))
-    d2 = delta_qg    * (0.7 * np.sin(0.005 * t + 0.3) + 0.2 * np.cos(0.0015 * t + 1.0))
-
+def get_disturbance():
+    d0 = np.random.uniform(-0.4, 0.4)    # Omega
+    d1 = np.random.uniform(-1.0, 1.0)    # Theta
+    d2 = np.random.uniform(-0.47, 0.47)  # Qg
     return np.array([d0, d1, d2])
 
 def closed_loop_simulation():
@@ -203,7 +187,6 @@ def closed_loop_simulation():
 
     # create actual sys
     ocp_x = create_actual_x_ocp()
-    model_x = ocp_x.model
     acados_ocp_solver_x = AcadosOcpSolver(ocp_x)
     acados_integrator_x = AcadosSimSolver(ocp_x)
     N_horizon = acados_ocp_solver_x.N
@@ -270,7 +253,17 @@ def closed_loop_simulation():
 
         # x+ = f(x, u0) + w
         xcurrent = acados_integrator_x.simulate(xcurrent, simU[i, :])
-        w = get_disturbance(i)
+        
+        # First-order low-pass filter on w
+        alpha = 0.05  # LPF smoothing factor, 0 < alpha <= 1
+        if i == 0:
+            w = get_disturbance()
+        else:
+            w_raw = get_disturbance()
+            w = alpha * w_raw + (1 - alpha) * w_prev
+        w_prev = w
+
+
         simX[i + 1, :] = xcurrent + w
 
         if i % 100 == 0:
