@@ -32,17 +32,17 @@ stage_set = ZSet()
 
 # === Time settings ===
 ts = 0.05
-N_horizon = 60
+N_horizon = 100
 T_horizon = N_horizon * ts
 
 # === References and initial states ===
 Omega_ref = min(1.267, round(params.wind_speed*7.0 / params.radius, 3))
-Z0 = np.array([0.6, 1e-6, 1e-6])
+Z0 = np.array([1e-6, 1e-6, 1e-6])
 X0 = np.array([1e-6, 1e-6, 1e-6])
 prev_disturbance = np.zeros(3)
 
-Q = np.diag([1.0, 1e-1, 1e-3])
-R = np.diag([1.0, 1e-6])
+Q = np.diag([100.0, 1e-3, 1e-3])
+R = np.diag([1.0, 1e-3])
 
 def create_nominal_z_ocp() -> AcadosOcp:
     # === Create OCP object and configure ===
@@ -54,6 +54,9 @@ def create_nominal_z_ocp() -> AcadosOcp:
     nu = model.u.rows() 
     ny = nx + nu
     ny_e = nx
+
+    # Q = np.diag([100.0, 1e-3, 1e-3])
+    # R = np.diag([1.0, 1e-3])
 
     # === Horizon === 
     ocp.solver_options.N_horizon = N_horizon
@@ -80,7 +83,7 @@ def create_nominal_z_ocp() -> AcadosOcp:
     ocp.cost.yref = np.zeros((ny,))
     ocp.cost.yref_e = np.zeros((ny_e,))
 
-    # # === Constraints: State ===
+    # === Constraints: State ===
     # ocp.constraints.C = stage_set.A
     # ocp.constraints.lg = -1e10 * np.ones_like(stage_set.b)
     # ocp.constraints.ug = stage_set.b.transpose()
@@ -91,10 +94,10 @@ def create_nominal_z_ocp() -> AcadosOcp:
     # ocp.constraints.lbu = -np.array([params.max_pitch_rate, params.max_torque_rate])
     # ocp.constraints.ubu =  np.array([params.max_pitch_rate, params.max_torque_rate])
 
-    # # === Constraints: Terminal state ===
-    # ocp.constraints.C_e = terminal_set.A
-    # ocp.constraints.lg_e = -1e10 * np.ones(terminal_set.A.shape[0])
-    # ocp.constraints.ug_e = terminal_set.b.reshape(-1)
+    # === Constraints: Terminal state ===
+    ocp.constraints.C_e = terminal_set.A
+    ocp.constraints.lg_e = -1e10 * np.ones(terminal_set.A.shape[0])
+    ocp.constraints.ug_e = terminal_set.b.reshape(-1)
 
     # === Further options ===
     ocp.solver_options.qp_solver = "PARTIAL_CONDENSING_HPIPM"
@@ -117,6 +120,9 @@ def create_actual_x_ocp() -> AcadosOcp:
     nu = model.u.rows() 
     ny = nx + nu
     ny_e = nx
+
+    # Q = np.diag([1.0, 1e-1, 1e-3])
+    # R = np.diag([1.0, 1e-6])
 
     # === Horizon === 
     ocp.solver_options.N_horizon = N_horizon
@@ -155,9 +161,9 @@ def create_actual_x_ocp() -> AcadosOcp:
 
     # === Constraints: Terminal state ===
     # initialise as this, but we will update in the loop
-    ocp.constraints.lbx = np.array([0.0, 0.0, 0.0])
-    ocp.constraints.ubx = np.array([0.0, 0.0, 0.0])
-    ocp.constraints.idxbx = np.array([0, 1, 2])
+    ocp.constraints.lbx_e = np.array([0.0, 0.0, 0.0])
+    ocp.constraints.ubx_e = np.array([0.0, 0.0, 0.0])
+    ocp.constraints.idxbx_e = np.array([0, 1, 2])
 
     # === Further options ===
     ocp.solver_options.qp_solver = "PARTIAL_CONDENSING_HPIPM"
@@ -166,7 +172,7 @@ def create_actual_x_ocp() -> AcadosOcp:
     ocp.solver_options.nlp_solver_type = "SQP"
 
     # === Initial state ===
-    ocp.constraints.x0 = Z0
+    ocp.constraints.x0 = X0
 
     return ocp
 
@@ -183,13 +189,11 @@ def closed_loop_simulation():
     model_z = ocp_z.model
     acados_ocp_solver_z = AcadosOcpSolver(ocp_z)
     acados_integrator_z = AcadosSimSolver(ocp_z)
-    N_horizon = acados_ocp_solver_z.N
 
     # create actual sys
     ocp_x = create_actual_x_ocp()
     acados_ocp_solver_x = AcadosOcpSolver(ocp_x)
     acados_integrator_x = AcadosSimSolver(ocp_x)
-    N_horizon = acados_ocp_solver_x.N
 
     # prep sim
     Nsim = 2000
@@ -236,7 +240,7 @@ def closed_loop_simulation():
         # X: ACTUAL
         for j in range(N_horizon):
             acados_ocp_solver_x.set(j, "yref", np.concatenate((pred_Z[j, :], np.zeros(nu))))
-        acados_ocp_solver_x.set(N_horizon, "yref", pred_Z[-1, :])    
+        acados_ocp_solver_x.set(N_horizon, "yref", pred_Z[-1, :])
         simU[i, :] = acados_ocp_solver_x.solve_for_x0(xcurrent)
         x_status = acados_ocp_solver_x.get_status()
 
@@ -262,7 +266,6 @@ def closed_loop_simulation():
             w_raw = get_disturbance()
             w = alpha * w_raw + (1 - alpha) * w_prev
         w_prev = w
-
 
         simX[i + 1, :] = xcurrent + w
 

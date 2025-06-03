@@ -468,7 +468,47 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
         cost_scaling[57] = 0.05;
         cost_scaling[58] = 0.05;
         cost_scaling[59] = 0.05;
-        cost_scaling[60] = 1;
+        cost_scaling[60] = 0.05;
+        cost_scaling[61] = 0.05;
+        cost_scaling[62] = 0.05;
+        cost_scaling[63] = 0.05;
+        cost_scaling[64] = 0.05;
+        cost_scaling[65] = 0.05;
+        cost_scaling[66] = 0.05;
+        cost_scaling[67] = 0.05;
+        cost_scaling[68] = 0.05;
+        cost_scaling[69] = 0.05;
+        cost_scaling[70] = 0.05;
+        cost_scaling[71] = 0.05;
+        cost_scaling[72] = 0.05;
+        cost_scaling[73] = 0.05;
+        cost_scaling[74] = 0.05;
+        cost_scaling[75] = 0.05;
+        cost_scaling[76] = 0.05;
+        cost_scaling[77] = 0.05;
+        cost_scaling[78] = 0.05;
+        cost_scaling[79] = 0.05;
+        cost_scaling[80] = 0.05;
+        cost_scaling[81] = 0.05;
+        cost_scaling[82] = 0.05;
+        cost_scaling[83] = 0.05;
+        cost_scaling[84] = 0.05;
+        cost_scaling[85] = 0.05;
+        cost_scaling[86] = 0.05;
+        cost_scaling[87] = 0.05;
+        cost_scaling[88] = 0.05;
+        cost_scaling[89] = 0.05;
+        cost_scaling[90] = 0.05;
+        cost_scaling[91] = 0.05;
+        cost_scaling[92] = 0.05;
+        cost_scaling[93] = 0.05;
+        cost_scaling[94] = 0.05;
+        cost_scaling[95] = 0.05;
+        cost_scaling[96] = 0.05;
+        cost_scaling[97] = 0.05;
+        cost_scaling[98] = 0.05;
+        cost_scaling[99] = 0.05;
+        cost_scaling[100] = 1;
         for (int i = 0; i <= N; i++)
         {
             ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, i, "scaling", &cost_scaling[i]);
@@ -495,11 +535,11 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
 
    double* W_0 = calloc(NY0*NY0, sizeof(double));
     // change only the non-zero elements:
-    W_0[0+(NY0) * 0] = 1;
-    W_0[1+(NY0) * 1] = 0.1;
+    W_0[0+(NY0) * 0] = 100;
+    W_0[1+(NY0) * 1] = 0.001;
     W_0[2+(NY0) * 2] = 0.001;
     W_0[3+(NY0) * 3] = 1;
-    W_0[4+(NY0) * 4] = 0.000001;
+    W_0[4+(NY0) * 4] = 0.001;
     ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, 0, "W", W_0);
     free(W_0);
     double* Vx_0 = calloc(NY0*NX, sizeof(double));
@@ -525,11 +565,11 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
     free(yref);
     double* W = calloc(NY*NY, sizeof(double));
     // change only the non-zero elements:
-    W[0+(NY) * 0] = 1;
-    W[1+(NY) * 1] = 0.1;
+    W[0+(NY) * 0] = 100;
+    W[1+(NY) * 1] = 0.001;
     W[2+(NY) * 2] = 0.001;
     W[3+(NY) * 3] = 1;
-    W[4+(NY) * 4] = 0.000001;
+    W[4+(NY) * 4] = 0.001;
 
     for (int i = 1; i < N; i++)
     {
@@ -593,8 +633,8 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
     double* lbx0 = lubx0;
     double* ubx0 = lubx0 + NBX0;
     // change only the non-zero elements:
-    lbx0[0] = 0.6;
-    ubx0[0] = 0.6;
+    lbx0[0] = 0.000001;
+    ubx0[0] = 0.000001;
     lbx0[1] = 0.000001;
     ubx0[1] = 0.000001;
     lbx0[2] = 0.000001;
@@ -657,6 +697,11 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
     double* lubx = calloc(2*NBX, sizeof(double));
     double* lbx = lubx;
     double* ubx = lubx + NBX;
+    lbx[0] = 0.000001;
+    ubx[0] = 1.267;
+    ubx[1] = 90;
+    lbx[2] = -47.40291;
+    ubx[2] = 47.40291;
 
     for (int i = 1; i < N; i++)
     {
@@ -675,6 +720,20 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
 
     /* terminal constraints */
 
+    // set up bounds for last stage
+    // x
+    int* idxbx_e = malloc(NBXN * sizeof(int));
+    idxbx_e[0] = 0;
+    idxbx_e[1] = 1;
+    idxbx_e[2] = 2;
+    double* lubx_e = calloc(2*NBXN, sizeof(double));
+    double* lbx_e = lubx_e;
+    double* ubx_e = lubx_e + NBXN;
+    ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, N, "idxbx", idxbx_e);
+    ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, N, "lbx", lbx_e);
+    ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, N, "ubx", ubx_e);
+    free(idxbx_e);
+    free(lubx_e);
 
 
 
@@ -757,7 +816,7 @@ static void turbine_acados_create_set_opts(turbine_solver_capsule* capsule)
     ocp_nlp_solver_opts_set(nlp_config, nlp_opts, "levenberg_marquardt", &levenberg_marquardt);
 
     /* options QP solver */
-    int qp_solver_cond_N;const int qp_solver_cond_N_ori = 60;
+    int qp_solver_cond_N;const int qp_solver_cond_N_ori = 100;
     qp_solver_cond_N = N < qp_solver_cond_N_ori ? N : qp_solver_cond_N_ori; // use the minimum value here
     ocp_nlp_solver_opts_set(nlp_config, nlp_opts, "qp_cond_N", &qp_solver_cond_N);
 
@@ -847,7 +906,7 @@ void turbine_acados_set_nlp_out(turbine_solver_capsule* capsule)
     double* x0 = xu0;
 
     // initialize with x0
-    x0[0] = 0.6;
+    x0[0] = 0.000001;
     x0[1] = 0.000001;
     x0[2] = 0.000001;
 
