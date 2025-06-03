@@ -5,7 +5,7 @@ import numpy as np
 import control
 
 # import objects
-from terminal_components import Terminal
+from set_load import Zf_set, Z_set
 from parameters import Jonkman
 from linear_model import Lin_model
 
@@ -14,8 +14,10 @@ from turbine_model import export_robot_model
 from utils import plot_robot
 
 # instantiate some objects
+terminal = Zf_set()
+nominal = Z_set()
+
 linear_model = Lin_model()
-terminal = Terminal()
 params = Jonkman()
 
 # get data from classes
@@ -29,7 +31,7 @@ max_torque_rate = params.max_torque_rate
 
 # declare params
 Omega_ref = min(1.267, round(wind*7.0 / params.radius, 3))
-N_horizon = 75
+N_horizon = 150
 ts = 0.05
 T_horizon = N_horizon * ts
 
@@ -69,9 +71,10 @@ def create_nominal_z_ocp() -> AcadosOcp:
 
     # Constraints
     # state
-    ocp.constraints.lbx = np.array([1e-6, 0.0, -max_Qg])
-    ocp.constraints.ubx = np.array([+max_Omega, +max_theta, +max_Qg])
-    ocp.constraints.idxbx = np.array([0, 1, 2])
+    # print(nominal.A.shape, nominal.b.shape)
+    # ocp.constraints.C = nominal.A
+    # ocp.constraints.lg = -1e10 * np.ones_like(nominal.b)
+    # ocp.constraints.ug = nominal.b.transpose()
 
     # input
     ocp.constraints.lbu = np.array([-max_pitch_rate, -max_torque_rate])
@@ -86,9 +89,11 @@ def create_nominal_z_ocp() -> AcadosOcp:
     ocp.cost.Vx_e = np.eye(nx)
 
     # set terminal state constraints
+    print(terminal.A.shape, terminal.b.shape)
     ocp.constraints.C_e = terminal.A
     ocp.constraints.lg_e = -1e10 * np.ones_like(terminal.b)
     ocp.constraints.ug_e = terminal.b.transpose()
+
 
     # Output Cost (n/a) ===============================================
     ocp.cost.yref = np.zeros((ny,))
