@@ -1,118 +1,109 @@
 '''
 Robust tube-based NMPC for wind turbines 
 
-bounded distubances:
-Omega +-0.4
-theta +-1.0
-Qg    +-0.47
+Bounded disturbances:
+- Omega ±0.4
+- Theta ±1.0
+- Qg    ±0.47
 
 author: Luke Keating
 date: 03/06/2025
 
 '''
 
-# standard imports
+# === Standard imports ===
 import scipy.linalg
 import numpy as np
 import control
 
-# import functions
-from src.turbine_model import export_robot_model
-from utils import plot_robot
-
-# import objects
+# === Project modules ===
 from acados_template import AcadosOcp, AcadosOcpSolver, AcadosSimSolver
+from src.turbine_model import export_robot_model
 from src.set.set_load import ZfSet, ZSet
 from src.linear_model import LinearModel
 from src.parameters import Jonkman
+from utils import plot_robot
 
-# instantiate them
+# === Instantiate Classes ===
 linear_model = LinearModel()
 params = Jonkman()
 terminal = ZfSet()
 stage = ZSet()
 
-# some other params
+# === Time settings ===
 ts = 0.05
-N_horizon = 150
+N_horizon = 600
 T_horizon = N_horizon * ts
+
+# === References and initial states ===
 Omega_ref = min(1.267, round(params.wind_speed*7.0 / params.radius, 3))
-
-
-Z0 = np.array([1e-6, 1e-6, 1e-6])
-X0 = np.array([1e-6, 1e-6, 1e-6])
-
+Z0 = np.full(3, 1e-6)
+X0 = np.full(3, 1e-6)
 prev_disturbance = np.zeros(3)
 
 def create_nominal_z_ocp() -> AcadosOcp:
-    # create ocp object to formulate the OCP
+    # === Create OCP object and configure ===
     ocp = AcadosOcp()
-
     model = export_robot_model()
     ocp.model = model
+
     nx = model.x.rows()
-    nu = model.u.rows()
-
-    # set dimensions
-    ocp.solver_options.N_horizon = N_horizon
-
-    # set cost
+    nu = model.u.rows() 
     ny = nx + nu
     ny_e = nx
 
-    # Stage ==============================================================
-    # Cost
+    # === Horizon === 
+    ocp.solver_options.N_horizon = N_horizon
+    ocp.solver_options.tf = T_horizon
+    
+    # === Cost weights ===
+    Q = np.diag([10.0, 1e-3, 1e-6])
+    R = np.diag([10.0, 1e-6])
+
+    ocp.cost.W = scipy.linalg.block_diag(Q, R)
+    ocp.cost.W_e = control.dlqr(linear_model.A, linear_model.B, Q, R)[1]
+
     ocp.cost.cost_type = "LINEAR_LS"
-    Q_mat = np.diag([10.0, 1e-3, 1e-6])
-    R_mat = np.diag([10.0, 1e-6])
-    ocp.cost.W = scipy.linalg.block_diag(Q_mat, R_mat)
-
-    ocp.cost.Vx = np.zeros((ny, nx))
-    ocp.cost.Vx[:nx, :nx] = np.eye(nx)
-    Vu = np.zeros((ny, nu))
-    Vu[nx : nx + nu, 0:nu] = np.eye(nu)
-    ocp.cost.Vu = Vu
-
-    # Constraints
-    # state
-    # print(stage.A.shape, stage.b.shape)
-    # ocp.constraints.C = stage.A
-    # ocp.constraints.lg = -1e10 * np.ones_like(stage.b)
-    # ocp.constraints.ug = stage.b.transpose()
-
-    # input
-    ocp.constraints.lbu = np.array([-params.max_pitch_rate, -params.max_torque_rate])
-    ocp.constraints.ubu = np.array([params.max_pitch_rate, params.max_torque_rate])
-    ocp.constraints.idxbu = np.array([0, 1])
-
-    # Terminal =========================================================
-    # Cost
     ocp.cost.cost_type_e = "LINEAR_LS"
-    _, P, _ = control.dlqr(linear_model.A, linear_model.B, Q_mat, R_mat)
-    ocp.cost.W_e = P
+
+    # === Cost mapping ===
+    ocp.cost.Vx = np.vstack([
+        np.eye(nx),
+        np.zeros((nu, nx))
+    ])
+    ocp.cost.Vu = np.vstack([
+        np.zeros((nx, nu)),
+        np.eye(nu)
+    ])
     ocp.cost.Vx_e = np.eye(nx)
 
-    # set terminal state constraints
-    print(terminal.A.shape, terminal.b.shape)
-    ocp.constraints.C_e = terminal.A
-    ocp.constraints.lg_e = -1e10 * np.ones_like(terminal.b)
-    ocp.constraints.ug_e = terminal.b.transpose()
-
-
-    # Output Cost (n/a) ===============================================
     ocp.cost.yref = np.zeros((ny,))
     ocp.cost.yref_e = np.zeros((ny_e,))
 
-    ocp.constraints.x0 = Z0
+    # === Constraints: State ===
+    ocp.constraints.C = stage.A
+    ocp.constraints.lg = -1e10 * np.ones_like(stage.b)
+    ocp.constraints.ug = stage.b.transpose()
+    ocp.constraints.D = np.zeros((stage.A.shape[0], nu)) # D is necessary for stage
 
-    # set options
+    # === Constraints: Input ===
+    ocp.constraints.idxbu = np.array([0, 1])
+    ocp.constraints.lbu = -np.array([params.max_pitch_rate, params.max_torque_rate])
+    ocp.constraints.ubu =  np.array([params.max_pitch_rate, params.max_torque_rate])
+
+    # === Constraints: Terminal state ===
+    ocp.constraints.C_e = terminal.A
+    ocp.constraints.lg_e = -1e10 * np.ones(terminal.A.shape[0])
+    ocp.constraints.ug_e = terminal.b.reshape(-1)
+
+    # === Further options ===
     ocp.solver_options.qp_solver = "PARTIAL_CONDENSING_HPIPM"
     ocp.solver_options.hessian_approx = "GAUSS_NEWTON"
     ocp.solver_options.integrator_type = "IRK"
     ocp.solver_options.nlp_solver_type = "SQP"
 
-    # set prediction horizon
-    ocp.solver_options.tf = T_horizon
+    # === Initial state ===
+    ocp.constraints.x0 = Z0
 
     return ocp
 
