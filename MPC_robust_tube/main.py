@@ -32,7 +32,7 @@ stage_set = ZSet()
 
 # === Time settings ===
 ts = 0.05
-N_horizon = 600
+N_horizon = 800
 T_horizon = N_horizon * ts
 
 # === References and initial states ===
@@ -46,7 +46,7 @@ X0 = np.array([0.1, 10.0, 0.0])
 prev_disturbance = np.zeros(3)
 
 Q = np.diag([100.0, 1e-3, 1e-3])
-R = np.diag([10.0, 1e-1])
+R = np.diag([100.0, 1e-1])
 
 def create_nominal_z_ocp() -> AcadosOcp:
     # === Create OCP object and configure ===
@@ -194,7 +194,7 @@ def closed_loop_simulation():
     acados_integrator_x = AcadosSimSolver(ocp_x)
 
     # prep sim
-    Nsim = 1500
+    Nsim = 2000
     nx = ocp_z.model.x.rows()
     nu = ocp_z.model.u.rows()
 
