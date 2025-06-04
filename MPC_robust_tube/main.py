@@ -37,16 +37,14 @@ T_horizon = N_horizon * ts
 
 # === References and initial states ===
 Omega_ref = min(1.267, round(params.wind_speed*7.0 / params.radius, 3))
-# Z0 = np.array([1e-6, 1e-6, 1e-6])
-# X0 = np.array([1e-6, 1e-6, 1e-6])
 # adjusted starting point to be well within the robust set
 Z0 = np.array([0.1, 2.0, 0.0])
 X0 = np.array([0.1, 2.0, 0.0])
 
 prev_disturbance = np.zeros(3)
 
-Q = np.diag([100.0, 1e-6, 1e-3])
-R = np.diag([100.0, 1e-1])
+Q = np.diag([100.0, 1e-6, 1e-2])
+R = np.diag([10.0, 1e-3])
 
 def create_nominal_z_ocp() -> AcadosOcp:
     # === Create OCP object and configure ===

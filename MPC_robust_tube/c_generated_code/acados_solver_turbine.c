@@ -637,9 +637,9 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
     // change only the non-zero elements:
     W_0[0+(NY0) * 0] = 100;
     W_0[1+(NY0) * 1] = 0.000001;
-    W_0[2+(NY0) * 2] = 0.001;
-    W_0[3+(NY0) * 3] = 100;
-    W_0[4+(NY0) * 4] = 0.1;
+    W_0[2+(NY0) * 2] = 0.01;
+    W_0[3+(NY0) * 3] = 10;
+    W_0[4+(NY0) * 4] = 0.001;
     ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, 0, "W", W_0);
     free(W_0);
     double* Vx_0 = calloc(NY0*NX, sizeof(double));
@@ -667,9 +667,9 @@ void turbine_acados_setup_nlp_in(turbine_solver_capsule* capsule, const int N, d
     // change only the non-zero elements:
     W[0+(NY) * 0] = 100;
     W[1+(NY) * 1] = 0.000001;
-    W[2+(NY) * 2] = 0.001;
-    W[3+(NY) * 3] = 100;
-    W[4+(NY) * 4] = 0.1;
+    W[2+(NY) * 2] = 0.01;
+    W[3+(NY) * 3] = 10;
+    W[4+(NY) * 4] = 0.001;
 
     for (int i = 1; i < N; i++)
     {
