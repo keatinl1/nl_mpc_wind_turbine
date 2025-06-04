@@ -77,8 +77,8 @@ int main()
     double ubx0[NBX0];
     lbx0[0] = 0.1;
     ubx0[0] = 0.1;
-    lbx0[1] = 10;
-    ubx0[1] = 10;
+    lbx0[1] = 2;
+    ubx0[1] = 2;
     lbx0[2] = 0;
     ubx0[2] = 0;
 

@@ -32,7 +32,7 @@ stage_set = ZSet()
 
 # === Time settings ===
 ts = 0.05
-N_horizon = 800
+N_horizon = 400
 T_horizon = N_horizon * ts
 
 # === References and initial states ===
@@ -40,12 +40,12 @@ Omega_ref = min(1.267, round(params.wind_speed*7.0 / params.radius, 3))
 # Z0 = np.array([1e-6, 1e-6, 1e-6])
 # X0 = np.array([1e-6, 1e-6, 1e-6])
 # adjusted starting point to be well within the robust set
-Z0 = np.array([0.1, 10.0, 0.0])
-X0 = np.array([0.1, 10.0, 0.0])
+Z0 = np.array([0.1, 2.0, 0.0])
+X0 = np.array([0.1, 2.0, 0.0])
 
 prev_disturbance = np.zeros(3)
 
-Q = np.diag([100.0, 1e-3, 1e-3])
+Q = np.diag([100.0, 1e-6, 1e-3])
 R = np.diag([100.0, 1e-1])
 
 def create_nominal_z_ocp() -> AcadosOcp:
@@ -125,6 +125,9 @@ def create_actual_x_ocp() -> AcadosOcp:
     # === Horizon === 
     ocp.solver_options.N_horizon = N_horizon
     ocp.solver_options.tf = T_horizon
+
+    # Q_s = np.diag([10.0, 1e-6, 1e-3])
+    # R_s = np.diag([1.0, 1e-6])
 
     # === Cost weights ===
     ocp.cost.W = scipy.linalg.block_diag(Q, R)
