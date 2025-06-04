@@ -19,7 +19,7 @@ import control
 # === Project modules ===
 from acados_template import AcadosOcp, AcadosOcpSolver, AcadosSimSolver
 from src.turbine_model import export_robot_model
-from src.set.set_load import ZfSet, ZSet
+from src.set.set_load_new import ZfSet, ZSet
 from src.linear_model import LinearModel
 from src.parameters import Jonkman
 from utils import plot_robot
@@ -32,13 +32,17 @@ stage_set = ZSet()
 
 # === Time settings ===
 ts = 0.05
-N_horizon = 300
+N_horizon = 600
 T_horizon = N_horizon * ts
 
 # === References and initial states ===
 Omega_ref = min(1.267, round(params.wind_speed*7.0 / params.radius, 3))
-Z0 = np.array([1e-6, 1e-6, 1e-6])
-X0 = np.array([1e-6, 1e-6, 1e-6])
+# Z0 = np.array([1e-6, 1e-6, 1e-6])
+# X0 = np.array([1e-6, 1e-6, 1e-6])
+# adjusted starting point to be well within the robust set
+Z0 = np.array([0.1, 10.0, 0.0])
+X0 = np.array([0.1, 10.0, 0.0])
+
 prev_disturbance = np.zeros(3)
 
 Q = np.diag([100.0, 1e-3, 1e-3])
@@ -54,9 +58,6 @@ def create_nominal_z_ocp() -> AcadosOcp:
     nu = model.u.rows() 
     ny = nx + nu
     ny_e = nx
-
-    # Q = np.diag([100.0, 1e-3, 1e-3])
-    # R = np.diag([1.0, 1e-3])
 
     # === Horizon === 
     ocp.solver_options.N_horizon = N_horizon
@@ -84,10 +85,10 @@ def create_nominal_z_ocp() -> AcadosOcp:
     ocp.cost.yref_e = np.zeros((ny_e,))
 
     # === Constraints: State ===
-    # ocp.constraints.C = stage_set.A
-    # ocp.constraints.lg = -1e10 * np.ones_like(stage_set.b)
-    # ocp.constraints.ug = stage_set.b.transpose()
-    # ocp.constraints.D = np.zeros((stage_set.A.shape[0], nu)) # D is necessary for stage
+    ocp.constraints.C = stage_set.A
+    ocp.constraints.lg = -1e10 * np.ones_like(stage_set.b)
+    ocp.constraints.ug = stage_set.b.transpose()
+    ocp.constraints.D = np.zeros((stage_set.A.shape[0], nu)) # D is necessary for stage
 
     # === Constraints: Input ===
     ocp.constraints.idxbu = np.array([0, 1])
@@ -120,9 +121,6 @@ def create_actual_x_ocp() -> AcadosOcp:
     nu = model.u.rows() 
     ny = nx + nu
     ny_e = nx
-
-    # Q = np.diag([1.0, 1e-1, 1e-3])
-    # R = np.diag([1.0, 1e-6])
 
     # === Horizon === 
     ocp.solver_options.N_horizon = N_horizon
@@ -177,7 +175,7 @@ def create_actual_x_ocp() -> AcadosOcp:
     return ocp
 
 def get_disturbance():
-    d0 = np.random.uniform(-0.4, 0.4)    # Omega
+    d0 = np.random.uniform(-0.01, 0.01)    # Omega
     d1 = np.random.uniform(-1.0, 1.0)    # Theta
     d2 = np.random.uniform(-0.47, 0.47)  # Qg
     return np.array([d0, d1, d2])
@@ -196,7 +194,7 @@ def closed_loop_simulation():
     acados_integrator_x = AcadosSimSolver(ocp_x)
 
     # prep sim
-    Nsim = 2000
+    Nsim = 1500
     nx = ocp_z.model.x.rows()
     nu = ocp_z.model.u.rows()
 
