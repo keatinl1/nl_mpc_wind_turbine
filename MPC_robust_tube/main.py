@@ -32,7 +32,7 @@ stage_set = ZSet()
 
 # === Time settings ===
 ts = 0.05
-N_horizon = 100
+N_horizon = 300
 T_horizon = N_horizon * ts
 
 # === References and initial states ===
@@ -42,7 +42,7 @@ X0 = np.array([1e-6, 1e-6, 1e-6])
 prev_disturbance = np.zeros(3)
 
 Q = np.diag([100.0, 1e-3, 1e-3])
-R = np.diag([1.0, 1e-3])
+R = np.diag([10.0, 1e-1])
 
 def create_nominal_z_ocp() -> AcadosOcp:
     # === Create OCP object and configure ===
@@ -89,10 +89,10 @@ def create_nominal_z_ocp() -> AcadosOcp:
     # ocp.constraints.ug = stage_set.b.transpose()
     # ocp.constraints.D = np.zeros((stage_set.A.shape[0], nu)) # D is necessary for stage
 
-    # # === Constraints: Input ===
-    # ocp.constraints.idxbu = np.array([0, 1])
-    # ocp.constraints.lbu = -np.array([params.max_pitch_rate, params.max_torque_rate])
-    # ocp.constraints.ubu =  np.array([params.max_pitch_rate, params.max_torque_rate])
+    # === Constraints: Input ===
+    ocp.constraints.idxbu = np.array([0, 1])
+    ocp.constraints.lbu = -np.array([params.max_pitch_rate, params.max_torque_rate])
+    ocp.constraints.ubu =  np.array([params.max_pitch_rate, params.max_torque_rate])
 
     # === Constraints: Terminal state ===
     ocp.constraints.C_e = terminal_set.A

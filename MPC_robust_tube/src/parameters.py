@@ -32,4 +32,3 @@ class Jonkman:
         # self.wind_speed = 8.0
         # self.wind_speed = 10.0
         # self.wind_speed = 25.0  # cut out wind speed
-
