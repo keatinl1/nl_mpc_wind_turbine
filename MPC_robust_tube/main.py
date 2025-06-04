@@ -32,7 +32,7 @@ stage_set = ZSet()
 
 # === Time settings ===
 ts = 0.05
-N_horizon = 400
+N_horizon = 200
 T_horizon = N_horizon * ts
 
 # === References and initial states ===
