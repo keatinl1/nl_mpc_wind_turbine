@@ -24,10 +24,12 @@ class Jonkman:
         # Turbine characteristics
         self.radius = 61.5 # length of a single blade = radius of rotor
         self.moment_o_inertia = 11776047.0*3 # think this is the correct value as MoI given is for one blade and this is 3
-        
-        # Environment 
+
+        # Environment
         self.air_density = 1.225
-        # self.wind_speed = 3.0   # cut in wind speed
-        self.wind_speed = 10.50
+        self.wind_speed = 3.0   # cut in wind speed
+        # self.wind_speed = 5.5
+        # self.wind_speed = 8.0
+        # self.wind_speed = 10.0
         # self.wind_speed = 25.0  # cut out wind speed
 

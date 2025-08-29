@@ -12,7 +12,7 @@ params = Jonkman()
 wind = params.wind_speed
 Omega_ref = min(1.267, round(wind*7.0 / params.radius, 3))
 
-N_horizon = 600
+N_horizon = 670
 ts = 0.05
 T_horizon = N_horizon * ts  # Define the horizon time
 
@@ -71,8 +71,25 @@ def create_ocp_solver_description() -> AcadosOcp:
     ocp.constraints.idxbx = np.array([0, 1, 2])
 
     # set terminal state constraints
-    ocp.constraints.lbx_e = np.array([Omega_ref, 0, -max_Qg])
-    ocp.constraints.ubx_e = np.array([Omega_ref, +max_theta, +max_Qg])
+    # ocp.constraints.lbx_e = np.array([Omega_ref, 0, -max_Qg])
+    # ocp.constraints.ubx_e = np.array([Omega_ref, 0, +max_Qg])
+
+    # 3ms
+    ocp.constraints.lbx_e = np.array([Omega_ref, 0, 2.68])
+    ocp.constraints.ubx_e = np.array([Omega_ref, 0, 2.68])
+
+    # 5.5ms
+    # ocp.constraints.lbx_e = np.array([Omega_ref, 0, 9.01])
+    # ocp.constraints.ubx_e = np.array([Omega_ref, 0, 9.01])
+
+    # 8ms
+    # ocp.constraints.lbx_e = np.array([Omega_ref, 0, 19.06])
+    # ocp.constraints.ubx_e = np.array([Omega_ref, 0, 19.06])
+
+    # 10ms
+    # ocp.constraints.lbx_e = np.array([Omega_ref, 0, 29.77])
+    # ocp.constraints.ubx_e = np.array([Omega_ref, 0, 29.77])
+
     ocp.constraints.idxbx_e = np.array([0, 1, 2])
 
     # set input constraints
@@ -105,7 +122,7 @@ def closed_loop_simulation():
     N_horizon = acados_ocp_solver.N
 
     # prepare simulation
-    Nsim = 2500
+    Nsim = 3000
     nx = ocp.model.x.rows()
     nu = ocp.model.u.rows()
 
@@ -149,7 +166,7 @@ def closed_loop_simulation():
             raise Exception(
                 f"acados acados_ocp_solver returned status {status} in closed loop instance {i} with {xcurrent}"
             )
-        
+
         L = xcurrent[0] * params.radius / params.wind_speed
         Li = 1 / (1 / (L + 0.08 * xcurrent[1]) - 0.035 / (xcurrent[1]**3 + 1))
         Cp1 = c1 * (c2 / Li - c3 * xcurrent[1] - c4)  # Using scaled theta here
@@ -179,6 +196,16 @@ def closed_loop_simulation():
     print("Achieved:  ", round(xcurrent[0], 4), "\n")
 
     print("Final state: ", xcurrent, "\n\nFinal power output: ", round(Pout, 2), "kW")
+
+    with open("sim_data.csv", "w", newline="") as f:
+        writer = csv.writer(f)
+        header = [f"x{i}" for i in range(simX.shape[1])] + [f"u{i}" for i in range(simU.shape[1])]
+        writer.writerow(header)
+        for i in range(Nsim):
+            row = simX[i].tolist() + simU[i].tolist()
+            writer.writerow(row)
+        # Add final state row with no input
+        writer.writerow(simX[Nsim].tolist() + [None] * simU.shape[1])
 
     plot_robot(
         Pwr_series, wind, Omega_ref, np.linspace(0, T_horizon / N_horizon * Nsim, Nsim + 1), [None, None],  simU, simX,
