@@ -2,6 +2,8 @@ import scipy.linalg
 import numpy as np
 import control
 
+import csv
+
 from acados_template import AcadosOcp, AcadosOcpSolver, AcadosSimSolver
 from parameters import Jonkman
 from terminal_components import Terminal
@@ -127,7 +129,7 @@ def closed_loop_simulation():
     N_horizon = acados_ocp_solver.N
 
     # prepare simulation
-    Nsim = 2500
+    Nsim = 3000
     nx = ocp.model.x.rows()
     nu = ocp.model.u.rows()
 
@@ -194,6 +196,16 @@ def closed_loop_simulation():
     print("100.0 % complete\n")
     print("Reference: ", Omega_ref)
     print("Achieved:  ", round(xcurrent[0], 4), "\n")
+
+    with open("sim_data3.csv", "w", newline="") as f:
+        writer = csv.writer(f)
+        header = [f"x{i}" for i in range(simX.shape[1])] + [f"u{i}" for i in range(simU.shape[1])]
+        writer.writerow(header)
+        for i in range(Nsim):
+            row = simX[i].tolist() + simU[i].tolist()
+            writer.writerow(row)
+        # Add final state row with no input
+        writer.writerow(simX[Nsim].tolist() + [None] * simU.shape[1])
 
     print("Final state: ", xcurrent, "\n\nFinal power output: ", round(Pout, 2), "kW")
 
