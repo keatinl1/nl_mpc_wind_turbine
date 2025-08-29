@@ -45,6 +45,16 @@ $$
   \Omega_{ref} = \frac{V*7}{R}
 $$
 
+The tip to wind speed ratio is taken as 7, as this is approximately where the peak power is for a variety of blade angles (denoted as $\beta$ here), see figure 1.
+
+<p align="center">
+  <kbd>
+    <img src="https://raw.githubusercontent.com/keatinl1/nl_mpc_wind_turbine/main/figs/pwr_vs_lambda.png">
+  </kbd>
+</p>
+<p align="center">
+Figure 1: Power coefficient vs. tip-speed-ratio [7].
+</p>
 
 ## Results
 
@@ -52,7 +62,7 @@ The nominal NMPC with a terminal set required a short horizon and still yielded 
 
 The tube-based robust NMPC was able to handle bounded disturbances, which is advantageous given the uncertain nature of wind. But this was at the cost of higher computation because of the need to solve two NMPC problems.
 
-The neural controller was resource-intensive to train, performed poorly in practice, violating constraints in some instances. Access to high-performance compute resources would enable more and faster training; without this, neural control is not a reliable alternative..
+The neural controller was resource-intensive to train, performed poorly in practice, violating constraints in some instances. Access to high-performance compute resources would enable more and faster training; without this, neural control is not a reliable alternative.
 
 <p align="center">
   <kbd>
@@ -60,7 +70,7 @@ The neural controller was resource-intensive to train, performed poorly in pract
   </kbd>
 </p>
 <p align="center">
-Figure 1: Angular velocity achieved by different controllers.
+Figure 2: Angular velocity achieved by different controllers.
 </p>
 
 ## Future work
@@ -80,3 +90,5 @@ Another potential direction within NMPC is a nominal controller with set constra
 [5] - J Jonkman, S Butterfield, W Musial, and G Scott. Definition of a 5-mw reference wind turbine for offshore system development. Technical report, National Renewable Energy Lab. (NREL), Golden, CO (United States), 02 2009.
 
 [6] - Magdi Ragheb. Optimal rotor tip speed ratio. https://users.wpi.edu/~cfurlong/me3320/DProject/Ragheb_OptTipSpeedRatio2014.pdf, 2014. Lecture notes of Course no. NPRE475, Accessed: 2025-06-20.
+
+[7] - Aljodah, Ammar & Alwan, Marwah. (2021). Robust Speed Control Methodology for Variable Speed Wind Turbines. 10.48550/arXiv.2106.07022. 
