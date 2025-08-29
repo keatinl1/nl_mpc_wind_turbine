@@ -5,10 +5,10 @@ from parameters import Jonkman
 from utils import plot_robot
 
 params = Jonkman()
-wind = 5.5 #params.wind_speed
+wind = params.wind_speed
 
 # Load your CSV
-df = pd.read_csv("results_dump5msnew.csv")
+df = pd.read_csv("results_dump8ms.csv")
 
 # Constants exactly from your closed_loop_simulation
 c1 = 0.5176
@@ -61,6 +61,8 @@ for i in range(len(time_points)):
 
     Pout = (0.5 * params.air_density * np.pi * (params.radius ** 2) * (params.wind_speed ** 3) * Cp) / 1000
     Pwr_series[i] = Pout
+
+print(Pout)
 
 # Now plot
 plot_robot(
