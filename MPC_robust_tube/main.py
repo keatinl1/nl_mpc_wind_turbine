@@ -15,6 +15,7 @@ date: 03/06/2025
 import scipy.linalg
 import numpy as np
 import control
+import csv
 
 # === Project modules ===
 from acados_template import AcadosOcp, AcadosOcpSolver, AcadosSimSolver
@@ -32,18 +33,18 @@ stage_set = ZSet()
 
 # === Time settings ===
 ts = 0.05
-N_horizon = 200
+N_horizon = 300
 T_horizon = N_horizon * ts
 
 # === References and initial states ===
 Omega_ref = min(1.267, round(params.wind_speed*7.0 / params.radius, 3))
 # adjusted starting point to be well within the robust set
-Z0 = np.array([0.1, 2.0, 0.0])
-X0 = np.array([0.1, 2.0, 0.0])
+Z0 = np.array([0.02, 2.0, 0.0])
+X0 = np.array([0.02, 2.0, 0.0])
 
 prev_disturbance = np.zeros(3)
 
-Q = np.diag([100.0, 1e-6, 1e-2])
+Q = np.diag([250.0, 1e-6, 1e-2])
 R = np.diag([10.0, 1e-3])
 
 def create_nominal_z_ocp() -> AcadosOcp:
@@ -195,7 +196,7 @@ def closed_loop_simulation():
     acados_integrator_x = AcadosSimSolver(ocp_x)
 
     # prep sim
-    Nsim = 2000
+    Nsim = 3000
     nx = ocp_z.model.x.rows()
     nu = ocp_z.model.u.rows()
 
@@ -274,6 +275,32 @@ def closed_loop_simulation():
     print("100.0 % complete\n")
     print("Reference: ", Omega_ref)
     print("Achieved:  ", round(xcurrent[0], 4), "\n")
+
+    c1 = 0.5176
+    c2 = 116
+    c3 = 0.4
+    c4 = 5
+    c5 = 21
+    c6 = 0.0068
+    L = xcurrent[0] * params.radius / params.wind_speed
+    Li = 1 / (1 / (L + 0.08 * xcurrent[1]) - 0.035 / (xcurrent[1]**3 + 1))
+    Cp1 = c1 * (c2 / Li - c3 * xcurrent[1] - c4)  # Using scaled theta here
+    Cp2 = np.exp(-c5 / Li)
+    Cp3 = c6 * L
+    Cp = Cp1 * Cp2 + Cp3
+
+    Pout = (0.5*params.air_density*np.pi*(params.radius**2)*(params.wind_speed**3)*Cp)/1000
+    print(Pout)
+
+    with open(str(params.wind_speed) + ".csv", "w", newline="") as f:
+        writer = csv.writer(f)
+        header = [f"x{i}" for i in range(simX.shape[1])] + [f"u{i}" for i in range(simU.shape[1])]
+        writer.writerow(header)
+        for i in range(Nsim):
+            row = simX[i].tolist() + simU[i].tolist()
+            writer.writerow(row)
+        # Add final state row with no input
+        writer.writerow(simX[Nsim].tolist() + [None] * simU.shape[1])
 
     print("Final state: ", xcurrent)
 
